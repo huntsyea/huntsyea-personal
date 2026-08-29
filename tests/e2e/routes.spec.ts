@@ -12,7 +12,11 @@ test.describe("production routes", () => {
     });
   }
 
-  for (const route of [siteRoutes.missingCategory, siteRoutes.missingPost]) {
+  for (const route of [
+    siteRoutes.missingCategory,
+    siteRoutes.missingPost,
+    "/examples",
+  ]) {
     test(`${route} returns the useful catalog 404`, async ({
       page,
       request,
@@ -29,6 +33,15 @@ test.describe("production routes", () => {
       ).toHaveAttribute("href", "/");
     });
   }
+
+  test("home intro comes from content/home.md", async ({ page }) => {
+    await page.goto(siteRoutes.home);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Sylph");
+    await expect(
+      page.getByRole("heading", { name: "Next.js Portfolio Starter" }),
+    ).toBeVisible();
+    await expect(page.getByText(/follow the posts below/)).toBeVisible();
+  });
 
   test("category, breadcrumb, and table-of-contents markup is semantic", async ({
     page,

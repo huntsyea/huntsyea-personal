@@ -4,43 +4,43 @@ import { Footer } from "@/components/footer";
 import * as FadeIn from "@/components/motion/staggers/fade";
 import { Posts } from "@/components/posts";
 import { contentCatalog } from "@/lib/content";
+import { renderMarkdown } from "@/lib/content/renderer";
 import { favoriteGroups } from "@/lib/favorites";
+import { readHomeIntro } from "@/lib/home";
 import { getDeployUrl } from "@/lib/site/profile";
 
 const Spacer = () => <div style={{ marginTop: "24px" }} />;
 
-export default function Home() {
+export default async function Home() {
+  const intro = readHomeIntro();
+  const title = intro?.title;
+  const tagline = intro?.tagline;
+  const body = intro?.body ? await renderMarkdown(intro.body) : undefined;
   const posts = contentCatalog.getCategory("posts");
-  const examples = contentCatalog.getCategory("examples");
+  const projects = contentCatalog.getCategory("projects");
+
   return (
     <FadeIn.Container>
-      <FadeIn.Item>
-        <div className="flex justify-between">
-          <div>
-            <h1>Sylph</h1>
-            <h2>Next.js Portfolio Starter</h2>
+      {(title || tagline) && (
+        <FadeIn.Item>
+          <div className="flex justify-between">
+            <div>
+              {title ? <h1>{title}</h1> : null}
+              {tagline ? <h2>{tagline}</h2> : null}
+            </div>
           </div>
-        </div>
-      </FadeIn.Item>
-      <Spacer />
-      <FadeIn.Item>
-        <p>
-          Sylph is a Next.js Portfolio Starter that you can use to create your
-          own portfolio website. It is designed to be minimal, lightweight, and
-          fast. It is also highly customizable, so you can easily make it your
-          own. Sylph is perfect for developers, designers, and other creatives
-          who want to showcase their work. To start using Sylph, you can follow
-          the guides below.
-        </p>
-      </FadeIn.Item>
+        </FadeIn.Item>
+      )}
+      {(title || tagline) && <Spacer />}
+      {body ? <FadeIn.Item>{body}</FadeIn.Item> : null}
       {posts && (
         <FadeIn.Item>
           <Posts category={posts} />
         </FadeIn.Item>
       )}
-      {examples && (
+      {projects && (
         <FadeIn.Item>
-          <Posts category={examples} />
+          <Posts category={projects} />
         </FadeIn.Item>
       )}
       <FadeIn.Item>

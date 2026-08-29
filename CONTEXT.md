@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Sylph is a minimal, customizable Next.js portfolio and publishing starter. It renders repository-authored posts and examples as a statically discoverable site with theme-aware MDX, metadata, social cards, and deployment defaults.
+Sylph is a minimal, customizable Next.js portfolio and publishing starter. It renders repository-authored posts and projects as a statically discoverable site with theme-aware MDX, metadata, social cards, and deployment defaults. `content/home.md` is the homepage intro, not a Post.
 
 ## Domain glossary
 
@@ -20,7 +20,7 @@ A curated outbound link to an external article or resource. Favorites are author
 
 ### Category
 
-A named collection of Posts exposed at one route segment, such as posts or examples. Categories are repository-authored and must resolve to a deterministic static route inventory.
+A named collection of Posts exposed at one route segment, such as posts or projects. Categories are repository-authored and must resolve to a deterministic static route inventory.
 
 ### Post
 
