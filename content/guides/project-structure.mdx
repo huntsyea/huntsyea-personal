@@ -1,0 +1,76 @@
+---
+title: "Project Structure"
+summary: "How Sylph discovers content and maps it to static App Router pages."
+author:
+  name: "Raphael Salaja"
+  link: "https://twitter.com/raphaelsalaja"
+  handle: "raphaelsalaja"
+time:
+  created: "2024-09-30T14:11:11.816Z"
+  updated: "2026-08-23T12:00:00.000Z"
+---
+
+## Content and Routes
+
+Authored posts live outside the route tree. Each route-safe folder under `content/` is a category, and each `.md` or `.mdx` file becomes a post:
+
+```text
+content/
+  guides/
+    getting-started.mdx
+  examples/
+    component-showcase.mdx
+```
+
+The shared App Router segments in `app/(posts)/[category]/` generate every valid category and post route from the content catalog. Adding a category does not require copying route or metadata modules.
+
+Unknown category and post values are not generated and return the not-found experience. Catalog validation failures stop the build instead of being translated into missing content.
+
+## Adding a Category
+
+1. Create a lowercase, route-safe folder such as `content/notes/`.
+2. Add one or more `.md` or `.mdx` files with route-safe filenames.
+3. Add the required frontmatter and begin authored sections at `##`.
+4. Run `pnpm test` and `SITE_URL=https://example.com pnpm build`.
+
+The folder may be empty, but nested directories, unsupported visible files, duplicate `.md`/`.mdx` slugs, and malformed frontmatter are rejected.
+
+## Frontmatter
+
+The catalog derives the category and slug from the content path. Do not repeat them in frontmatter.
+
+```yaml
+---
+title: "Understanding Frontmatter"
+summary: "A route-specific description."
+author:
+  name: "Your Name"
+  link: "https://example.com"
+  handle: "yourhandle"
+time:
+  created: "2026-08-23T12:00:00.000Z"
+  updated: "2026-08-23T12:00:00.000Z"
+seo:
+  title: "Understanding Frontmatter"
+  description: "A search-specific description."
+  keywords: ["MDX", "Next.js"]
+---
+```
+
+`title` and both ISO timestamps are required. `updated` cannot precede `created`. Optional `summary`, `author`, `media`, and `seo` values are validated strictly; unknown fields fail verification with the source path and field-level reason.
+
+## Trusted MDX
+
+Register supported custom components in `mdx-components.tsx`. The renderer compiles repository-authored MDX on the server and derives the table-of-contents outline from the same syntax tree.
+
+See [Getting Started](/guides/getting-started) for the complete setup and verification commands, and consult the [Next.js documentation](https://nextjs.org/docs/app) for framework details.
+
+Post titles supply the only page-level heading, so content begins with `##`. JavaScript expressions and MDX imports or exports are rejected. Interactive custom elements should stay small client islands so the post body remains server-rendered.
+
+## Domain Modules
+
+- `lib/content/` owns validation, discovery, ordering, lookup, adjacency, inventory, and MDX rendering.
+- `lib/site/` owns canonical identity and shared metadata construction.
+- Native App Router metadata files generate Open Graph images, robots policy, and the sitemap from those two sources of truth.
+
+The routing decision is recorded in `docs/adr/0001-content-category-routing.md`.

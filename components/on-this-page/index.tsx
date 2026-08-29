@@ -1,0 +1,97 @@
+"use client";
+
+import type { HeadingOutlineItem } from "@/lib/content/types";
+
+import { cn } from "@/lib/cn";
+
+import { useEffect, useState } from "react";
+
+interface TableOfContentsProps {
+  outline: readonly HeadingOutlineItem[];
+}
+
+export const TableOfContents = ({ outline }: TableOfContentsProps) => {
+  const [visibleHeadings, setVisibleHeadings] = useState<Set<string>>(
+    new Set(),
+  );
+
+  useEffect(() => {
+    const handleIntersection = (entries: IntersectionObserverEntry[]) => {
+      setVisibleHeadings((current) => {
+        const next = new Set(current);
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            next.add(entry.target.id);
+          } else {
+            next.delete(entry.target.id);
+          }
+        }
+
+        return setsEqual(current, next) ? current : next;
+      });
+    };
+
+    const observer = new IntersectionObserver(handleIntersection, {
+      root: null,
+      threshold: 0,
+    });
+
+    for (const heading of outline) {
+      const element = document.getElementById(heading.id);
+      if (element) {
+        observer.observe(element);
+      }
+    }
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [outline]);
+
+  if (outline.length === 0) {
+    return null;
+  }
+
+  return (
+    <nav
+      aria-label="On this page"
+      className={cn(
+        "top-[10rem] right-auto left-[2rem] hidden",
+        "xl:top-[6rem] xl:right-[6rem] xl:left-auto xl:block",
+        "fixed mt-0 h-full w-48 justify-start space-y-4",
+      )}
+    >
+      <ol className="mt-0 flex flex-col gap-0">
+        {outline.map((heading) => (
+          <li key={heading.id} className="mt-0 list-none">
+            <a
+              href={`#${heading.id}`}
+              className={cn({
+                "mt-0 ml-2 border-l border-l-gray-4 py-1 text-left text-muted opacity-100 transition ease-in-out hover:opacity-50": true,
+                "font-medium text-gray-12": visibleHeadings.has(heading.id),
+                "pl-4": heading.level === 2,
+                "pl-6": heading.level === 3,
+                "pl-7": heading.level >= 4,
+                "border-l border-l-gray-12": visibleHeadings.has(heading.id),
+              })}
+              aria-current={
+                visibleHeadings.has(heading.id) ? "location" : undefined
+              }
+            >
+              {heading.text}
+            </a>
+          </li>
+        ))}
+      </ol>
+    </nav>
+  );
+};
+
+function setsEqual(
+  left: ReadonlySet<string>,
+  right: ReadonlySet<string>,
+): boolean {
+  return (
+    left.size === right.size && [...left].every((value) => right.has(value))
+  );
+}
