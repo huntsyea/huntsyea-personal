@@ -1,3 +1,13 @@
+import "server-only";
+
+import { isValidContentSegment } from "@/lib/content/schema";
+
+import fs from "node:fs";
+import path from "node:path";
+
+import matter from "gray-matter";
+import { z } from "zod";
+
 export type Favorite = {
   title: string;
   href: string;
@@ -12,82 +22,112 @@ export type FavoriteGroup = {
 export const favoritesDescription =
   "External articles and resources Hunter keeps coming back to.";
 
-// ponytail: a typed const is the ceiling for this curated outbound list.
-// Upgrade to a catalog category or CMS if favorites need MDX bodies,
-// editorial workflow, or more than a short static inventory.
-export const favoriteGroups = [
-  {
-    title: "Articles",
-    items: [
-      {
-        title: "Designing for the Web Ought to Mean Making HTML and CSS",
-        href: "https://chriscoyier.net/2025/01/05/designing-for-the-web/",
-        note: "Chris makes a compelling case for designers learning to work directly with the materials of the web.",
-      },
-      {
-        title: "The Grug Brained Developer",
-        href: "https://grugbrain.dev/",
-        note: "A satirical but insightful take on software complexity.",
-      },
-      {
-        title: "Taste Is Eating Silicon Valley",
-        href: "https://www.workingtheorys.com/p/taste-is-eating-silicon-valley",
-        note: "As technical barriers lower, aesthetic judgment becomes the differentiator.",
-      },
-      {
-        title: "Writing Tools I Learned from The Economist",
-        href: "https://www.writingruxandrabio.com/p/writing-tools-i-learned-from-the",
-        note: "Practical writing techniques from one of the world's most respected publications.",
-      },
-      {
-        title: "The UX of UUIDs",
-        href: "https://unkey.dev/blog/uuid-ux",
-        note: "Small details in technical design have real UX implications.",
-      },
-      {
-        title: "The Technium: 1000 True Fans",
-        href: "https://kk.org/thetechnium/1000-true-fans/",
-        note: "Kevin Kelly's classic essay on the economics of creative work.",
-      },
-      {
-        title: "Maker's Schedule, Manager's Schedule",
-        href: "http://www.paulgraham.com/makersschedule.html",
-        note: "Paul Graham's essay on why creative work requires different time structures.",
-      },
-      {
-        title: "How to Do Great Work",
-        href: "http://www.paulgraham.com/greatwork.html",
-        note: "A comprehensive guide to doing work that matters.",
-      },
-      {
-        title: "Stevey's Google Platforms Rant",
-        href: "https://gist.github.com/chitchcock/1281611",
-        note: "Steve Yegge's accidentally public rant about Google vs Amazon's approach to platforms.",
-      },
-    ],
-  },
-  {
-    title: "Resources",
-    items: [
-      {
-        title: "A Software Design Blog You'll Actually Read",
-        href: "https://www.hillelwayne.com/",
-        note: "Hillel Wayne writes about formal methods and software correctness in surprisingly accessible ways.",
-      },
-      {
-        title: "Shape Up: Stop Running in Circles",
-        href: "https://basecamp.com/shapeup",
-        note: "Basecamp's product development methodology.",
-      },
-      {
-        title: "Refactoring UI",
-        href: "https://www.refactoringui.com/",
-        note: "Practical design tips for developers.",
-      },
-    ],
-  },
-] satisfies readonly FavoriteGroup[];
+const favoriteFrontmatterSchema = z.object({
+  title: z.string().trim().min(1),
+  href: z.url(),
+  note: z.string().trim().min(1),
+  group: z.string().trim().min(1),
+});
+
+const preferredGroupOrder = ["Articles", "Resources"];
+
+const defaultFavoritesDirectory = path.join(
+  process.cwd(),
+  "content",
+  "favorites",
+);
+
+export function readFavoriteGroups(
+  favoritesDirectory = defaultFavoritesDirectory,
+): readonly FavoriteGroup[] {
+  const files = listFavoriteFiles(favoritesDirectory);
+  const groups = new Map<string, Favorite[]>();
+
+  for (const filename of files) {
+    const favorite = readFavorite(favoritesDirectory, filename);
+    const items = groups.get(favorite.group) ?? [];
+    items.push({
+      title: favorite.title,
+      href: favorite.href,
+      note: favorite.note,
+    });
+    groups.set(favorite.group, items);
+  }
+
+  return [...groups.keys()].sort(compareGroupTitles).map((title) => ({
+    title,
+    items: groups.get(title) ?? [],
+  }));
+}
+
+export const favoriteGroups = readFavoriteGroups();
 
 export const favorites: readonly Favorite[] = favoriteGroups.flatMap(
   (group) => group.items,
 );
+
+function listFavoriteFiles(favoritesDirectory: string): string[] {
+  let entries: fs.Dirent[];
+  try {
+    entries = fs.readdirSync(favoritesDirectory, { withFileTypes: true });
+  } catch (error) {
+    if (isMissingPath(error)) {
+      return [];
+    }
+
+    throw error;
+  }
+
+  return entries
+    .filter(
+      (entry) =>
+        entry.isFile() &&
+        !entry.name.startsWith(".") &&
+        path.extname(entry.name) === ".md",
+    )
+    .map((entry) => entry.name)
+    .sort((left, right) => left.localeCompare(right));
+}
+
+function readFavorite(
+  favoritesDirectory: string,
+  filename: string,
+): Favorite & { group: string } {
+  const sourcePath = path.join(favoritesDirectory, filename);
+  const slug = path.basename(filename, ".md");
+
+  if (!isValidContentSegment(slug)) {
+    throw new Error(
+      `Invalid favorite filename "${sourcePath}". Slugs must use lowercase letters, numbers, and hyphens.`,
+    );
+  }
+
+  const parsed = matter(fs.readFileSync(sourcePath, "utf8"));
+  const result = favoriteFrontmatterSchema.safeParse(parsed.data);
+  if (!result.success) {
+    const reasons = z.prettifyError(result.error).replaceAll("\n", "; ");
+    throw new Error(
+      `Invalid favorite frontmatter in "${sourcePath}": ${reasons}`,
+    );
+  }
+
+  return result.data;
+}
+
+function compareGroupTitles(left: string, right: string): number {
+  const leftRank = preferredGroupOrder.indexOf(left);
+  const rightRank = preferredGroupOrder.indexOf(right);
+  const leftOrder = leftRank === -1 ? preferredGroupOrder.length : leftRank;
+  const rightOrder = rightRank === -1 ? preferredGroupOrder.length : rightRank;
+
+  return leftOrder - rightOrder || left.localeCompare(right);
+}
+
+function isMissingPath(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    error.code === "ENOENT"
+  );
+}

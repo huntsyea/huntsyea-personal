@@ -18,7 +18,7 @@ The starter has one real content source: trusted files committed under the repos
 - Both segments use catalog-backed `generateStaticParams` and `dynamicParams = false`.
 - The catalog owns deterministic ordering, lookup outcomes, adjacent navigation, and the complete route/sitemap inventory.
 - Unknown categories and posts are explicit lookup outcomes translated to `notFound()` by routes. Empty categories remain valid. Ingestion failures propagate and fail verification.
-- Filesystem access stays private to the catalog. The public factory accepts a fixture root for tests but is not an adapter interface.
+- Post and Category filesystem access stays private to `ContentCatalog`. Favorites use a separate server-only reader because they are neither Posts nor Categories. The public factory accepts a fixture root for tests but is not an adapter interface.
 - Trusted MDX is compiled on the server through one renderer. Authored post sections begin below the route-owned `h1`; MDX imports, exports, and JavaScript expressions are unsupported.
 
 ## Consequences
@@ -28,3 +28,8 @@ The starter has one real content source: trusted files committed under the repos
 - Invalid content fails early with source-specific diagnostics instead of disappearing.
 - Categories are static deployment inputs. Request-time filesystem traversal and remote/user-authored MDX are intentionally unsupported.
 - A content adapter abstraction should be introduced only if a second real source is added and its requirements are known.
+
+<!--
+Change log
+- 2026-08-29: Clarified filesystem ownership after PR #1 added markdown-authored Favorites through a separate server-only reader.
+-->
