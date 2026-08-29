@@ -54,9 +54,9 @@ describe("ContentCatalog", () => {
         ),
     ).toEqual([
       "category:posts",
-      "category:projects",
       "post:posts/newer",
       "post:posts/older",
+      "category:projects",
     ]);
     expect(
       catalog.listPosts().map((post) => `${post.category}/${post.slug}`),
