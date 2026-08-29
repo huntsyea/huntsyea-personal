@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import { Favorites } from "@/components/favorites";
-import { favoritesDescription } from "@/lib/favorites";
+import { favoriteGroups, favoritesDescription } from "@/lib/favorites";
 import { createSiteMetadata } from "@/lib/site/profile";
 
 export const metadata: Metadata = createSiteMetadata({
@@ -11,5 +11,5 @@ export const metadata: Metadata = createSiteMetadata({
 });
 
 export default function Page() {
-  return <Favorites asPage />;
+  return <Favorites groups={favoriteGroups} asPage />;
 }

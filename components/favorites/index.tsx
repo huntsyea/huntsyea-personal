@@ -1,11 +1,11 @@
-import type { Favorite } from "@/lib/favorites";
+import type { Favorite, FavoriteGroup } from "@/lib/favorites";
 
 import Link from "@/components/link";
-import { favoriteGroups, favorites } from "@/lib/favorites";
 
 import { Link as NextViewTransition } from "next-view-transitions";
 
 interface FavoritesProps {
+  groups: readonly FavoriteGroup[];
   asPage?: boolean;
 }
 
@@ -28,7 +28,8 @@ function FavoriteRows({ items }: { items: readonly Favorite[] }) {
   );
 }
 
-export const Favorites = ({ asPage = false }: FavoritesProps) => {
+export const Favorites = ({ groups, asPage = false }: FavoritesProps) => {
+  const favorites = groups.flatMap((group) => group.items);
   const count = favorites.length;
 
   return (
@@ -44,7 +45,7 @@ export const Favorites = ({ asPage = false }: FavoritesProps) => {
       )}
 
       {asPage ? (
-        favoriteGroups.map((group, index) => (
+        groups.map((group, index) => (
           <div key={group.title} className={index > 0 ? "mt-6" : undefined}>
             <h2 className="py-2 text-muted">{group.title}</h2>
             <FavoriteRows items={group.items} />

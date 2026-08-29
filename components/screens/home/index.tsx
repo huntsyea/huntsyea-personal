@@ -4,6 +4,7 @@ import { Footer } from "@/components/footer";
 import * as FadeIn from "@/components/motion/staggers/fade";
 import { Posts } from "@/components/posts";
 import { contentCatalog } from "@/lib/content";
+import { favoriteGroups } from "@/lib/favorites";
 import { getDeployUrl } from "@/lib/site/profile";
 
 const Spacer = () => <div style={{ marginTop: "24px" }} />;
@@ -43,7 +44,7 @@ export default function Home() {
         </FadeIn.Item>
       )}
       <FadeIn.Item>
-        <Favorites />
+        <Favorites groups={favoriteGroups} />
       </FadeIn.Item>
       <Spacer />
       <FadeIn.Item>
