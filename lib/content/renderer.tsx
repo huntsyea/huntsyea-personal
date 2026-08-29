@@ -35,6 +35,22 @@ type HeadingNode = {
   children?: readonly HeadingNode[];
 };
 
+export async function renderMarkdown(source: string): Promise<React.ReactNode> {
+  const { content } = await compileMDX({
+    source,
+    components: mdxComponents,
+    options: {
+      parseFrontmatter: false,
+      blockJS: true,
+      mdxOptions: {
+        remarkPlugins: [remarkGfm],
+      },
+    },
+  });
+
+  return content;
+}
+
 export async function renderPost(post: ContentPost): Promise<RenderedPost> {
   const outline: HeadingOutlineItem[] = [];
   try {

@@ -25,7 +25,11 @@ describe("ContentCatalog", () => {
       title: "Newer",
       created: "2024-02-01T00:00:00.000Z",
     });
-    fs.mkdirSync(path.join(root, "examples"));
+    fs.mkdirSync(path.join(root, "projects"));
+    fs.writeFileSync(
+      path.join(root, "home.md"),
+      "---\ntitle: Sylph\ntagline: Intro\n---\n\nNot a category.\n",
+    );
 
     const catalog = createContentCatalog({ contentRoot: root });
 
@@ -37,8 +41,8 @@ describe("ContentCatalog", () => {
           category.posts.map((post) => post.slug),
         ]),
     ).toEqual([
-      ["examples", []],
       ["posts", ["newer", "older"]],
+      ["projects", []],
     ]);
     expect(
       catalog
@@ -49,14 +53,15 @@ describe("ContentCatalog", () => {
             : `post:${entry.post.category}/${entry.post.slug}`,
         ),
     ).toEqual([
-      "category:examples",
       "category:posts",
+      "category:projects",
       "post:posts/newer",
       "post:posts/older",
     ]);
     expect(
       catalog.listPosts().map((post) => `${post.category}/${post.slug}`),
     ).toEqual(["posts/newer", "posts/older"]);
+    expect(catalog.getCategory("home")).toBeUndefined();
   });
 
   it("looks up posts and calculates adjacent posts without changing catalog ordering", () => {
