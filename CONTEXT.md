@@ -16,7 +16,7 @@ The validated canonical identity of a Site: origin, name, description, locale, s
 
 ### Favorite
 
-A curated outbound link to an external article or resource. Favorites are a typed, repository-authored list — not Posts, not a Category, and not part of the Content catalog.
+A curated outbound link to an external article or resource. Favorites are authored as markdown files under `content/favorites` — not Posts, not a Category, and not part of the Content catalog.
 
 ### Category
 

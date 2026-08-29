@@ -22,6 +22,7 @@ import matter from "gray-matter";
 import { z } from "zod";
 
 const contentExtensions = new Set([".md", ".mdx"]);
+const reservedCategoryDirectory = "favorites";
 
 export class ContentCatalogError extends Error {
   constructor(message: string, options?: ErrorOptions) {
@@ -110,7 +111,10 @@ export class ContentCatalog {
   private readCategories(): readonly ContentCategory[] {
     const entries = this.readDirectory(this.contentDirectory, "content root");
     const categoryDirectories = entries
-      .filter((entry) => entry.isDirectory())
+      .filter(
+        (entry) =>
+          entry.isDirectory() && entry.name !== reservedCategoryDirectory,
+      )
       .sort((left, right) => left.name.localeCompare(right.name));
 
     return categoryDirectories.map((entry) => {

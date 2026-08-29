@@ -20,37 +20,35 @@ const postTimeSchema = z
     }
   });
 
-export const postFrontmatterSchema = z
-  .object({
-    title: z.string().trim().min(1),
-    summary: z.string().trim().min(1).optional(),
-    author: z
-      .object({
-        name: z.string().trim().min(1).optional(),
-        link: optionalUrl,
-        handle: z.string().trim().min(1).optional(),
-      })
-      .strict()
-      .optional(),
-    time: postTimeSchema,
-    media: z
-      .object({
-        image: z.string().trim().min(1).optional(),
-        video: z.string().trim().min(1).optional(),
-        audio: z.string().trim().min(1).optional(),
-      })
-      .strict()
-      .optional(),
-    seo: z
-      .object({
-        title: z.string().trim().min(1).optional(),
-        description: z.string().trim().min(1).optional(),
-        keywords: z.array(z.string().trim().min(1)).optional(),
-      })
-      .strict()
-      .optional(),
-  })
-  .strict();
+export const postFrontmatterSchema = z.object({
+  title: z.string().trim().min(1),
+  summary: z.string().trim().min(1).optional(),
+  author: z
+    .object({
+      name: z.string().trim().min(1).optional(),
+      link: optionalUrl,
+      handle: z.string().trim().min(1).optional(),
+    })
+    .strict()
+    .optional(),
+  time: postTimeSchema,
+  media: z
+    .object({
+      image: z.string().trim().min(1).optional(),
+      video: z.string().trim().min(1).optional(),
+      audio: z.string().trim().min(1).optional(),
+    })
+    .strict()
+    .optional(),
+  seo: z
+    .object({
+      title: z.string().trim().min(1).optional(),
+      description: z.string().trim().min(1).optional(),
+      keywords: z.array(z.string().trim().min(1)).optional(),
+    })
+    .strict()
+    .optional(),
+});
 
 export type PostFrontmatter = z.infer<typeof postFrontmatterSchema>;
 

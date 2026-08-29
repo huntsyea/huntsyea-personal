@@ -72,7 +72,9 @@ test.describe("production routes", () => {
 
     const outbound = page.locator('main a[target="_blank"]');
     await expect(outbound).toHaveCount(12);
-    await expect(outbound.first()).toHaveAttribute(
+    await expect(
+      page.getByRole("link", { name: /Designing for the Web/ }),
+    ).toHaveAttribute(
       "href",
       "https://chriscoyier.net/2025/01/05/designing-for-the-web/",
     );
