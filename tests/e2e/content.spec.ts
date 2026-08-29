@@ -3,13 +3,13 @@ import { expect, test } from "@playwright/test";
 test("MDX links preserve internal, fragment, and external intent", async ({
   page,
 }) => {
-  await page.goto("/guides/project-structure");
+  await page.goto("/posts/project-structure");
 
   const internal = page.getByRole("link", {
     name: "Getting Started",
     exact: true,
   });
-  await expect(internal).toHaveAttribute("href", "/guides/getting-started");
+  await expect(internal).toHaveAttribute("href", "/posts/getting-started");
   await expect(internal).not.toHaveAttribute("target", "_blank");
 
   const external = page.getByRole("link", { name: "Next.js documentation" });
@@ -21,7 +21,7 @@ test("content images use the optimizer and reject unconfigured origins", async (
   page,
   request,
 }) => {
-  await page.goto("/guides/basic-writing-and-formatting-syntax");
+  await page.goto("/posts/basic-writing-and-formatting-syntax");
 
   const image = page.getByRole("img", { name: "Placeholder" });
   await expect(image).toHaveAttribute("src", /\/_next\/image\?url=/);

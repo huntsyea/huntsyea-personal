@@ -17,11 +17,11 @@ afterEach(() => {
 describe("ContentCatalog", () => {
   it("discovers categories and produces a deterministic complete inventory", () => {
     const root = createFixtureRoot();
-    writePost(root, "guides", "older", {
+    writePost(root, "posts", "older", {
       title: "Older",
       created: "2024-01-01T00:00:00.000Z",
     });
-    writePost(root, "guides", "newer", {
+    writePost(root, "posts", "newer", {
       title: "Newer",
       created: "2024-02-01T00:00:00.000Z",
     });
@@ -38,7 +38,7 @@ describe("ContentCatalog", () => {
         ]),
     ).toEqual([
       ["examples", []],
-      ["guides", ["newer", "older"]],
+      ["posts", ["newer", "older"]],
     ]);
     expect(
       catalog
@@ -50,58 +50,58 @@ describe("ContentCatalog", () => {
         ),
     ).toEqual([
       "category:examples",
-      "category:guides",
-      "post:guides/newer",
-      "post:guides/older",
+      "category:posts",
+      "post:posts/newer",
+      "post:posts/older",
     ]);
     expect(
       catalog.listPosts().map((post) => `${post.category}/${post.slug}`),
-    ).toEqual(["guides/newer", "guides/older"]);
+    ).toEqual(["posts/newer", "posts/older"]);
   });
 
   it("looks up posts and calculates adjacent posts without changing catalog ordering", () => {
     const root = createFixtureRoot();
-    writePost(root, "guides", "first", {
+    writePost(root, "posts", "first", {
       title: "First",
       created: "2024-01-01T00:00:00.000Z",
     });
-    writePost(root, "guides", "second", {
+    writePost(root, "posts", "second", {
       title: "Second",
       created: "2024-02-01T00:00:00.000Z",
     });
-    writePost(root, "guides", "third", {
+    writePost(root, "posts", "third", {
       title: "Third",
       created: "2024-03-01T00:00:00.000Z",
     });
 
     const catalog = createContentCatalog({ contentRoot: root });
 
-    expect(catalog.getPost("guides", "second")).toMatchObject({
+    expect(catalog.getPost("posts", "second")).toMatchObject({
       kind: "found",
       post: { title: "Second" },
     });
-    expect(catalog.getPost("guides", "missing")).toEqual({
+    expect(catalog.getPost("posts", "missing")).toEqual({
       kind: "unknown-post",
-      category: "guides",
+      category: "posts",
       slug: "missing",
     });
     expect(catalog.getPost("missing", "second")).toEqual({
       kind: "unknown-category",
       category: "missing",
     });
-    expect(catalog.getAdjacent("guides", "second")).toMatchObject({
+    expect(catalog.getAdjacent("posts", "second")).toMatchObject({
       previous: { slug: "first" },
       next: { slug: "third" },
     });
-    expect(catalog.getAdjacent("guides", "missing")).toBeUndefined();
+    expect(catalog.getAdjacent("posts", "missing")).toBeUndefined();
     expect(
-      catalog.getCategory("guides")?.posts.map((post) => post.slug),
+      catalog.getCategory("posts")?.posts.map((post) => post.slug),
     ).toEqual(["third", "second", "first"]);
   });
 
   it("fails ingestion with the post path and invalid frontmatter field", () => {
     const root = createFixtureRoot();
-    writePost(root, "guides", "invalid", {
+    writePost(root, "posts", "invalid", {
       title: undefined,
       created: "2024-01-01T00:00:00.000Z",
     });
@@ -114,20 +114,20 @@ describe("ContentCatalog", () => {
 
   it("rejects nested entries instead of silently omitting them", () => {
     const root = createFixtureRoot();
-    const nested = path.join(root, "guides", "drafts");
+    const nested = path.join(root, "posts", "drafts");
     fs.mkdirSync(nested, { recursive: true });
     fs.writeFileSync(path.join(nested, "hidden.mdx"), "# Hidden");
 
     const catalog = createContentCatalog({ contentRoot: root });
 
     expect(() => catalog.listCategories()).toThrow(
-      /guides.*drafts.*direct \.md or \.mdx files/i,
+      /posts.*drafts.*direct \.md or \.mdx files/i,
     );
   });
 
   it("skips a reserved favorites directory instead of treating it as a category", () => {
     const root = createFixtureRoot();
-    writePost(root, "guides", "hello", {
+    writePost(root, "posts", "hello", {
       title: "Hello",
       created: "2024-01-01T00:00:00.000Z",
     });
@@ -141,7 +141,7 @@ describe("ContentCatalog", () => {
     const catalog = createContentCatalog({ contentRoot: root });
 
     expect(catalog.listCategories().map((category) => category.slug)).toEqual([
-      "guides",
+      "posts",
     ]);
     expect(catalog.getCategory("favorites")).toBeUndefined();
     expect(catalog.getPost("favorites", "a-link")).toEqual({
@@ -152,18 +152,18 @@ describe("ContentCatalog", () => {
 
   it("accepts leftover publisher keys on an otherwise valid post", () => {
     const root = createFixtureRoot();
-    writePost(root, "guides", "published", {
+    writePost(root, "posts", "published", {
       title: "Published",
       created: "2024-01-01T00:00:00.000Z",
-      extra: "share: true\ncategory: guides\npath: leftover\n",
+      extra: "share: true\ncategory: posts\npath: leftover\n",
     });
 
     const catalog = createContentCatalog({ contentRoot: root });
-    const result = catalog.getPost("guides", "published");
+    const result = catalog.getPost("posts", "published");
 
     expect(result).toMatchObject({
       kind: "found",
-      post: { title: "Published", category: "guides", slug: "published" },
+      post: { title: "Published", category: "posts", slug: "published" },
     });
     if (result.kind === "found") {
       expect(result.post).not.toHaveProperty("share");

@@ -6,14 +6,14 @@ test.describe("targeted visual baselines", () => {
     await expect(page).toHaveScreenshot("home.png", { fullPage: true });
   });
 
-  test("guide post", async ({ page }) => {
-    await page.goto("/guides/basic-writing-and-formatting-syntax");
-    await expect(page).toHaveScreenshot("guide-post-syntax.png");
+  test("post", async ({ page }) => {
+    await page.goto("/posts/basic-writing-and-formatting-syntax");
+    await expect(page).toHaveScreenshot("post-syntax.png");
   });
 
   test("category", async ({ page }) => {
-    await page.goto("/guides");
-    await expect(page).toHaveScreenshot("guides-category.png", {
+    await page.goto("/posts");
+    await expect(page).toHaveScreenshot("posts-category.png", {
       fullPage: true,
     });
   });

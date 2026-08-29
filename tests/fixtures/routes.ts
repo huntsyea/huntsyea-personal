@@ -1,18 +1,18 @@
 export const siteRoutes = {
   home: "/",
-  guides: "/guides",
+  posts: "/posts",
   examples: "/examples",
   favorites: "/favorites",
-  guidePost: "/guides/getting-started",
-  projectStructurePost: "/guides/project-structure",
-  writingPost: "/guides/basic-writing-and-formatting-syntax",
+  gettingStartedPost: "/posts/getting-started",
+  projectStructurePost: "/posts/project-structure",
+  writingPost: "/posts/basic-writing-and-formatting-syntax",
   examplePost: "/examples/component-showcase",
   missingCategory: "/this-category-does-not-exist",
-  missingPost: "/guides/this-post-does-not-exist",
+  missingPost: "/posts/this-post-does-not-exist",
 } as const;
 
 export const postRoutes = [
-  siteRoutes.guidePost,
+  siteRoutes.gettingStartedPost,
   siteRoutes.projectStructurePost,
   siteRoutes.writingPost,
   siteRoutes.examplePost,
@@ -20,7 +20,7 @@ export const postRoutes = [
 
 export const indexableRoutes = [
   siteRoutes.home,
-  siteRoutes.guides,
+  siteRoutes.posts,
   siteRoutes.examples,
   siteRoutes.favorites,
   ...postRoutes,

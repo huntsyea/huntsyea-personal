@@ -3,8 +3,8 @@ import { expect, test } from "@playwright/test";
 
 const routes = [
   "/",
-  "/guides",
-  "/guides/getting-started",
+  "/posts",
+  "/posts/getting-started",
   "/favorites",
   "/this-category-does-not-exist",
 ];
