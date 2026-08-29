@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 import { pngDimensions } from "./helpers";
 
-for (const route of ["/", "/guides", "/guides/getting-started"]) {
+for (const route of ["/", "/posts", "/posts/getting-started"]) {
   test(`${route} publishes a 1200x630 PNG card`, async ({ page, request }) => {
     await page.goto(route);
     const imageUrl = await page
@@ -23,7 +23,7 @@ for (const route of ["/", "/guides", "/guides/getting-started"]) {
       .locator('meta[property="og:image:alt"]')
       .getAttribute("content");
     expect(alt).toBeTruthy();
-    if (route === "/guides/getting-started") {
+    if (route === "/posts/getting-started") {
       expect(alt).toContain("Getting Started");
     }
   });

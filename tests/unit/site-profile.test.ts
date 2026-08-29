@@ -14,8 +14,8 @@ describe("site profile", () => {
     const profile = createSiteProfile("https://example.com/");
 
     expect(profile.url.toString()).toBe("https://example.com/");
-    expect(getSiteUrl(profile, "/guides/getting-started").toString()).toBe(
-      "https://example.com/guides/getting-started",
+    expect(getSiteUrl(profile, "/posts/getting-started").toString()).toBe(
+      "https://example.com/posts/getting-started",
     );
   });
 
@@ -35,18 +35,18 @@ describe("site profile", () => {
     const metadata = createSiteMetadata(profile, {
       title: "Getting Started",
       description: "Set up your publishing site.",
-      path: "/guides/getting-started",
+      path: "/posts/getting-started",
       type: "article",
       publishedTime: "2024-01-01T00:00:00.000Z",
       modifiedTime: "2024-01-02T00:00:00.000Z",
     });
 
     expect(metadata.alternates?.canonical).toEqual(
-      new URL("https://example.com/guides/getting-started"),
+      new URL("https://example.com/posts/getting-started"),
     );
     expect(metadata.openGraph).toMatchObject({
       type: "article",
-      url: new URL("https://example.com/guides/getting-started"),
+      url: new URL("https://example.com/posts/getting-started"),
       title: "Getting Started | Sylph",
       publishedTime: "2024-01-01T00:00:00.000Z",
       modifiedTime: "2024-01-02T00:00:00.000Z",
@@ -81,20 +81,20 @@ describe("site profile", () => {
 
     expect(
       createPostDescription(profile, {
-        category: "guides",
+        category: "posts",
         title: "A Distinct Post",
       }),
-    ).toBe("Read A Distinct Post in guides on Sylph.");
+    ).toBe("Read A Distinct Post in posts on Sylph.");
     expect(
       createPostDescription(profile, {
-        category: "guides",
+        category: "posts",
         title: "A Distinct Post",
         summary: "An authored summary.",
       }),
     ).toBe("An authored summary.");
     expect(
       createPostDescription(profile, {
-        category: "guides",
+        category: "posts",
         title: "A Distinct Post",
         summary: "An authored summary.",
         seoDescription: "A search-specific summary.",

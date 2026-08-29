@@ -33,12 +33,12 @@ test.describe("production routes", () => {
   test("category, breadcrumb, and table-of-contents markup is semantic", async ({
     page,
   }) => {
-    await page.goto(siteRoutes.guides);
+    await page.goto(siteRoutes.posts);
     await expect(
       page.getByRole("list").last().locator(":scope > li"),
     ).toHaveCount(3);
 
-    await page.goto(siteRoutes.guidePost);
+    await page.goto(siteRoutes.gettingStartedPost);
     const breadcrumb = page.getByRole("navigation", { name: "Breadcrumb" });
     await expect(breadcrumb.locator("ol > li")).toHaveCount(5);
     await expect(breadcrumb.locator('[aria-current="page"]')).toHaveText(

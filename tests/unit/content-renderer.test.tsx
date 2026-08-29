@@ -26,7 +26,7 @@ describe("renderPost", () => {
     const rendered = await renderPost(
       createPost(
         [
-          "[Internal](/guides)",
+          "[Internal](/posts)",
           "",
           "[External](https://nextjs.org/)",
           "",
@@ -42,7 +42,7 @@ describe("renderPost", () => {
     );
 
     const html = renderToStaticMarkup(rendered.content);
-    expect(html).toContain('href="/guides"');
+    expect(html).toContain('href="/posts"');
     expect(html).toContain('href="https://nextjs.org/"');
     expect(html).toContain('target="_blank"');
     expect(html).toContain('rel="noopener noreferrer"');
@@ -81,9 +81,9 @@ describe("renderPost", () => {
 
 function createPost(content: string) {
   return {
-    category: "guides",
+    category: "posts",
     slug: "fixture",
-    sourcePath: "/fixtures/guides/fixture.mdx",
+    sourcePath: "/fixtures/posts/fixture.mdx",
     content,
     title: "Fixture",
     time: {
