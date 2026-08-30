@@ -1,5 +1,6 @@
 import "server-only";
 
+import type { MarkdownSource } from "@/lib/content/markdown-source";
 import type { PostFrontmatter } from "@/lib/content/schema";
 import type {
   AdjacentPosts,
@@ -11,17 +12,17 @@ import type {
 } from "@/lib/content/types";
 
 import {
-  isValidContentSegment,
-  postFrontmatterSchema,
-} from "@/lib/content/schema";
+  MarkdownSourceError,
+  normalizeContentSegment,
+  readMarkdownDirectory,
+  reportContentWarning,
+  titleFromFilename,
+} from "@/lib/content/markdown-source";
+import { postFrontmatterSchema } from "@/lib/content/schema";
 
 import fs from "node:fs";
 import path from "node:path";
 
-import matter from "gray-matter";
-import { z } from "zod";
-
-const contentExtensions = new Set([".md", ".mdx"]);
 const reservedCategoryDirectory = "favorites";
 
 export class ContentCatalogError extends Error {
@@ -111,114 +112,120 @@ export class ContentCatalog {
   private readCategories(): readonly ContentCategory[] {
     const entries = this.readDirectory(this.contentDirectory, "content root");
     const categoryDirectories = entries
-      .filter(
-        (entry) =>
-          entry.isDirectory() && entry.name !== reservedCategoryDirectory,
-      )
-      .sort((left, right) => left.name.localeCompare(right.name));
+      .filter((entry) => entry.isDirectory() && !entry.name.startsWith("."))
+      .map((entry) => ({
+        name: entry.name,
+        slug: normalizeContentSegment(entry.name),
+      }))
+      .filter((entry) => entry.slug !== reservedCategoryDirectory)
+      .sort((left, right) => left.slug.localeCompare(right.slug));
 
-    return categoryDirectories.map((entry) => {
-      if (!isValidContentSegment(entry.name)) {
-        throw new ContentCatalogError(
-          `Invalid category directory "${entry.name}" in ${this.contentDirectory}.`,
-        );
-      }
+    const emptyCategory = categoryDirectories.find((entry) => !entry.slug);
+    if (emptyCategory) {
+      throw new ContentCatalogError(
+        `Could not derive a safe route segment from "content/${emptyCategory.name}".`,
+      );
+    }
 
-      const slug = entry.name;
+    const duplicateCategory = findDuplicate(categoryDirectories);
+    if (duplicateCategory) {
+      throw new ContentCatalogError(
+        `Category route collision at "/${duplicateCategory.slug}" between "content/${duplicateCategory.first.name}" and "content/${duplicateCategory.second.name}".`,
+      );
+    }
+
+    return categoryDirectories.map(({ name, slug }) => {
       return {
         slug,
-        title: toTitle(slug),
-        posts: this.readPosts(slug),
+        title: titleFromFilename(name),
+        posts: this.readPosts(slug, name),
       };
     });
   }
 
-  private readPosts(category: string): readonly ContentPost[] {
-    const directory = path.join(this.contentDirectory, category);
-    const entries = this.readDirectory(directory, `category "${category}"`);
-    const visibleEntries = entries.filter(
-      (entry) => !entry.name.startsWith("."),
-    );
-    const unsupportedEntry = visibleEntries.find((entry) => !entry.isFile());
+  private readPosts(
+    category: string,
+    directoryName: string,
+  ): readonly ContentPost[] {
+    const directory = path.join(this.contentDirectory, directoryName);
+    let sources: readonly MarkdownSource[];
+    try {
+      sources = readMarkdownDirectory({
+        contentRoot: this.contentDirectory,
+        directory,
+      });
+    } catch (error) {
+      if (error instanceof MarkdownSourceError) {
+        throw new ContentCatalogError(error.message, { cause: error });
+      }
+      throw error;
+    }
 
-    if (unsupportedEntry) {
+    const duplicateSource = findDuplicate(sources);
+    if (duplicateSource) {
       throw new ContentCatalogError(
-        `Unsupported content entry "${path.join(directory, unsupportedEntry.name)}". Posts must be direct .md or .mdx files inside their category.`,
+        `Post route collision at "/${category}/${duplicateSource.slug}" between "${duplicateSource.first.sourcePath}" and "${duplicateSource.second.sourcePath}".`,
       );
     }
 
-    const posts = visibleEntries.map((entry) =>
-      this.readPost(category, directory, entry.name),
-    );
-
-    const duplicateSlugs = posts.find(
-      (post, index) =>
-        posts.findIndex((candidate) => candidate.slug === post.slug) !== index,
-    );
-    if (duplicateSlugs) {
-      throw new ContentCatalogError(
-        `Duplicate post slug "${duplicateSlugs.slug}" in category "${category}".`,
-      );
-    }
-
-    return posts.sort(
-      (left, right) =>
-        right.createdAt.getTime() - left.createdAt.getTime() ||
-        left.slug.localeCompare(right.slug),
-    );
+    return sources
+      .map((source) => this.readPost(category, source))
+      .sort(comparePosts);
   }
 
-  private readPost(
-    category: string,
-    directory: string,
-    filename: string,
-  ): ContentPost {
-    const extension = path.extname(filename);
-    const sourcePath = path.join(directory, filename);
+  private readPost(category: string, source: MarkdownSource): ContentPost {
+    const frontmatter = this.parseFrontmatter(source);
+    const createdAt = parseOptionalDate(
+      source.sourcePath,
+      "time.created",
+      frontmatter.time?.created,
+    );
+    let updatedAt = parseOptionalDate(
+      source.sourcePath,
+      "time.updated",
+      frontmatter.time?.updated,
+    );
 
-    if (!contentExtensions.has(extension)) {
-      throw new ContentCatalogError(
-        `Unsupported content file "${sourcePath}". Use .md or .mdx.`,
-      );
+    if (createdAt && (!updatedAt || updatedAt < createdAt)) {
+      if (updatedAt) {
+        reportContentWarning(
+          source.sourcePath,
+          "time.updated was earlier than time.created and was replaced with the creation date.",
+        );
+      }
+      updatedAt = createdAt;
     }
 
-    const slug = path.basename(filename, extension);
-    if (!isValidContentSegment(slug)) {
-      throw new ContentCatalogError(
-        `Invalid post filename "${sourcePath}". Slugs must use lowercase letters, numbers, and hyphens.`,
-      );
-    }
+    const time =
+      createdAt || updatedAt
+        ? {
+            created: createdAt?.toISOString(),
+            updated: updatedAt?.toISOString(),
+          }
+        : undefined;
 
-    let parsed: matter.GrayMatterFile<string>;
-    try {
-      parsed = matter(fs.readFileSync(sourcePath, "utf8"));
-    } catch (error) {
-      throw new ContentCatalogError(`Could not parse post "${sourcePath}".`, {
-        cause: error,
-      });
-    }
-
-    const frontmatter = this.parseFrontmatter(sourcePath, parsed.data);
     return {
       ...frontmatter,
+      title: frontmatter.title ?? source.title,
+      time,
       category,
-      slug,
-      content: parsed.content,
-      sourcePath,
-      createdAt: new Date(frontmatter.time.created),
-      updatedAt: new Date(frontmatter.time.updated),
+      slug: source.slug,
+      content: source.content,
+      sourcePath: source.sourcePath,
+      createdAt,
+      updatedAt,
     };
   }
 
-  private parseFrontmatter(sourcePath: string, data: unknown): PostFrontmatter {
-    const result = postFrontmatterSchema.safeParse(data);
+  private parseFrontmatter(source: MarkdownSource): PostFrontmatter {
+    const result = postFrontmatterSchema.safeParse(source.frontmatter);
     if (result.success) {
       return result.data;
     }
 
-    const reasons = z.prettifyError(result.error).replaceAll("\n", "; ");
     throw new ContentCatalogError(
-      `Invalid frontmatter in "${sourcePath}": ${reasons}`,
+      `Invalid frontmatter in "${source.sourcePath}".`,
+      { cause: result.error },
     );
   }
 
@@ -226,18 +233,61 @@ export class ContentCatalog {
     try {
       return fs.readdirSync(directory, { withFileTypes: true });
     } catch (error) {
-      throw new ContentCatalogError(
-        `Could not read ${description} at "${directory}".`,
-        { cause: error },
-      );
+      throw new ContentCatalogError(`Could not read ${description}.`, {
+        cause: error,
+      });
     }
   }
 }
 
-function toTitle(slug: string): string {
-  return slug
-    .replaceAll("-", " ")
-    .replace(/\b\w/g, (character) => character.toUpperCase());
+function comparePosts(left: ContentPost, right: ContentPost): number {
+  if (left.createdAt && right.createdAt) {
+    return (
+      right.createdAt.getTime() - left.createdAt.getTime() ||
+      left.slug.localeCompare(right.slug)
+    );
+  }
+  if (left.createdAt) return -1;
+  if (right.createdAt) return 1;
+  return left.slug.localeCompare(right.slug);
+}
+
+function parseOptionalDate(
+  sourcePath: string,
+  field: string,
+  value: unknown,
+): Date | undefined {
+  if (
+    value === undefined ||
+    value === null ||
+    (typeof value === "string" && !value.trim())
+  ) {
+    return undefined;
+  }
+
+  const date =
+    value instanceof Date
+      ? value
+      : typeof value === "string"
+        ? new Date(value)
+        : undefined;
+  if (!date || !Number.isFinite(date.getTime())) {
+    reportContentWarning(sourcePath, `${field} is invalid and was ignored.`);
+    return undefined;
+  }
+  return date;
+}
+
+function findDuplicate<T extends { slug: string }>(
+  entries: readonly T[],
+): { slug: string; first: T; second: T } | undefined {
+  const seen = new Map<string, T>();
+  for (const entry of entries) {
+    const first = seen.get(entry.slug);
+    if (first) return { slug: entry.slug, first, second: entry };
+    seen.set(entry.slug, entry);
+  }
+  return undefined;
 }
 
 function toPostReference(

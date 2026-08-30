@@ -1,57 +1,42 @@
 import { z } from "zod";
 
-const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const optionalText = z.preprocess(
+  (value) =>
+    typeof value === "string" && value.trim() ? value.trim() : undefined,
+  z.string().optional(),
+);
 
-const optionalUrl = z.url().optional();
+const optionalUrl = z.preprocess(
+  (value) =>
+    typeof value === "string" && value.trim() ? value.trim() : undefined,
+  z.url().optional(),
+);
 
-const postTimeSchema = z
-  .object({
-    created: z.string().datetime({ offset: true }),
-    updated: z.string().datetime({ offset: true }),
-  })
-  .strict()
-  .superRefine(({ created, updated }, context) => {
-    if (new Date(updated) < new Date(created)) {
-      context.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["updated"],
-        message: "must not be earlier than time.created",
-      });
-    }
-  });
+const postTimeSchema = z.object({
+  created: z.unknown().optional(),
+  updated: z.unknown().optional(),
+});
 
 export const postFrontmatterSchema = z.object({
-  title: z.string().trim().min(1),
-  summary: z.string().trim().min(1).optional(),
+  title: optionalText,
+  summary: optionalText,
   author: z
-    .object({
-      name: z.string().trim().min(1).optional(),
-      link: optionalUrl,
-      handle: z.string().trim().min(1).optional(),
-    })
-    .strict()
-    .optional(),
-  time: postTimeSchema,
+    .object({ name: optionalText, link: optionalUrl, handle: optionalText })
+    .optional()
+    .catch(undefined),
+  time: postTimeSchema.optional().catch(undefined),
   media: z
-    .object({
-      image: z.string().trim().min(1).optional(),
-      video: z.string().trim().min(1).optional(),
-      audio: z.string().trim().min(1).optional(),
-    })
-    .strict()
-    .optional(),
+    .object({ image: optionalText, video: optionalText, audio: optionalText })
+    .optional()
+    .catch(undefined),
   seo: z
     .object({
-      title: z.string().trim().min(1).optional(),
-      description: z.string().trim().min(1).optional(),
-      keywords: z.array(z.string().trim().min(1)).optional(),
+      title: optionalText,
+      description: optionalText,
+      keywords: z.array(z.string().trim().min(1)).optional().catch(undefined),
     })
-    .strict()
-    .optional(),
+    .optional()
+    .catch(undefined),
 });
 
 export type PostFrontmatter = z.infer<typeof postFrontmatterSchema>;
-
-export function isValidContentSegment(value: string): boolean {
-  return slugPattern.test(value);
-}

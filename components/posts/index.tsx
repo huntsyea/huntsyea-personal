@@ -38,9 +38,11 @@ export const Posts = ({ category, asCategoryPage = false }: PostProps) => {
               className="flex w-full justify-between py-2"
             >
               <span>{post.title}</span>
-              <time className="text-muted" dateTime={post.time.created}>
-                {formatter.date(post.createdAt)}
-              </time>
+              {post.createdAt ? (
+                <time className="text-muted" dateTime={post.time?.created}>
+                  {formatter.date(post.createdAt)}
+                </time>
+              ) : null}
             </NextViewTransition>
           </li>
         ))}

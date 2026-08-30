@@ -12,13 +12,13 @@ time:
 
 ## Content and Routes
 
-Authored posts live outside the route tree. Each route-safe folder under `content/` is a category, and each `.md` or `.mdx` file becomes a post:
+Authored posts live outside the route tree. Each visible top-level folder under `content/` is a category, and each direct `.md` or `.mdx` file becomes a post. Natural names normalize to lowercase URL segments:
 
 ```text
 content/
   home.md
   posts/
-    getting-started.mdx
+    Getting Started.mdx
   projects/
     component-showcase.mdx
 ```
@@ -29,12 +29,12 @@ Unknown category and post values are not generated and return the not-found expe
 
 ## Adding a Category
 
-1. Create a lowercase, route-safe folder such as `content/notes/`.
-2. Add one or more `.md` or `.mdx` files with route-safe filenames.
-3. Add the required frontmatter and begin authored sections at `##`.
+1. Create a folder such as `content/Field Notes/`.
+2. Add one or more `.md` or `.mdx` files with natural filenames.
+3. Add optional frontmatter as needed and begin authored sections at `##`.
 4. Run `pnpm test` and `SITE_URL=https://example.com pnpm build`.
 
-The folder may be empty, but nested directories, unsupported visible files, duplicate `.md`/`.mdx` slugs, and malformed frontmatter are rejected.
+The folder may be empty. Hidden entries and unrelated files are ignored. Nested folders produce a warning and are ignored. Empty normalized names, normalized route collisions, unreadable sources, and malformed frontmatter stop the build.
 
 ## Frontmatter
 
@@ -58,7 +58,7 @@ seo:
 ---
 ```
 
-`title` and both ISO timestamps are required. `updated` cannot precede `created`. Optional `summary`, `author`, `media`, and `seo` values are validated strictly; unknown fields fail verification with the source path and field-level reason.
+All frontmatter fields are optional. The filename supplies the title when needed. Valid creation dates control descending order; dated posts sort before undated posts. Invalid dates are ignored with a source-specific warning, and an update date earlier than creation falls back to the creation date. Publisher fields and other unknown keys are ignored.
 
 ## Trusted MDX
 
@@ -70,7 +70,7 @@ Post titles supply the only page-level heading, so content begins with `##`. Jav
 
 ## Domain Modules
 
-- `lib/content/` owns validation, discovery, ordering, lookup, adjacency, inventory, and MDX rendering.
+- `lib/content/` owns Markdown discovery, route normalization, collision detection, tolerant metadata, ordering, lookup, adjacency, inventory, and MDX rendering.
 - `lib/site/` owns canonical identity and shared metadata construction.
 - Native App Router metadata files generate Open Graph images, robots policy, and the sitemap from those two sources of truth.
 

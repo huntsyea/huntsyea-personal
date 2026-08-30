@@ -4,11 +4,12 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 const fixtureDirectories: string[] = [];
 
 afterEach(() => {
+  vi.restoreAllMocks();
   for (const directory of fixtureDirectories.splice(0)) {
     fs.rmSync(directory, { recursive: true, force: true });
   }
@@ -84,6 +85,56 @@ describe("favorites inventory", () => {
       ["Zines", ["https://example.com/zeta"]],
     ]);
   });
+
+  it("defaults presentation fields and omits an invalid destination with a warning", () => {
+    const root = createFixtureRoot();
+    writeFavorite(root, "My Favorite.md", {
+      title: undefined,
+      href: "https://example.com/favorite",
+      note: undefined,
+      group: undefined,
+    });
+    writeFavorite(root, "Incomplete.md", {
+      title: "Incomplete",
+      href: "not-a-url",
+      note: undefined,
+      group: undefined,
+    });
+    const warning = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    expect(readFavoriteGroups(root)).toEqual([
+      {
+        title: "Other",
+        items: [
+          {
+            title: "My Favorite",
+            href: "https://example.com/favorite",
+            note: "",
+          },
+        ],
+      },
+    ]);
+    expect(warning).toHaveBeenCalledWith(
+      expect.stringMatching(/Incomplete\.md.*destination.*omitted/i),
+    );
+  });
+
+  it("fails malformed Favorite frontmatter with a relative source path", () => {
+    const root = createFixtureRoot();
+    fs.writeFileSync(
+      path.join(root, "broken.md"),
+      "---\ntitle: [unterminated\n---\n",
+    );
+
+    expect(() => readFavoriteGroups(root)).toThrow(/content\/broken\.md/i);
+  });
+
+  it("fails an invalid Favorite frontmatter shape with a relative source path", () => {
+    const root = createFixtureRoot();
+    fs.writeFileSync(path.join(root, "broken.md"), "---\n- invalid\n---\n");
+
+    expect(() => readFavoriteGroups(root)).toThrow(/content\/broken\.md/i);
+  });
 });
 
 function createFixtureRoot(): string {
@@ -96,15 +147,24 @@ function writeFavorite(
   root: string,
   filename: string,
   frontmatter: {
-    title: string;
+    title: string | undefined;
     href: string;
-    note: string;
-    group: string;
+    note: string | undefined;
+    group: string | undefined;
     extra?: string;
   },
 ): void {
+  const title = frontmatter.title
+    ? `title: ${JSON.stringify(frontmatter.title)}\n`
+    : "";
+  const note = frontmatter.note
+    ? `note: ${JSON.stringify(frontmatter.note)}\n`
+    : "";
+  const group = frontmatter.group
+    ? `group: ${JSON.stringify(frontmatter.group)}\n`
+    : "";
   fs.writeFileSync(
     path.join(root, filename),
-    `---\ntitle: ${JSON.stringify(frontmatter.title)}\nhref: ${JSON.stringify(frontmatter.href)}\nnote: ${JSON.stringify(frontmatter.note)}\ngroup: ${JSON.stringify(frontmatter.group)}\n${frontmatter.extra ?? ""}---\n`,
+    `---\n${title}href: ${JSON.stringify(frontmatter.href)}\n${note}${group}${frontmatter.extra ?? ""}---\n`,
   );
 }

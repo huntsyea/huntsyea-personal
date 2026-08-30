@@ -36,7 +36,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `corepack pnpm start --hostname 127.0.0.1 --port ${port}`,
+    command: `pnpm start --hostname 127.0.0.1 --port ${port}`,
     env: {
       SITE_URL: process.env.SITE_URL ?? "https://example.com",
     },

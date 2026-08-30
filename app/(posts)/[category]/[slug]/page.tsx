@@ -37,8 +37,8 @@ export async function generateMetadata({
     description: getPostDescription(post),
     path: `/${post.category}/${post.slug}`,
     type: "article",
-    publishedTime: post.time.created,
-    modifiedTime: post.time.updated,
+    publishedTime: post.time?.created,
+    modifiedTime: post.time?.updated,
   });
 }
 

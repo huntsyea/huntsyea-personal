@@ -41,6 +41,61 @@ describe("readHomeIntro", () => {
     expect(intro).not.toHaveProperty("path");
     expect(intro).not.toHaveProperty("category");
   });
+
+  it("discovers a naturally capitalized Home Markdown file", () => {
+    const root = createFixtureRoot();
+    fs.writeFileSync(
+      path.join(root, "Home.mdx"),
+      "---\ntitle: Hunter\n---\n\nHello from Obsidian.\n",
+    );
+
+    expect(readHomeIntro(root)).toEqual({
+      title: "Hunter",
+      tagline: undefined,
+      body: "Hello from Obsidian.",
+    });
+  });
+
+  it("keeps valid Home fields when another optional field is invalid", () => {
+    const root = createFixtureRoot();
+    fs.writeFileSync(
+      path.join(root, "home.md"),
+      "---\ntitle: Hunter\ntagline: 42\n---\n\nHello.\n",
+    );
+
+    expect(readHomeIntro(root)).toEqual({
+      title: "Hunter",
+      tagline: undefined,
+      body: "Hello.",
+    });
+  });
+
+  it("fails when multiple root documents normalize to home", () => {
+    const root = createFixtureRoot();
+    fs.writeFileSync(path.join(root, "home.md"), "Primary");
+    fs.writeFileSync(path.join(root, "HOME.mdx"), "Duplicate");
+
+    expect(() => readHomeIntro(root)).toThrow(/home source collision/i);
+    expect(() => readHomeIntro(root)).toThrow(/content\/HOME\.mdx/i);
+    expect(() => readHomeIntro(root)).toThrow(/content\/home\.md/i);
+  });
+
+  it("fails malformed home frontmatter with a relative source path", () => {
+    const root = createFixtureRoot();
+    fs.writeFileSync(
+      path.join(root, "home.md"),
+      "---\ntitle: [unterminated\n---\n",
+    );
+
+    expect(() => readHomeIntro(root)).toThrow(/content\/home\.md/i);
+  });
+
+  it("fails an invalid Home frontmatter shape with a relative source path", () => {
+    const root = createFixtureRoot();
+    fs.writeFileSync(path.join(root, "home.md"), "---\n- invalid\n---\n");
+
+    expect(() => readHomeIntro(root)).toThrow(/content\/home\.md/i);
+  });
 });
 
 function createFixtureRoot(): string {

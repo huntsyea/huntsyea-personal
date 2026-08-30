@@ -21,14 +21,22 @@ export const Layout = async ({ post, adjacent }: Props) => {
       <header className="flex flex-col">
         <h1>{post.title}</h1>
         <div className="mt-1 flex gap-2 text-muted text-small">
-          <time dateTime={post.time.created}>
-            Published {formatter.date(post.createdAt)}
-          </time>
-          <span aria-hidden="true">⋅</span>
-          <time dateTime={post.time.updated}>
-            Updated {formatter.date(post.updatedAt)}
-          </time>
-          <span aria-hidden="true">⋅</span>
+          {post.createdAt ? (
+            <time dateTime={post.time?.created}>
+              Published {formatter.date(post.createdAt)}
+            </time>
+          ) : null}
+          {post.createdAt && post.updatedAt ? (
+            <span aria-hidden="true">⋅</span>
+          ) : null}
+          {post.updatedAt ? (
+            <time dateTime={post.time?.updated}>
+              Updated {formatter.date(post.updatedAt)}
+            </time>
+          ) : null}
+          {post.createdAt || post.updatedAt ? (
+            <span aria-hidden="true">⋅</span>
+          ) : null}
           <span>{readingTime(post.content).minutes} minutes read</span>
         </div>
       </header>
