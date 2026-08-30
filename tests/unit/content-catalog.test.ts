@@ -4,11 +4,12 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 const fixtureDirectories: string[] = [];
 
 afterEach(() => {
+  vi.restoreAllMocks();
   for (const directory of fixtureDirectories.splice(0)) {
     fs.rmSync(directory, { recursive: true, force: true });
   }
@@ -104,30 +105,226 @@ describe("ContentCatalog", () => {
     ).toEqual(["third", "second", "first"]);
   });
 
-  it("fails ingestion with the post path and invalid frontmatter field", () => {
+  it("normalizes natural folder and file names and defaults optional metadata", () => {
     const root = createFixtureRoot();
-    writePost(root, "posts", "invalid", {
+    writePost(root, "Project Notes", "My First Post", {
+      title: undefined,
+      created: undefined,
+    });
+
+    const catalog = createContentCatalog({ contentRoot: root });
+    const category = catalog.getCategory("project-notes");
+    const result = catalog.getPost("project-notes", "my-first-post");
+
+    expect(category).toMatchObject({
+      slug: "project-notes",
+      title: "Project Notes",
+    });
+    expect(result).toMatchObject({
+      kind: "found",
+      post: {
+        category: "project-notes",
+        slug: "my-first-post",
+        title: "My First Post",
+        createdAt: undefined,
+        updatedAt: undefined,
+      },
+    });
+  });
+
+  it("removes Unicode combining marks before deriving routes", () => {
+    const root = createFixtureRoot();
+    writePost(root, "posts", "A\u1ab0B", {
+      title: undefined,
+      created: undefined,
+    });
+
+    expect(
+      createContentCatalog({ contentRoot: root }).listPosts()[0]?.slug,
+    ).toBe("ab");
+  });
+
+  it("supports Markdown and MDX while ignoring unrelated files", () => {
+    const root = createFixtureRoot();
+    writePost(root, "posts", "MDX Note", {
+      title: undefined,
+      created: undefined,
+    });
+    const directory = path.join(root, "posts");
+    fs.writeFileSync(path.join(directory, "Markdown Note.md"), "Plain text.");
+    fs.writeFileSync(path.join(directory, "attachment.png"), "not an image");
+
+    expect(
+      createContentCatalog({ contentRoot: root })
+        .listPosts()
+        .map((post) => post.slug),
+    ).toEqual(["markdown-note", "mdx-note"]);
+  });
+
+  it("warns and ignores nested entries", () => {
+    const root = createFixtureRoot();
+    const nested = path.join(root, "posts", "drafts");
+    fs.mkdirSync(nested, { recursive: true });
+    fs.writeFileSync(path.join(nested, "hidden.mdx"), "# Hidden");
+    const warning = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    const catalog = createContentCatalog({ contentRoot: root });
+
+    expect(catalog.listCategories()).toMatchObject([
+      { slug: "posts", posts: [] },
+    ]);
+    expect(warning).toHaveBeenCalledWith(
+      expect.stringMatching(/content\/posts\/drafts.*ignored/i),
+    );
+  });
+
+  it("ignores hidden folders at the content root", () => {
+    const root = createFixtureRoot();
+    writePost(root, ".obsidian", "workspace", {
+      title: "Private workspace data",
+      created: undefined,
+    });
+
+    expect(
+      createContentCatalog({ contentRoot: root }).listCategories(),
+    ).toEqual([]);
+  });
+
+  it("ignores invalid optional dates and keeps ordering deterministic", () => {
+    const root = createFixtureRoot();
+    writePost(root, "posts", "dated", {
+      title: "Dated",
+      created: "2024-02-01T00:00:00.000Z",
+      updated: "2024-01-01T00:00:00.000Z",
+    });
+    writePost(root, "posts", "Invalid Date", {
+      title: undefined,
+      created: "not-a-date",
+    });
+    writePost(root, "posts", "undated", {
+      title: "Undated",
+      created: undefined,
+    });
+    const warning = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    const posts = createContentCatalog({ contentRoot: root }).listPosts();
+
+    expect(posts.map((post) => post.slug)).toEqual([
+      "dated",
+      "invalid-date",
+      "undated",
+    ]);
+    expect(posts[0]?.updatedAt).toEqual(posts[0]?.createdAt);
+    expect(posts[1]).toMatchObject({
+      title: "Invalid Date",
+      createdAt: undefined,
+      updatedAt: undefined,
+    });
+    expect(warning).toHaveBeenCalledWith(
+      expect.stringMatching(/content\/posts\/dated\.mdx.*earlier/i),
+    );
+    expect(warning).toHaveBeenCalledWith(
+      expect.stringMatching(/content\/posts\/Invalid Date\.mdx.*invalid/i),
+    );
+  });
+
+  it("uses YAML-native dates for ordering", () => {
+    const root = createFixtureRoot();
+    const directory = path.join(root, "posts");
+    fs.mkdirSync(directory, { recursive: true });
+    fs.writeFileSync(
+      path.join(directory, "Native Date.md"),
+      "---\ntime:\n  created: 2024-02-01\n---\n",
+    );
+    writePost(root, "posts", "older", {
       title: undefined,
       created: "2024-01-01T00:00:00.000Z",
+    });
+
+    const posts = createContentCatalog({ contentRoot: root }).listPosts();
+
+    expect(posts.map((post) => post.slug)).toEqual(["native-date", "older"]);
+    expect(posts[0]?.createdAt?.toISOString()).toBe("2024-02-01T00:00:00.000Z");
+  });
+
+  it("warns when an optional date has a non-date YAML value", () => {
+    const root = createFixtureRoot();
+    const directory = path.join(root, "posts");
+    fs.mkdirSync(directory, { recursive: true });
+    fs.writeFileSync(
+      path.join(directory, "Invalid Date.md"),
+      "---\ntime:\n  created: 42\n---\n",
+    );
+    const warning = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    const [post] = createContentCatalog({ contentRoot: root }).listPosts();
+
+    expect(post?.createdAt).toBeUndefined();
+    expect(warning).toHaveBeenCalledWith(
+      expect.stringMatching(/content\/posts\/Invalid Date\.md.*invalid/i),
+    );
+  });
+
+  it("fails normalized route collisions with both relative source paths", () => {
+    const root = createFixtureRoot();
+    writePost(root, "posts", "Hello World", {
+      title: "First",
+      created: undefined,
+    });
+    writePost(root, "posts", "hello-world", {
+      title: "Second",
+      created: undefined,
     });
 
     const catalog = createContentCatalog({ contentRoot: root });
 
     expect(() => catalog.listCategories()).toThrow(ContentCatalogError);
-    expect(() => catalog.listCategories()).toThrow(/invalid\.mdx.*title/i);
+    expect(() => catalog.listCategories()).toThrow(
+      /content\/posts\/Hello World\.mdx.*content\/posts\/hello-world\.mdx/i,
+    );
   });
 
-  it("rejects nested entries instead of silently omitting them", () => {
+  it("fails normalized category collisions with both relative paths", () => {
     const root = createFixtureRoot();
-    const nested = path.join(root, "posts", "drafts");
-    fs.mkdirSync(nested, { recursive: true });
-    fs.writeFileSync(path.join(nested, "hidden.mdx"), "# Hidden");
+    fs.mkdirSync(path.join(root, "Field Notes"));
+    fs.mkdirSync(path.join(root, "field-notes"));
+
+    expect(() =>
+      createContentCatalog({ contentRoot: root }).listCategories(),
+    ).toThrow(/\/field-notes.*content\/Field Notes.*content\/field-notes/i);
+  });
+
+  it("fails malformed Markdown with a relative source path", () => {
+    const root = createFixtureRoot();
+    const directory = path.join(root, "posts");
+    fs.mkdirSync(directory, { recursive: true });
+    fs.writeFileSync(
+      path.join(directory, "broken.md"),
+      "---\ntitle: [unterminated\n---\n",
+    );
 
     const catalog = createContentCatalog({ contentRoot: root });
 
     expect(() => catalog.listCategories()).toThrow(
-      /posts.*drafts.*direct \.md or \.mdx files/i,
+      /content\/posts\/broken\.md/i,
     );
+  });
+
+  it("fails unreadable Markdown with a relative source path", () => {
+    const root = createFixtureRoot();
+    const directory = path.join(root, "posts");
+    const sourcePath = path.join(directory, "unreadable.md");
+    fs.mkdirSync(directory, { recursive: true });
+    fs.writeFileSync(sourcePath, "Unreadable");
+    fs.chmodSync(sourcePath, 0o000);
+
+    try {
+      expect(() =>
+        createContentCatalog({ contentRoot: root }).listCategories(),
+      ).toThrow(/content\/posts\/unreadable\.md/i);
+    } finally {
+      fs.chmodSync(sourcePath, 0o600);
+    }
   });
 
   it("skips a reserved favorites directory instead of treating it as a category", () => {
@@ -136,12 +333,17 @@ describe("ContentCatalog", () => {
       title: "Hello",
       created: "2024-01-01T00:00:00.000Z",
     });
-    writeFavorite(root, "a-link.md", {
-      title: "A link",
-      href: "https://example.com",
-      note: "Not a post.",
-      group: "Articles",
-    });
+    writeFavorite(
+      root,
+      "a-link.md",
+      {
+        title: "A link",
+        href: "https://example.com",
+        note: "Not a post.",
+        group: "Articles",
+      },
+      "Favorites",
+    );
 
     const catalog = createContentCatalog({ contentRoot: root });
 
@@ -188,7 +390,7 @@ function writePost(
   slug: string,
   frontmatter: {
     title: string | undefined;
-    created: string;
+    created: string | undefined;
     updated?: string;
     extra?: string;
   },
@@ -199,10 +401,12 @@ function writePost(
     ? `title: ${JSON.stringify(frontmatter.title)}\n`
     : "";
   const extra = frontmatter.extra ?? "";
-  const updated = frontmatter.updated ?? frontmatter.created;
+  const time = frontmatter.created
+    ? `time:\n  created: ${JSON.stringify(frontmatter.created)}\n  updated: ${JSON.stringify(frontmatter.updated ?? frontmatter.created)}\n`
+    : "";
   fs.writeFileSync(
     path.join(directory, `${slug}.mdx`),
-    `---\n${title}${extra}time:\n  created: ${JSON.stringify(frontmatter.created)}\n  updated: ${JSON.stringify(updated)}\n---\n\n## ${slug}\n`,
+    `---\n${title}${extra}${time}---\n\n## ${slug}\n`,
   );
 }
 
@@ -215,8 +419,9 @@ function writeFavorite(
     note: string;
     group: string;
   },
+  directoryName = "favorites",
 ): void {
-  const directory = path.join(root, "favorites");
+  const directory = path.join(root, directoryName);
   fs.mkdirSync(directory, { recursive: true });
   fs.writeFileSync(
     path.join(directory, filename),

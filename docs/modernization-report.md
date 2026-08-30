@@ -23,7 +23,7 @@ The research and version rationale are recorded in [the modernization research](
 content/<category>/<post>.{md,mdx}
               |
               v
-      validated ContentCatalog
+      tolerant ContentCatalog
        |         |          |
        v         v          v
  static routes  navigation  sitemap/social inventory
@@ -34,7 +34,7 @@ content/<category>/<post>.{md,mdx}
 SITE_URL -> validated SiteProfile -> canonical/robots/sitemap/OG/deploy data
 ```
 
-`ContentCatalog` is the only filesystem-aware domain seam. It discovers folder-backed categories, validates strict frontmatter, owns ordering and adjacent-post references, distinguishes missing content from ingestion failure, and rejects unsupported or nested entries rather than omitting them. Generic `[category]` and `[slug]` routes consume its static inventory with `dynamicParams = false`; [ADR 0001](adr/0001-content-category-routing.md) records that decision.
+A private server-only Markdown source reader owns shared discovery, frontmatter parsing, route normalization, and source-relative diagnostics. `ContentCatalog`, Home, and Favorites consume that implementation detail while retaining separate public domain interfaces. The catalog discovers folder-backed categories, detects normalized route collisions, tolerates optional metadata, and owns ordering and adjacent-post references. Unsupported nested entries produce warnings and are ignored. Generic `[category]` and `[slug]` routes consume the static catalog inventory with `dynamicParams = false`; [ADR 0001](adr/0001-content-category-routing.md) records that decision.
 
 Trusted MDX compiles through one server-only renderer. It rejects page-level headings, JavaScript expressions, and imports/exports; preserves semantic GFM footnotes; returns the table-of-contents outline from the same syntax tree; and exposes only registered content components. Client code is limited to theme state, visible-heading observation, view transitions, and optional motion/image behavior.
 
@@ -42,7 +42,7 @@ Trusted MDX compiles through one server-only renderer. It rejects page-level hea
 
 The production inventory contains the home page, folder-discovered category pages, and catalog-discovered post pages. Unknown category and post values return the custom 404. Every indexable route has one page-level heading, a canonical URL, a route-specific description, Open Graph/Twitter metadata, and a generated social image.
 
-Native `robots.ts`, `sitemap.ts`, and `opengraph-image.tsx` files replace committed crawler files, `next-sitemap`, and the query-string image API. Social cards use a bundled Inter font, meaningful alternate metadata, PNG output, and a 1200 by 630 canvas. Post cards use current catalog identity and authored dates. Content images use the Next.js optimizer, authored dimensions, responsive `sizes`, and a narrow remote pattern.
+Native `robots.ts`, `sitemap.ts`, and `opengraph-image.tsx` files replace committed crawler files, `next-sitemap`, and the query-string image API. Social cards use a bundled Inter font, meaningful alternate metadata, PNG output, and a 1200 by 630 canvas. Post cards use current catalog identity and authored dates when available. Content images use the Next.js optimizer, authored dimensions, responsive `sizes`, and a narrow remote pattern.
 
 ## Theme and accessibility
 

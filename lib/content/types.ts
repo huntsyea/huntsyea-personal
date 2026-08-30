@@ -1,12 +1,19 @@
 import type { PostFrontmatter } from "@/lib/content/schema";
 
-export type ContentPost = PostFrontmatter & {
+export type ContentPost = Omit<PostFrontmatter, "time" | "title"> & {
+  title: string;
+  time:
+    | {
+        created: string | undefined;
+        updated: string | undefined;
+      }
+    | undefined;
   category: string;
   slug: string;
   content: string;
   sourcePath: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: Date | undefined;
+  updatedAt: Date | undefined;
 };
 
 export type ContentCategory = {

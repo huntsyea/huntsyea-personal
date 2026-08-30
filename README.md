@@ -20,15 +20,15 @@ corepack pnpm dev
 
 ## Content
 
-Create a route-safe folder under `content/` to add a category, then add `.md` or `.mdx` posts inside it:
+The repository mirrors content published from Obsidian through Enveloppe. Physical folders and filenames are the content contract. Add a folder under `content/`, then add `.md` or `.mdx` notes inside it:
 
 ```text
 content/
-  notes/
-    first-note.mdx
+  Field Notes/
+    First Note.mdx
 ```
 
-Each post requires authored timestamps:
+Natural names normalize to URL-safe segments, so this example publishes at `/field-notes/first-note`. A post can contain only Markdown. Frontmatter is optional:
 
 ```yaml
 ---
@@ -40,7 +40,13 @@ time:
 ---
 ```
 
-The content catalog validates paths and frontmatter, discovers categories, sorts posts, supplies adjacent navigation, and generates the static route and sitemap inventory. Invalid content fails verification with its source path and invalid field. Post titles provide the only page-level heading, so authored sections begin with `##`.
+The filename supplies the title when `title` is absent. Missing optional metadata uses a safe default. Invalid optional dates, incomplete Favorites, and unsupported nested folders produce source-specific warnings and continue. Unreadable files, malformed frontmatter, empty route segments, normalized route collisions, and rendering failures stop verification.
+
+`content/home.md` supplies the homepage introduction. `content/favorites/` contains outbound-link notes; only an absolute HTTP or HTTPS `href` is essential. The shared private Markdown reader handles discovery and normalization, while Posts, Home, and Favorites keep separate public domain interfaces.
+
+The local Obsidian publisher uses path-based upload into `content/`, publishes only notes with the configured share key, excludes `Templates`, and leaves automatic cleanup disabled. Enveloppe can auto-merge only after the repository and Vercel checks pass.
+
+The content catalog discovers categories, sorts posts, supplies adjacent navigation, and generates the static route and sitemap inventory. Post titles provide the only page-level heading, so authored sections begin with `##`.
 
 MDX is trusted repository content compiled on the server. JavaScript expressions and MDX imports/exports are intentionally rejected. Interactive behavior remains isolated to small client components.
 

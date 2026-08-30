@@ -1,5 +1,7 @@
 # Modernize Sylph into a verified Next.js 16 publishing starter
 
+> Content-ingestion requirements in this historical modernization specification were superseded by [Issue #5](https://github.com/huntsyea/huntsyea-personal/issues/5) on 2026-08-30. Physical Obsidian paths are canonical, route names normalize deterministically, post metadata is optional, and only unsafe or unreadable content conditions stop publishing.
+
 ## Problem Statement
 
 As a Sylph adopter or maintainer, I expect the starter to install reproducibly, pass its own checks, build successfully on its documented framework versions, and generate correct content, theme, search, and social experiences. Today the repository advertises a modern Next.js, React, Tailwind, MDX, SEO, and theming baseline, but the dependency-only major upgrade left the Site in a non-buildable and unverified state. Content behavior is duplicated across routes and screens, invalid Posts can disappear silently, build commands rewrite authored files, Metadata surfaces can publish invalid or stale URLs, and accessibility-critical interactions are not proven.
@@ -24,9 +26,9 @@ The completed Site will let an author add trusted Post content without duplicati
 10. As a returning visitor, I want my Theme selection to persist across navigation and reloads, so that the interface remains predictable.
 11. As a screen-reader user, I want each Theme control to have an accessible name and selected state, so that I can understand and operate it.
 12. As a motion-sensitive visitor, I want animations and smooth scrolling to respect reduced-motion preferences, so that the Site remains comfortable to use.
-13. As a Post author, I want malformed frontmatter to fail with the exact Post and invalid field, so that publishing mistakes are visible before deployment.
-14. As a Post author, I want required metadata to have a documented schema, so that every Post can be rendered and indexed safely.
-15. As a Post author, I want authored creation and update dates to remain stable across clones and deployments, so that builds do not rewrite editorial history.
+13. As a Post author, I want malformed frontmatter to fail with the exact source path, so that publishing mistakes are visible before deployment.
+14. As a Post author, I want optional metadata to have documented defaults, so that ordinary Markdown can be rendered and indexed safely.
+15. As a Post author, I want authored creation and update dates to remain stable when present, so that builds do not rewrite editorial history.
 16. As a Post author, I want supported Markdown and MDX extensions to match the documentation, so that content is never silently omitted.
 17. As a Post author, I want to add a Category without copying route and metadata implementations, so that the publishing model scales predictably.
 18. As a maintainer, I want Categories and Posts to be discovered through one Content catalog, so that route inventory, navigation, and Metadata surfaces cannot disagree.
@@ -74,7 +76,7 @@ The completed Site will let an author add trusted Post content without duplicati
 - The Site remains a statically generated App Router application. Category and Post dynamic segments generate their allowed parameters from the Content catalog and reject ungenerated route values.
 - Category discovery is folder-driven and schema-constrained. This makes the documented “add a Category” behavior true without allowing arbitrary request-time filesystem traversal. The decision will be recorded as an ADR.
 - The Content catalog becomes the primary domain seam. Its interface owns Category discovery, Post validation, ordered summaries, Post lookup, adjacent-Post navigation, and the complete entry inventory used by Metadata surfaces. Filesystem access remains an internal implementation detail because there is only one real content adapter.
-- Post frontmatter is validated at the Content catalog seam with a runtime schema. Required fields are title and authored creation/update timestamps; slug and Category are derived from the validated content location. Optional summary, author, media, and SEO fields are explicitly typed. Invalid content fails Verification with the source identity and field-level reason.
+- Post frontmatter is parsed at the Content catalog seam with a tolerant runtime schema. The title defaults to the filename; creation/update timestamps, summary, author, media, and SEO fields are optional. Slug and Category are normalized from the physical content location. Invalid optional values warn and use safe defaults. Malformed frontmatter, unreadable files, unsafe routes, collisions, and rendering failures stop Verification with source-relative diagnostics.
 - The Content catalog distinguishes an unknown Category, an unknown Post, an empty Category, and a content-ingestion failure. Routes translate only unknown content into not-found behavior; ingestion failures stop the build.
 - Markdown support is either implemented through the same trusted rendering pipeline as MDX or removed from product claims in the same tracer bullet. Silent omission is not allowed.
 - The project retains one trusted, server-only `next-mdx-remote` rendering path and upgrades it to version 6. The unused native MDX page-loader path and redundant dependencies are removed after route fixtures prove parity. User-controlled or remote untrusted MDX remains unsupported.
@@ -85,7 +87,7 @@ The completed Site will let an author add trusted Post content without duplicati
 - Canonical origin configuration uses a server-only environment variable. Production Verification fails on a missing or invalid absolute URL; local development receives an explicit documented value rather than an implicit malformed fallback.
 - Metadata uses App Router static metadata for Site-wide defaults and dynamic generation only where Category or Post data varies. Route-specific objects preserve Site-wide Open Graph and Twitter defaults instead of replacing them wholesale.
 - Open Graph images use native metadata-file conventions, the default Node runtime, a bundled local font, a 1200 by 630 canvas, explicit alternate text, and Content catalog data. The custom query-string image handler and forced Edge runtime are removed.
-- Robots policy and sitemap output use native typed metadata conventions. Sitemap entries come from the Content catalog and use authored Post update dates. Generated SEO files are no longer committed.
+- Robots policy and sitemap output use native typed metadata conventions. Sitemap entries come from the Content catalog and use authored Post update dates when available. Generated SEO files are no longer committed.
 - Internal, fragment, and external links have distinct behavior. Internal routes use App Router navigation, fragment links remain same-document anchors, and external links receive new-tab and relationship attributes only when intentionally requested. Editorial links do not receive blanket `nofollow`.
 - Content images use Next.js image optimization by default. Remote patterns are narrowly scoped to the demonstrated content origins and paths. Unoptimized rendering requires an explicit evidenced exception.
 - The existing Theme provider and Radix token model are preserved. Theme controls expose accessible names and selected state, occupy stable layout space before hydration, and honor reduced-motion preferences. Theme-change transition suppression may be used to avoid visual flashes.
@@ -100,7 +102,7 @@ The completed Site will let an author add trusted Post content without duplicati
 
 - A good test asserts observable behavior at the highest stable seam and does not encode helper structure, private filesystem calls, component internals, or exact utility-class strings.
 - The primary acceptance seam is the production-built Site served over HTTP. Route, metadata, Theme, accessibility, image, not-found, and navigation behavior is tested against this seam with Playwright.
-- The one lower domain seam is the Content catalog interface. Vitest exercises valid fixture discovery, ordering, lookup, adjacency, complete inventory, unknown content, empty Categories, and field-level validation failures. Tests do not call private parsing helpers directly.
+- The lower domain seams are the Content catalog, Home, and Favorites interfaces. Vitest exercises normalization, defaults, warnings, collisions, malformed sources, valid fixture discovery, ordering, lookup, adjacency, complete inventory, unknown content, and empty Categories. Tests do not call private parsing helpers directly.
 - Site profile tests assert canonical URL normalization, missing/invalid production origin failure, and complete Site/Category/Post metadata results through the public profile and metadata behavior.
 - MDX renderer tests use trusted fixture Posts and assert semantic rendered output, heading outline, footnotes, internal links, external links, code highlighting markers, and custom MDX elements through the renderer interface.
 - Route tests assert that the generated Category and Post inventory matches the Content catalog, valid pages return success, invalid routes return not found, and each page contains exactly one page-level heading.

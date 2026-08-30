@@ -1,11 +1,12 @@
 import "server-only";
 
-import { isValidContentSegment } from "@/lib/content/schema";
+import {
+  readMarkdownDirectory,
+  reportContentWarning,
+} from "@/lib/content/markdown-source";
 
-import fs from "node:fs";
 import path from "node:path";
 
-import matter from "gray-matter";
 import { z } from "zod";
 
 export type Favorite = {
@@ -22,11 +23,17 @@ export type FavoriteGroup = {
 export const favoritesDescription =
   "External articles and resources Hunter keeps coming back to.";
 
+const optionalText = z.preprocess(
+  (value) =>
+    typeof value === "string" && value.trim() ? value.trim() : undefined,
+  z.string().optional(),
+);
+
 const favoriteFrontmatterSchema = z.object({
-  title: z.string().trim().min(1),
-  href: z.url(),
-  note: z.string().trim().min(1),
-  group: z.string().trim().min(1),
+  title: optionalText,
+  href: z.unknown().optional(),
+  note: optionalText,
+  group: optionalText,
 });
 
 const preferredGroupOrder = ["Articles", "Resources"];
@@ -40,18 +47,42 @@ const defaultFavoritesDirectory = path.join(
 export function readFavoriteGroups(
   favoritesDirectory = defaultFavoritesDirectory,
 ): readonly FavoriteGroup[] {
-  const files = listFavoriteFiles(favoritesDirectory);
+  const contentRoot =
+    path.basename(favoritesDirectory) === "favorites"
+      ? path.dirname(favoritesDirectory)
+      : favoritesDirectory;
+  const sources = readMarkdownDirectory({
+    contentRoot,
+    directory: favoritesDirectory,
+  });
   const groups = new Map<string, Favorite[]>();
 
-  for (const filename of files) {
-    const favorite = readFavorite(favoritesDirectory, filename);
-    const items = groups.get(favorite.group) ?? [];
+  for (const source of sources) {
+    const result = favoriteFrontmatterSchema.safeParse(source.frontmatter);
+    if (!result.success) {
+      throw new Error(
+        `Invalid Favorite frontmatter in "${source.sourcePath}".`,
+        { cause: result.error },
+      );
+    }
+    const data = result.data;
+    const href = readHttpUrl(data.href);
+    if (!href) {
+      reportContentWarning(
+        source.sourcePath,
+        "Favorite destination must be an absolute HTTP(S) URL; the item was omitted.",
+      );
+      continue;
+    }
+
+    const group = data.group ?? "Other";
+    const items = groups.get(group) ?? [];
     items.push({
-      title: favorite.title,
-      href: favorite.href,
-      note: favorite.note,
+      title: data.title ?? source.title,
+      href,
+      note: data.note ?? "",
     });
-    groups.set(favorite.group, items);
+    groups.set(group, items);
   }
 
   return [...groups.keys()].sort(compareGroupTitles).map((title) => ({
@@ -66,54 +97,6 @@ export const favorites: readonly Favorite[] = favoriteGroups.flatMap(
   (group) => group.items,
 );
 
-function listFavoriteFiles(favoritesDirectory: string): string[] {
-  let entries: fs.Dirent[];
-  try {
-    entries = fs.readdirSync(favoritesDirectory, { withFileTypes: true });
-  } catch (error) {
-    if (isMissingPath(error)) {
-      return [];
-    }
-
-    throw error;
-  }
-
-  return entries
-    .filter(
-      (entry) =>
-        entry.isFile() &&
-        !entry.name.startsWith(".") &&
-        path.extname(entry.name) === ".md",
-    )
-    .map((entry) => entry.name)
-    .sort((left, right) => left.localeCompare(right));
-}
-
-function readFavorite(
-  favoritesDirectory: string,
-  filename: string,
-): Favorite & { group: string } {
-  const sourcePath = path.join(favoritesDirectory, filename);
-  const slug = path.basename(filename, ".md");
-
-  if (!isValidContentSegment(slug)) {
-    throw new Error(
-      `Invalid favorite filename "${sourcePath}". Slugs must use lowercase letters, numbers, and hyphens.`,
-    );
-  }
-
-  const parsed = matter(fs.readFileSync(sourcePath, "utf8"));
-  const result = favoriteFrontmatterSchema.safeParse(parsed.data);
-  if (!result.success) {
-    const reasons = z.prettifyError(result.error).replaceAll("\n", "; ");
-    throw new Error(
-      `Invalid favorite frontmatter in "${sourcePath}": ${reasons}`,
-    );
-  }
-
-  return result.data;
-}
-
 function compareGroupTitles(left: string, right: string): number {
   const leftRank = preferredGroupOrder.indexOf(left);
   const rightRank = preferredGroupOrder.indexOf(right);
@@ -123,11 +106,16 @@ function compareGroupTitles(left: string, right: string): number {
   return leftOrder - rightOrder || left.localeCompare(right);
 }
 
-function isMissingPath(error: unknown): boolean {
-  return (
-    typeof error === "object" &&
-    error !== null &&
-    "code" in error &&
-    error.code === "ENOENT"
-  );
+function readHttpUrl(value: unknown): string | undefined {
+  if (typeof value !== "string" || !value.trim()) return undefined;
+
+  try {
+    const url = new URL(value.trim());
+    if (url.protocol !== "http:" && url.protocol !== "https:") {
+      return undefined;
+    }
+    return value.trim();
+  } catch {
+    return undefined;
+  }
 }

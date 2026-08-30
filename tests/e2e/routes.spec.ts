@@ -36,9 +36,11 @@ test.describe("production routes", () => {
 
   test("home intro comes from content/home.md", async ({ page }) => {
     await page.goto(siteRoutes.home);
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Sylph");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+      "huntsyea",
+    );
     await expect(
-      page.getByRole("heading", { name: "Next.js Portfolio Starter" }),
+      page.getByRole("heading", { name: "Product & AI" }),
     ).toBeVisible();
     await expect(page.getByText(/follow the posts below/)).toBeVisible();
   });
