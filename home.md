@@ -4,4 +4,5 @@ tagline: Product & AI
 share: true
 ---
 
-Stuff
+I like to build and tinker with AI.
+
