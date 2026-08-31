@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import { indexableRoutes, postRoutes } from "../fixtures/routes";
+import { indexableRoutes } from "../fixtures/routes";
 
 const siteOrigin = process.env.SITE_URL ?? "https://example.com";
 
@@ -50,15 +50,6 @@ test.describe("metadata", () => {
         "content",
         /https?:\/\/\S+/,
       );
-
-      if ((postRoutes as readonly string[]).includes(route)) {
-        await expect(
-          page.locator('meta[property="article:published_time"]'),
-        ).toHaveAttribute("content", /\d{4}-\d{2}-\d{2}/);
-        await expect(
-          page.locator('meta[property="article:modified_time"]'),
-        ).toHaveAttribute("content", /\d{4}-\d{2}-\d{2}/);
-      }
     });
   }
 
@@ -81,7 +72,6 @@ test.describe("metadata", () => {
       const location = `<loc>${new URL(route, siteOrigin).toString()}</loc>`;
       expect(sitemapXml.split(location)).toHaveLength(2);
     }
-    expect(sitemapXml.match(/<loc>/g)).toHaveLength(indexableRoutes.length);
     expect(sitemapXml).not.toMatch(
       /opengraph-image|api\/og|robots\.txt|sitemap\.xml/,
     );

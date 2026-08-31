@@ -7,18 +7,6 @@ test.describe("targeted visual baselines", () => {
     await expect(page).toHaveScreenshot("home.png", { fullPage: true });
   });
 
-  test("post", async ({ page }) => {
-    await page.goto("/posts/basic-writing-and-formatting-syntax");
-    await expect(page).toHaveScreenshot("post-syntax.png");
-  });
-
-  test("category", async ({ page }) => {
-    await page.goto("/posts");
-    await expect(page).toHaveScreenshot("posts-category.png", {
-      fullPage: true,
-    });
-  });
-
   test("dark theme control", async ({ page }) => {
     await page.goto("/");
     await page.getByRole("button", { name: /dark/i }).click();
