@@ -1,4 +1,6 @@
 .next
 coverage
+content/**/*.md
+content/**/*.mdx
 playwright-report
 test-results

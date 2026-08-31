@@ -19,6 +19,20 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Determine verification scope
+        id: scope
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          changed_files="$(git diff --name-only "$BASE_SHA" HEAD)"
+          if test -n "$changed_files" && ! printf '%s\n' "$changed_files" | grep -qv '^content/'; then
+            echo "content_only=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "content_only=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Install pnpm
         uses: pnpm/action-setup@v6
@@ -35,9 +49,18 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Install Playwright browser
+        if: steps.scope.outputs.content_only != 'true'
         run: pnpm exec playwright install --with-deps chromium
 
-      - name: Run read-only verification
+      - name: Verify published content
+        if: steps.scope.outputs.content_only == 'true'
+        run: pnpm test
+        env:
+          CI: true
+          SITE_URL: https://example.com
+
+      - name: Run complete verification
+        if: steps.scope.outputs.content_only != 'true'
         run: pnpm run verify
         env:
           CI: true

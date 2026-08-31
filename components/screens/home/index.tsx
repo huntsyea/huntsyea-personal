@@ -23,7 +23,10 @@ export default async function Home() {
     <FadeIn.Container>
       {(title || tagline) && (
         <FadeIn.Item>
-          <div className="flex justify-between">
+          <div
+            className="flex justify-between"
+            data-authored-content="identity"
+          >
             <div>
               {title ? <h1>{title}</h1> : null}
               {tagline ? <h2>{tagline}</h2> : null}
@@ -32,7 +35,11 @@ export default async function Home() {
         </FadeIn.Item>
       )}
       {(title || tagline) && <Spacer />}
-      {body ? <FadeIn.Item>{body}</FadeIn.Item> : null}
+      {body ? (
+        <FadeIn.Item>
+          <div data-authored-content="body">{body}</div>
+        </FadeIn.Item>
+      ) : null}
       {posts && (
         <FadeIn.Item>
           <Posts category={posts} />
