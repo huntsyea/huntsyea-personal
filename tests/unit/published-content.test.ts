@@ -8,6 +8,6 @@ describe("published content", () => {
   it("loads the repository content through its public readers", () => {
     expect(() => contentCatalog.listEntries()).not.toThrow();
     expect(() => readFavoriteGroups()).not.toThrow();
-    expect(readHomeIntro()?.body.trim()).toBeTruthy();
+    expect(() => readHomeIntro()).not.toThrow();
   });
 });

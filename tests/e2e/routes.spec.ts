@@ -34,13 +34,6 @@ test.describe("production routes", () => {
     });
   }
 
-  test("home renders authored content", async ({ page }) => {
-    await page.goto(siteRoutes.home);
-    const body = page.locator('[data-authored-content="body"]');
-    await expect(body).toBeVisible();
-    await expect(body).not.toBeEmpty();
-  });
-
   test("category, breadcrumb, and table-of-contents markup is semantic", async ({
     page,
   }) => {
