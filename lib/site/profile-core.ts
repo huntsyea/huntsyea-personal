@@ -1,29 +1,14 @@
 import type { Metadata } from "next";
 
-const SITE_NAME = "Sylph";
-const SITE_DESCRIPTION =
-  "A minimal, customizable Next.js portfolio and publishing starter.";
+const SITE_NAME = "huntsyea";
+const SITE_DESCRIPTION = "I like to build and tinker with AI.";
 const SITE_LOCALE = "en_US";
-const DEPLOYMENT_PROFILE = {
-  repositoryUrl: new URL("https://github.com/huntsyea/sylph"),
-  projectName: "sylph-portfolio",
-  repositoryName: "sylph-portfolio",
-  redirectUrl: new URL("https://github.com/huntsyea/sylph"),
-} as const;
-
-export type DeploymentProfile = Readonly<{
-  repositoryUrl: URL;
-  projectName: string;
-  repositoryName: string;
-  redirectUrl: URL;
-}>;
 
 export type SiteProfile = Readonly<{
   name: string;
   description: string;
   locale: string;
   url: URL;
-  deployment: DeploymentProfile;
 }>;
 
 export type SiteMetadataInput = {
@@ -76,25 +61,7 @@ export function createSiteProfile(siteUrl: string | undefined): SiteProfile {
     description: SITE_DESCRIPTION,
     locale: SITE_LOCALE,
     url: getCanonicalSiteUrl(siteUrl),
-    deployment: DEPLOYMENT_PROFILE,
   };
-}
-
-export function getDeployUrl(profile: SiteProfile): URL {
-  const deployUrl = new URL("https://vercel.com/new/clone");
-  deployUrl.search = new URLSearchParams({
-    "repository-url": profile.deployment.repositoryUrl.toString(),
-    env: "SITE_URL",
-    "project-name": profile.deployment.projectName,
-    "repository-name": profile.deployment.repositoryName,
-    "redirect-url": profile.deployment.redirectUrl.toString(),
-    "demo-title": profile.name,
-    "demo-description": profile.description,
-    "demo-url": profile.url.toString(),
-    "demo-image": getSiteUrl(profile, "/preview.png").toString(),
-  }).toString();
-
-  return deployUrl;
 }
 
 export function createPostDescription(

@@ -29,7 +29,7 @@ describe("ContentCatalog", () => {
     fs.mkdirSync(path.join(root, "projects"));
     fs.writeFileSync(
       path.join(root, "home.md"),
-      "---\ntitle: Sylph\ntagline: Intro\n---\n\nNot a category.\n",
+      "---\ntitle: huntsyea\ntagline: Intro\n---\n\nNot a category.\n",
     );
 
     const catalog = createContentCatalog({ contentRoot: root });
@@ -379,7 +379,9 @@ describe("ContentCatalog", () => {
 });
 
 function createFixtureRoot(): string {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), "sylph-content-catalog-"));
+  const root = fs.mkdtempSync(
+    path.join(os.tmpdir(), "huntsyea-content-catalog-"),
+  );
   fixtureDirectories.push(root);
   return root;
 }

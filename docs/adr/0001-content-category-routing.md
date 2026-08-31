@@ -6,7 +6,7 @@
 
 ## Context
 
-Sylph documented category creation as folder-driven, but its App Router implementation duplicated category and post modules for each known category. Filesystem discovery, ordering, lookup, navigation, metadata, and route inventory could therefore disagree. Earlier ingestion also converted read or parse failures into missing posts.
+The original starter documented category creation as folder-driven, but its App Router implementation duplicated category and post modules for each known category. Filesystem discovery, ordering, lookup, navigation, metadata, and route inventory could therefore disagree. Earlier ingestion also converted read or parse failures into missing posts.
 
 The starter has one real content source: trusted files committed under the repository. A public storage adapter would add indirection without a second implementation.
 

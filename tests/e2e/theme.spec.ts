@@ -53,7 +53,7 @@ test.describe("theme and motion preferences", () => {
     await expect(page.locator("html")).toHaveClass(/\bdark\b/);
     await expect(dark).toHaveAttribute("aria-pressed", "true");
 
-    await page.getByRole("link", { name: /Posts \(3\)/ }).click();
+    await page.getByRole("link", { name: /Favorites/ }).click();
     await expect(page.locator("html")).toHaveClass(/\bdark\b/);
 
     await page.goto("/");

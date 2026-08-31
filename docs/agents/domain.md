@@ -5,4 +5,4 @@
 - Update the glossary when a specification introduces or sharpens a load-bearing domain term.
 - Record durable architectural choices in an ADR rather than burying them only in issues or implementation notes.
 
-Sylph is a single-package repository, so it does not use a `CONTEXT-MAP.md` or package-local domain glossaries.
+This is a single-package repository, so it does not use a `CONTEXT-MAP.md` or package-local domain glossaries.

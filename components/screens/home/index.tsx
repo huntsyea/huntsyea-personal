@@ -1,4 +1,3 @@
-import { DeployButton } from "@/components/deploy";
 import { Favorites } from "@/components/favorites";
 import { Footer } from "@/components/footer";
 import * as FadeIn from "@/components/motion/staggers/fade";
@@ -7,7 +6,6 @@ import { contentCatalog } from "@/lib/content";
 import { renderMarkdown } from "@/lib/content/renderer";
 import { favoriteGroups } from "@/lib/favorites";
 import { readHomeIntro } from "@/lib/home";
-import { getDeployUrl } from "@/lib/site/profile";
 
 const Spacer = () => <div style={{ marginTop: "24px" }} />;
 
@@ -42,22 +40,27 @@ export default async function Home() {
       ) : null}
       {posts && (
         <FadeIn.Item>
-          <Posts category={posts} />
+          <div data-authored-content="posts">
+            <Posts category={posts} />
+          </div>
         </FadeIn.Item>
       )}
       {projects && (
         <FadeIn.Item>
-          <Posts category={projects} />
+          <div data-authored-content="projects">
+            <Posts category={projects} />
+          </div>
         </FadeIn.Item>
       )}
       <FadeIn.Item>
-        <Favorites groups={favoriteGroups} />
+        <div data-authored-content="favorites">
+          <Favorites groups={favoriteGroups} />
+        </div>
       </FadeIn.Item>
       <Spacer />
       <FadeIn.Item>
         <Footer />
       </FadeIn.Item>
-      <DeployButton href={getDeployUrl().toString()} />
     </FadeIn.Container>
   );
 }

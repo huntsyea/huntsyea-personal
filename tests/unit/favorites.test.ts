@@ -44,7 +44,7 @@ describe("favorites inventory", () => {
   it("returns empty groups when the folder is missing or empty", () => {
     const missing = path.join(
       os.tmpdir(),
-      `sylph-favorites-missing-${Date.now()}`,
+      `huntsyea-favorites-missing-${Date.now()}`,
     );
     expect(readFavoriteGroups(missing)).toEqual([]);
 
@@ -138,7 +138,7 @@ describe("favorites inventory", () => {
 });
 
 function createFixtureRoot(): string {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), "sylph-favorites-"));
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "huntsyea-favorites-"));
   fixtureDirectories.push(root);
   return root;
 }

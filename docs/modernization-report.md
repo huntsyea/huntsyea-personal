@@ -1,10 +1,10 @@
-# Sylph modernization report
+# Personal site modernization report
 
 Status: implemented and verified on 2026-08-23.
 
 ## Outcome
 
-Sylph is now a statically generated Next.js 16 publishing starter with one validated content inventory, one canonical site profile, native App Router metadata surfaces, read-only verification, and production-browser coverage. The visual direction remains the original sparse Radix-based layout; the modernization changes implementation, semantics, reliability, and accessibility rather than branding.
+The personal site is now a statically generated Next.js 16 application with one validated content inventory, one canonical site profile, native App Router metadata surfaces, read-only verification, and production-browser coverage. The visual direction remains the sparse Radix-based layout; the modernization changes implementation, semantics, reliability, and accessibility.
 
 The supported baseline is:
 
@@ -61,11 +61,11 @@ Breadcrumbs are semantic navigation lists with current-page state. Category resu
 5. Next.js production build
 6. Playwright against `next start`
 
-The browser suite verifies all indexable routes, useful 404s, semantic structure, links, optimized images, canonical and social metadata, sitemap/robots inventory, generated PNG dimensions and identity, theme persistence and pre-hydration layout, OS and reduced-motion preferences, axe accessibility, keyboard behavior, and portable visual baselines. CI installs from the frozen lockfile on Node 24/pnpm 11 and fails if verification rewrites the checkout. Code and configuration changes run the complete top-level command. Changes confined to `content/` run the content domain tests, while the required Vercel check performs the production build.
+The browser suite verifies the current public route inventory, useful 404s, canonical and social metadata, sitemap/robots inventory, the generated home card, theme persistence and pre-hydration layout, reduced-motion preferences, axe accessibility, keyboard behavior, and portable home baselines. Domain tests cover content normalization, rendering, links, images, and future Category and Post behavior without requiring demo content to remain public. CI installs from the frozen lockfile on Node 24/pnpm 11 and fails if verification rewrites the checkout. Code and configuration changes run the complete top-level command. Changes confined to `content/` run the content domain tests, while the required Vercel check performs the production build.
 
 ## Known framework behavior
 
-Next.js 16.3.2 logs `Internal: NoFallbackError` when an intentionally ungenerated `dynamicParams = false` path returns its correct 404. Sylph keeps the static route constraint because the HTTP status and custom not-found behavior are verified; the noisy message matches the open upstream report [vercel/next.js#87738](https://github.com/vercel/next.js/issues/87738). Removing the constraint would trade a cosmetic framework log for request-time dynamic route generation and would violate the catalog architecture.
+Next.js 16.3.2 logs `Internal: NoFallbackError` when an intentionally ungenerated `dynamicParams = false` path returns its correct 404. The site keeps the static route constraint because the HTTP status and custom not-found behavior are verified; the noisy message matches the open upstream report [vercel/next.js#87738](https://github.com/vercel/next.js/issues/87738). Removing the constraint would trade a cosmetic framework log for request-time dynamic route generation and would violate the catalog architecture.
 
 ## Deferred work
 

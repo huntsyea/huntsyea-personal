@@ -1,6 +1,6 @@
-# Sylph
+# huntsyea.com
 
-Sylph is a minimal publishing and portfolio starter built with the Next.js App Router, React, Tailwind CSS, and trusted server-rendered MDX.
+This repository builds Hunter Yea's personal website with the Next.js App Router, React, Tailwind CSS, and trusted server-rendered MDX published from Obsidian.
 
 ## Requirements
 

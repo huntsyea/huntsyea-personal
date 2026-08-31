@@ -24,8 +24,8 @@ describe("readHomeIntro", () => {
   it("ignores leftover publisher keys on home.md", () => {
     const root = createFixtureRoot();
     writeHome(root, {
-      title: "Sylph",
-      tagline: "Next.js Portfolio Starter",
+      title: "huntsyea",
+      tagline: "Product & AI",
       extra: "share: true\npath: leftover\ncategory: home\n",
       body: "Hello from the garden.",
     });
@@ -33,8 +33,8 @@ describe("readHomeIntro", () => {
     const intro = readHomeIntro(root);
 
     expect(intro).toEqual({
-      title: "Sylph",
-      tagline: "Next.js Portfolio Starter",
+      title: "huntsyea",
+      tagline: "Product & AI",
       body: "Hello from the garden.",
     });
     expect(intro).not.toHaveProperty("share");
@@ -99,7 +99,7 @@ describe("readHomeIntro", () => {
 });
 
 function createFixtureRoot(): string {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), "sylph-home-"));
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "huntsyea-home-"));
   fixtureDirectories.push(root);
   return root;
 }

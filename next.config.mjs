@@ -9,15 +9,6 @@ const nextConfig = {
   turbopack: {
     root: projectRoot,
   },
-  images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "avatar.vercel.sh",
-        pathname: "/sylph",
-      },
-    ],
-  },
 };
 
 export default nextConfig;

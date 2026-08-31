@@ -1,8 +1,8 @@
-# Sylph domain context
+# huntsyea.com domain context
 
 ## Purpose
 
-Sylph is a minimal, customizable Next.js portfolio and publishing starter. It renders repository-authored posts and projects as a statically discoverable site with theme-aware MDX, metadata, social cards, and deployment defaults. `content/home.md` is the homepage intro, not a Post.
+This repository builds Hunter Yea's personal website. It renders Obsidian-authored content as a statically discoverable site with theme-aware MDX, metadata, and social cards. `content/home.md` is the homepage intro, not a Post.
 
 ## Domain glossary
 
@@ -12,7 +12,7 @@ The complete generated portfolio and publishing experience, including pages, pos
 
 ### Site profile
 
-The validated canonical identity of a Site: origin, name, description, locale, social defaults, and deployment presentation. Metadata surfaces consume the Site profile instead of assembling identity values independently.
+The validated canonical identity of a Site: origin, name, description, locale, and social defaults. Metadata surfaces consume the Site profile instead of assembling identity values independently.
 
 ### Favorite
 
