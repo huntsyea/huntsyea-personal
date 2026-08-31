@@ -61,7 +61,7 @@ Breadcrumbs are semantic navigation lists with current-page state. Category resu
 5. Next.js production build
 6. Playwright against `next start`
 
-The browser suite verifies all indexable routes, useful 404s, semantic structure, links, optimized images, canonical and social metadata, sitemap/robots inventory, generated PNG dimensions and identity, theme persistence and pre-hydration layout, OS and reduced-motion preferences, axe accessibility, keyboard behavior, and portable visual baselines. CI installs from the frozen lockfile on Node 24/pnpm 11, runs the same top-level command, and fails if verification rewrites the checkout.
+The browser suite verifies all indexable routes, useful 404s, semantic structure, links, optimized images, canonical and social metadata, sitemap/robots inventory, generated PNG dimensions and identity, theme persistence and pre-hydration layout, OS and reduced-motion preferences, axe accessibility, keyboard behavior, and portable visual baselines. CI installs from the frozen lockfile on Node 24/pnpm 11 and fails if verification rewrites the checkout. Code and configuration changes run the complete top-level command. Changes confined to `content/` run the content domain tests, while the required Vercel check performs the production build.
 
 ## Known framework behavior
 

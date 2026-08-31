@@ -58,7 +58,7 @@ The completed Site will let an author add trusted Post content without duplicati
 42. As a maintainer, I want TypeScript 7 handled separately from this modernization, so that an unrelated compiler-major migration does not obscure Next.js compatibility work.
 43. As a contributor, I want tests to assert public Content catalog and Site behavior rather than internal helper calls, so that refactors preserve confidence.
 44. As a contributor, I want browser tests to exercise the production build, so that development-only behavior cannot mask deployment failures.
-45. As a maintainer, I want CI to install from the frozen lockfile and run Verification on every change, so that the repository cannot silently return to a non-buildable state.
+45. As a maintainer, I want CI to install from the frozen lockfile and apply scope-aware repository checks together with the required Vercel build, so that the repository cannot silently return to a non-buildable state.
 46. As an implementation agent, I want each modernization phase to have an explicit exit condition, so that work can be delivered in reviewable increments.
 47. As a maintainer, I want existing issues covered by this program to remain linked, so that historical context is preserved and duplicate work is visible.
 48. As a future maintainer, I want load-bearing content-routing and architecture decisions recorded, so that later reviews do not repeatedly reopen settled choices.
@@ -114,7 +114,7 @@ The completed Site will let an author add trusted Post content without duplicati
 - Image tests assert responsive attributes, configured remote-origin rejection, and optimized delivery for representative local and remote Post images.
 - Verification tests run the top-level Verification command from a clean checkout and assert that `git status` is unchanged afterward.
 - Install verification uses the declared Node and pnpm versions, a frozen lockfile, and the reviewed native-build allowlist.
-- CI runs install, formatting check, lint, typecheck, module tests, production build, and browser tests. Browser tests run against the production server, not the development server.
+- CI runs install, formatting check, lint, typecheck, module tests, production build, and browser tests for code and configuration changes. Changes confined to `content/` run the content domain tests, while the required Vercel check performs the production build. Browser tests run against the production server, not the development server.
 - Existing repository prior art is limited to manual issues: the not-found, breadcrumb, framework-upgrade, and font-smoothing issues describe expected behavior but provide no automated tests. This specification establishes the first durable test corpus.
 - Every tracer bullet includes a clean-checkout Verification run. Dependency, route, or architecture changes are not considered complete based only on a local development page.
 

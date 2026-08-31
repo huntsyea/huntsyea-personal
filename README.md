@@ -69,6 +69,11 @@ Set `SITE_URL` when building or starting outside `.env.local`:
 SITE_URL=https://example.com pnpm verify
 ```
 
+CI runs the complete verification command for code and configuration changes.
+For changes confined to `content/`, CI runs the content domain tests while the
+required Vercel check performs the production build. This keeps trusted
+Obsidian publishing fast without allowing invalid content to merge.
+
 ## Architecture
 
 - `lib/content/` is the content domain seam: schema validation, discovery, ordering, lookup, adjacency, and trusted MDX rendering.
