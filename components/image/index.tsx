@@ -26,7 +26,7 @@ export default function MDXImage({ caption, alt, ...props }: MDXImageProps) {
         shouldReduceMotion ? undefined : { scale: 0.975, opacity: 0.9 }
       }
     >
-      <div className="relative max-h-96 w-full overflow-hidden rounded-large border border-border">
+      <div className="relative w-full overflow-hidden rounded-large border border-border">
         <Image
           alt={alt}
           sizes="(min-width: 768px) 640px, calc(100vw - 3rem)"
