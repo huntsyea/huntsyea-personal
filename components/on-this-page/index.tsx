@@ -4,7 +4,7 @@ import type { HeadingOutlineItem } from "@/lib/content/types";
 
 import { cn } from "@/lib/cn";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface TableOfContentsProps {
   outline: readonly HeadingOutlineItem[];
@@ -14,6 +14,8 @@ export const TableOfContents = ({ outline }: TableOfContentsProps) => {
   const [visibleHeadings, setVisibleHeadings] = useState<Set<string>>(
     new Set(),
   );
+  const highlightedHeading = useRef<HTMLElement | null>(null);
+  const highlightTimeout = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     const handleIntersection = (entries: IntersectionObserverEntry[]) => {
@@ -45,8 +47,31 @@ export const TableOfContents = ({ outline }: TableOfContentsProps) => {
 
     return () => {
       observer.disconnect();
+      window.clearTimeout(highlightTimeout.current);
+      highlightedHeading.current?.setAttribute("data-highlight", "false");
+      highlightedHeading.current = null;
+      highlightTimeout.current = undefined;
     };
   }, [outline]);
+
+  const highlightHeading = (id: string) => {
+    window.clearTimeout(highlightTimeout.current);
+    highlightedHeading.current?.setAttribute("data-highlight", "false");
+
+    const heading = document.getElementById(id);
+    if (!heading) {
+      highlightedHeading.current = null;
+      return;
+    }
+
+    heading.setAttribute("data-highlight", "true");
+    highlightedHeading.current = heading;
+    highlightTimeout.current = window.setTimeout(() => {
+      heading.setAttribute("data-highlight", "false");
+      highlightedHeading.current = null;
+      highlightTimeout.current = undefined;
+    }, 2_000);
+  };
 
   if (outline.length === 0) {
     return null;
@@ -66,6 +91,7 @@ export const TableOfContents = ({ outline }: TableOfContentsProps) => {
           <li key={heading.id} className="mt-0 list-none">
             <a
               href={`#${heading.id}`}
+              onClick={() => highlightHeading(heading.id)}
               className={cn({
                 "mt-0 ml-2 border-l border-l-gray-4 py-1 text-left text-muted opacity-100 transition ease-in-out hover:opacity-50": true,
                 "font-medium text-gray-12": visibleHeadings.has(heading.id),
