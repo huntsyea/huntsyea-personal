@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 470" role="img" aria-labelledby="title desc">
+  <title id="title">How to read the panel signals</title>
+  <desc id="desc">A table showing how agreement, disagreement, and missing coverage guide the active model's next step.</desc>
+  <defs>
+    <style>
+      :root { color-scheme: light dark; }
+      .background { fill: #ffffff; }
+      .rule { stroke: #e5e5e5; stroke-width: 1.5; }
+      .header { font: 600 11px Inter, ui-sans-serif, system-ui, sans-serif; fill: #777777; letter-spacing: 0.1em; text-transform: uppercase; }
+      .signal { font: 500 17px Inter, ui-sans-serif, system-ui, sans-serif; fill: #171717; }
+      .body { font: 400 15px Inter, ui-sans-serif, system-ui, sans-serif; fill: #606060; }
+      @media (prefers-color-scheme: dark) {
+        .background { fill: #111111; }
+        .rule { stroke: #303030; }
+        .header { fill: #8f8f8f; }
+        .signal { fill: #ededed; }
+        .body { fill: #aaaaaa; }
+      }
+    </style>
+  </defs>
+
+  <rect class="background" width="760" height="470" />
+
+  <text class="header" x="32" y="49">Signal</text>
+  <text class="header" x="240" y="49">What it means</text>
+  <text class="header" x="510" y="49">What to do next</text>
+  <line class="rule" x1="32" y1="70" x2="728" y2="70" />
+
+  <text class="signal" x="32" y="118">Agreement</text>
+  <text class="body" x="240" y="110">Models converge</text>
+  <text class="body" x="240" y="134">for different reasons.</text>
+  <text class="body" x="510" y="110">Check why before</text>
+  <text class="body" x="510" y="134">trusting the claim.</text>
+  <line class="rule" x1="32" y1="174" x2="728" y2="174" />
+
+  <text class="signal" x="32" y="224">Disagreement</text>
+  <text class="body" x="240" y="216">The answers split</text>
+  <text class="body" x="240" y="240">on one assumption.</text>
+  <text class="body" x="510" y="216">Find evidence that</text>
+  <text class="body" x="510" y="240">separates the positions.</text>
+  <line class="rule" x1="32" y1="280" x2="728" y2="280" />
+
+  <text class="signal" x="32" y="330">Missing coverage</text>
+  <text class="body" x="240" y="322">No model raised</text>
+  <text class="body" x="240" y="346">a relevant constraint.</text>
+  <text class="body" x="510" y="322">Add the context before</text>
+  <text class="body" x="510" y="346">the active model acts.</text>
+  <line class="rule" x1="32" y1="386" x2="728" y2="386" />
+
+  <text class="body" x="32" y="430">The panel does not decide. It shows the active model where to look next.</text>
+</svg>
