@@ -54,7 +54,7 @@ jobs:
 
       - name: Verify published content
         if: steps.scope.outputs.content_only == 'true'
-        run: pnpm test
+        run: pnpm exec vitest run "tests/unit/published-content.test.ts"
         env:
           CI: true
           SITE_URL: https://example.com
