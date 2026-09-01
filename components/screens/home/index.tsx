@@ -1,10 +1,9 @@
-import { Favorites } from "@/components/favorites";
 import { Footer } from "@/components/footer";
+import Link from "@/components/link";
 import * as FadeIn from "@/components/motion/staggers/fade";
 import { Posts } from "@/components/posts";
 import { contentCatalog } from "@/lib/content";
 import { renderMarkdown } from "@/lib/content/renderer";
-import { favoriteGroups } from "@/lib/favorites";
 import { readHomeIntro } from "@/lib/home";
 
 const Spacer = () => <div style={{ marginTop: "24px" }} />;
@@ -53,9 +52,13 @@ export default async function Home() {
         </FadeIn.Item>
       )}
       <FadeIn.Item>
-        <div data-authored-content="favorites">
-          <Favorites groups={favoriteGroups} />
-        </div>
+        <p className="mt-6" data-authored-content="favorites">
+          I tend to save a lot of stuff across the web, check out{" "}
+          <Link href="/favorites" underline>
+            my favorites
+          </Link>
+          !
+        </p>
       </FadeIn.Item>
       <Spacer />
       <FadeIn.Item>
