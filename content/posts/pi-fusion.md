@@ -6,7 +6,7 @@ time:
   updated: 2026-08-31T00:00:00.000Z
 share: true
 ---
-hun
+
 Ask several models the same question and the useful part is often where they disagree. Their split exposes assumptions, blind spots, and claims that need evidence. I built Pi-Fusion to put those weak points in front of a coding agent before it acts.
 
 ## How Pi-Fusion works
