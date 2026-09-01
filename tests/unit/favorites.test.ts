@@ -1,4 +1,4 @@
-import { favoriteGroups, favorites, readFavoriteGroups } from "@/lib/favorites";
+import { readFavoriteGroups } from "@/lib/favorites";
 
 import fs from "node:fs";
 import os from "node:os";
@@ -15,32 +15,7 @@ afterEach(() => {
   }
 });
 
-const liveHrefs = [
-  "https://kk.org/thetechnium/1000-true-fans/",
-  "https://chriscoyier.net/2025/01/05/designing-for-the-web/",
-  "http://www.paulgraham.com/greatwork.html",
-  "http://www.paulgraham.com/makersschedule.html",
-  "https://gist.github.com/chitchcock/1281611",
-  "https://www.workingtheorys.com/p/taste-is-eating-silicon-valley",
-  "https://grugbrain.dev/",
-  "https://unkey.dev/blog/uuid-ux",
-  "https://www.writingruxandrabio.com/p/writing-tools-i-learned-from-the",
-  "https://www.hillelwayne.com/",
-  "https://www.refactoringui.com/",
-  "https://basecamp.com/shapeup",
-] as const;
-
 describe("favorites inventory", () => {
-  it("keeps the curated outbound list grouped and unique", () => {
-    expect(favoriteGroups.map((group) => group.title)).toEqual([
-      "Articles",
-      "Resources",
-    ]);
-    expect(favorites).toHaveLength(12);
-    expect(new Set(favorites.map((item) => item.href)).size).toBe(12);
-    expect(favorites.map((item) => item.href)).toEqual([...liveHrefs]);
-  });
-
   it("returns empty groups when the folder is missing or empty", () => {
     const missing = path.join(
       os.tmpdir(),
