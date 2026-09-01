@@ -26,6 +26,7 @@ export const AppThemeSwitcher = () => {
     return (
       <span
         aria-hidden="true"
+        data-theme-placeholder=""
         className="flex h-7 w-[82px] rounded-[6px] bg-gray-2 p-[2px]"
       />
     );
