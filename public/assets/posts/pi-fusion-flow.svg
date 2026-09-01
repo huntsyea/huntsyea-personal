@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 560" role="img" aria-labelledby="title desc">
+  <title id="title">How Pi-Fusion works</title>
+  <desc id="desc">A four-step sequence: the active model asks a question, independent panel models respond, a judge compares the responses, and the active model writes the final answer.</desc>
+  <defs>
+    <style>
+      :root { color-scheme: light dark; }
+      .background { fill: #ffffff; }
+      .rule { stroke: #e5e5e5; stroke-width: 1.5; }
+      .dot { fill: #ffffff; stroke: #c8c8c8; stroke-width: 1.5; }
+      .number { font: 500 12px Inter, ui-sans-serif, system-ui, sans-serif; fill: #727272; letter-spacing: 0.04em; }
+      .label { font: 500 19px Inter, ui-sans-serif, system-ui, sans-serif; fill: #171717; }
+      .body { font: 400 15px Inter, ui-sans-serif, system-ui, sans-serif; fill: #666666; }
+      .model { fill: #fafafa; stroke: #e5e5e5; stroke-width: 1.5; }
+      .model-text { font: 500 14px Inter, ui-sans-serif, system-ui, sans-serif; fill: #3f3f3f; }
+      @media (prefers-color-scheme: dark) {
+        .background { fill: #111111; }
+        .rule { stroke: #303030; }
+        .dot { fill: #111111; stroke: #4a4a4a; }
+        .number { fill: #909090; }
+        .label { fill: #ededed; }
+        .body { fill: #aaaaaa; }
+        .model { fill: #171717; stroke: #303030; }
+        .model-text { fill: #d0d0d0; }
+      }
+    </style>
+  </defs>
+
+  <rect class="background" width="760" height="560" />
+
+  <line class="rule" x1="62" y1="76" x2="62" y2="482" />
+
+  <circle class="dot" cx="62" cy="82" r="22" />
+  <text class="number" x="62" y="86" text-anchor="middle">01</text>
+  <text class="label" x="108" y="76">Question</text>
+  <text class="body" x="108" y="101">The active model sends one task to the panel.</text>
+
+  <circle class="dot" cx="62" cy="206" r="22" />
+  <text class="number" x="62" y="210" text-anchor="middle">02</text>
+  <text class="label" x="108" y="188">Independent responses</text>
+  <text class="body" x="108" y="213">Each model answers without seeing the others.</text>
+  <rect class="model" x="108" y="234" width="152" height="44" rx="8" />
+  <rect class="model" x="276" y="234" width="152" height="44" rx="8" />
+  <rect class="model" x="444" y="234" width="152" height="44" rx="8" />
+  <text class="model-text" x="184" y="261" text-anchor="middle">Model A</text>
+  <text class="model-text" x="352" y="261" text-anchor="middle">Model B</text>
+  <text class="model-text" x="520" y="261" text-anchor="middle">Model C</text>
+
+  <circle class="dot" cx="62" cy="352" r="22" />
+  <text class="number" x="62" y="356" text-anchor="middle">03</text>
+  <text class="label" x="108" y="346">Judge analysis</text>
+  <text class="body" x="108" y="371">The judge maps agreement, conflict, missing coverage, and unique insights.</text>
+
+  <circle class="dot" cx="62" cy="476" r="22" />
+  <text class="number" x="62" y="480" text-anchor="middle">04</text>
+  <text class="label" x="108" y="470">Final answer</text>
+  <text class="body" x="108" y="495">The active model answers with the panel evidence in view.</text>
+</svg>
