@@ -71,6 +71,32 @@ test.describe("theme and motion preferences", () => {
     await expect(page.locator("html")).toHaveClass(/\blight\b/);
   });
 
+  test("embedded SVGs follow the selected site theme", async ({ page }) => {
+    await page.emulateMedia({ colorScheme: "light" });
+    await page.goto("/");
+    await page.getByRole("button", { name: /light/i }).click();
+    await page.goto("/projects/pi-fusion");
+
+    const diagram = page.getByRole("img", {
+      name: /A Pi-Fusion run from the active model/,
+    });
+    await diagram.scrollIntoViewIfNeeded();
+    await expect(diagram).toBeVisible();
+    await expect.poll(() => readTopLeftLuminance(diagram)).toBeGreaterThan(240);
+
+    await page.goto("/");
+    await page.getByRole("button", { name: /dark/i }).click();
+    await page.goto("/projects/pi-fusion");
+    await expect(page.locator("html")).toHaveClass(/\bdark\b/);
+    await expect.poll(() => readTopLeftLuminance(diagram)).toBeLessThan(40);
+
+    await page.goto("/");
+    await page.getByRole("button", { name: /light/i }).click();
+    await page.goto("/projects/pi-fusion");
+    await expect(page.locator("html")).toHaveClass(/\blight\b/);
+    await expect.poll(() => readTopLeftLuminance(diagram)).toBeGreaterThan(240);
+  });
+
   test("reduced motion is observable to the document", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/");
@@ -100,3 +126,20 @@ test.describe("theme and motion preferences", () => {
       .toBeLessThanOrEqual(0.001);
   });
 });
+
+async function readTopLeftLuminance(
+  diagram: import("@playwright/test").Locator,
+): Promise<number> {
+  return diagram.evaluate((element) => {
+    const image = element as HTMLImageElement;
+    const canvas = document.createElement("canvas");
+    canvas.width = 1;
+    canvas.height = 1;
+    const context = canvas.getContext("2d");
+    if (!context || !image.complete || image.naturalWidth === 0) return -1;
+
+    context.drawImage(image, 0, 0, 1, 1, 0, 0, 1, 1);
+    const [red, green, blue] = context.getImageData(0, 0, 1, 1).data;
+    return (red + green + blue) / 3;
+  });
+}
