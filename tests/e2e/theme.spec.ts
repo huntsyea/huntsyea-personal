@@ -10,8 +10,7 @@ test.describe("theme and motion preferences", () => {
     const serverRenderedPage = await serverRenderedContext.newPage();
     await serverRenderedPage.goto("/");
     const serverRenderedBox = await serverRenderedPage
-      .locator('[aria-hidden="true"]')
-      .first()
+      .locator("[data-theme-placeholder]")
       .boundingBox();
     await serverRenderedContext.close();
 

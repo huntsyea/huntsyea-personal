@@ -6,7 +6,27 @@ import { contentCatalog } from "@/lib/content";
 import { renderMarkdown } from "@/lib/content/renderer";
 import { readHomeIntro } from "@/lib/home";
 
+import { ArrowRightIcon } from "@radix-ui/react-icons";
+
 const Spacer = () => <div style={{ marginTop: "24px" }} />;
+
+const contactLinks = [
+  {
+    label: "Email",
+    href: "mailto:info@huntsyea.com",
+    newTab: false,
+  },
+  {
+    label: "X",
+    href: "https://x.com/huntsyea",
+    newTab: true,
+  },
+  {
+    label: "GitHub",
+    href: "https://github.com/huntsyea",
+    newTab: true,
+  },
+] as const;
 
 export default async function Home() {
   const intro = readHomeIntro();
@@ -31,6 +51,29 @@ export default async function Home() {
           </div>
         </FadeIn.Item>
       )}
+      <FadeIn.Item>
+        <nav
+          aria-label="Contact and social links"
+          className="mt-6 flex flex-wrap gap-2"
+        >
+          {contactLinks.map(({ label, href, newTab }) => (
+            <Link
+              key={label}
+              href={href}
+              newTab={newTab}
+              className="inline-flex h-10 items-center gap-3 rounded-base border border-gray-5 bg-gray-1 px-3 font-medium text-base text-gray-12 transition-colors hover:bg-gray-2 hover:opacity-100 focus-visible:outline-2 focus-visible:outline-gray-8 focus-visible:outline-offset-2"
+            >
+              {label}
+              <span
+                aria-hidden="true"
+                className="flex size-5 items-center justify-center rounded-full border border-gray-8 text-gray-11"
+              >
+                <ArrowRightIcon />
+              </span>
+            </Link>
+          ))}
+        </nav>
+      </FadeIn.Item>
       {(title || tagline) && <Spacer />}
       {body ? (
         <FadeIn.Item>
