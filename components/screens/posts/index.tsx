@@ -19,7 +19,9 @@ export const Layout = async ({ post, adjacent }: Props) => {
   return (
     <article className="article">
       <header className="flex flex-col">
-        <h1>{post.title}</h1>
+        <h1 style={{ viewTransitionName: `post-title-${post.slug}` }}>
+          {post.title}
+        </h1>
         <div className="mt-1 flex gap-2 text-fg-muted text-sm">
           {post.createdAt ? (
             <time dateTime={post.time?.created}>

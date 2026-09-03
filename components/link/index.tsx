@@ -1,14 +1,22 @@
 import type { AnchorHTMLAttributes } from "react";
 
 import clsx from "clsx";
-import NextLink from "next/link";
+import { Link as ViewTransitionLink } from "next-view-transitions";
+
+type LinkVariant = "inline" | "nav" | "quiet";
 
 interface LinkProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
-  text?: string;
-  underline?: boolean;
+  variant?: LinkVariant;
   newTab?: boolean;
   className?: string;
 }
+
+const variantClasses: Record<LinkVariant, string> = {
+  inline:
+    "underline underline-offset-2 decoration-1 decoration-fg-subtle transition-colors hover:decoration-accent hover:text-accent-fg",
+  nav: "text-fg-muted transition-colors hover:text-fg",
+  quiet: "",
+};
 
 function isExternalUrl(href: string) {
   try {
@@ -20,9 +28,8 @@ function isExternalUrl(href: string) {
 }
 
 const Link = ({
-  text,
+  variant = "quiet",
   href,
-  underline,
   newTab = false,
   className,
   children,
@@ -30,10 +37,7 @@ const Link = ({
   rel,
   ...props
 }: LinkProps) => {
-  const linkClassName = clsx(className, {
-    "underline decoration-1 decoration-fg-subtle underline-offset-2": underline,
-  });
-  const content = text || children;
+  const linkClassName = clsx(variantClasses[variant], className);
 
   if (
     !href ||
@@ -49,16 +53,16 @@ const Link = ({
         rel={rel}
         {...props}
       >
-        {content}
+        {children}
       </a>
     );
   }
 
   if (!isExternalUrl(href)) {
     return (
-      <NextLink className={linkClassName} href={href} {...props}>
-        {content}
-      </NextLink>
+      <ViewTransitionLink className={linkClassName} href={href} {...props}>
+        {children}
+      </ViewTransitionLink>
     );
   }
 
@@ -70,7 +74,7 @@ const Link = ({
       href={href}
       {...props}
     >
-      {content}
+      {children}
     </a>
   );
 };

@@ -7,7 +7,14 @@ const sourceRoots = ["app", "components"];
 const rootSourceFiles = ["mdx-components.tsx"];
 const rawPaletteClass = /\b(?:gray|pink|yellow|teal)-a?[0-9]+\b/;
 const arbitraryPixelUtility = /-\[-?[0-9.]+px\]/;
-const inlineStyleProp = /\bstyle\s*=\s*\{/;
+// Inline style props are forbidden except a lone viewTransitionName, which the
+// Link row/heading pair needs for the shared-element morph (ADR 0002).
+const inlineStyleProp = /\bstyle\s*=\s*\{\{(?!\s*viewTransitionName\b)/;
+const nextLinkImport = /from\s+["']next\/link["']/;
+const viewTransitionLinkImport =
+  /import\s+\{[\s\S]*?\bLink\b[\s\S]*?\}\s+from\s+["']next-view-transitions["']/;
+
+const linkPrimitiveFile = path.join(process.cwd(), "components/link/index.tsx");
 
 describe("design system guardrail", () => {
   it("blocks raw palette classes anywhere in app or component sources", () => {
@@ -29,6 +36,30 @@ describe("design system guardrail", () => {
       (source) => inlineStyleProp.test(source),
       (file) => isGeneratorFile(file),
     );
+
+    expect(offenders).toEqual([]);
+  });
+
+  it("keeps link-library imports inside the Link primitive", () => {
+    const offenders = [
+      ...new Set(
+        [
+          ...sourceRoots.flatMap((root) =>
+            listSourceFiles(path.join(process.cwd(), root)),
+          ),
+          ...rootSourceFiles.map((file) => path.join(process.cwd(), file)),
+        ]
+          .filter((file) => file !== linkPrimitiveFile)
+          .filter((file) => {
+            const source = fs.readFileSync(file, "utf8");
+            return (
+              nextLinkImport.test(source) ||
+              viewTransitionLinkImport.test(source)
+            );
+          })
+          .map((file) => path.relative(process.cwd(), file)),
+      ),
+    ];
 
     expect(offenders).toEqual([]);
   });

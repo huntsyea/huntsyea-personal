@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/link";
 
 export default function NotFound() {
   return (
@@ -9,7 +9,7 @@ export default function NotFound() {
         This category, post, or page does not exist in the published content
         catalog.
       </p>
-      <Link className="w-fit underline underline-offset-4" href="/">
+      <Link className="w-fit" href="/" variant="inline">
         Return home
       </Link>
     </section>

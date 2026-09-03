@@ -1,9 +1,9 @@
 "use client";
 
+import Link from "@/components/link";
 import { cn } from "@/lib/cn";
 
 import { ChevronRightIcon } from "@radix-ui/react-icons";
-import { Link } from "next-view-transitions";
 import { usePathname } from "next/navigation";
 import React from "react";
 

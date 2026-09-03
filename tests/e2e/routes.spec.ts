@@ -133,3 +133,41 @@ test.describe("production routes", () => {
     }
   });
 });
+
+test.describe("view-transition navigation", () => {
+  test("a list row navigates to its Post and back to its Category", async ({
+    page,
+  }) => {
+    await page.goto("/projects");
+
+    const row = page.locator('main a[href="/projects/pi-fusion"]');
+    await expect(row).toBeVisible();
+    await row.click();
+    await expect(page).toHaveURL(/\/projects\/pi-fusion$/);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+      "Pi-Fusion",
+    );
+
+    await page
+      .getByRole("navigation", { name: "Breadcrumb" })
+      .getByRole("link", { name: "Projects", exact: true })
+      .click();
+    await expect(page).toHaveURL(/\/projects$/);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+      /Projects/,
+    );
+  });
+
+  test("external links keep target and rel through the Link primitive", async ({
+    page,
+  }) => {
+    await page.goto("/favorites");
+
+    const outbound = page.locator('main a[target="_blank"]');
+    expect(await outbound.count()).toBeGreaterThan(0);
+    for (const link of await outbound.all()) {
+      await expect(link).toHaveAttribute("target", "_blank");
+      await expect(link).toHaveAttribute("rel", "noopener noreferrer");
+    }
+  });
+});
