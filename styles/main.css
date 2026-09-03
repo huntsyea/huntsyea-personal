@@ -1,20 +1,5 @@
-@import "@radix-ui/colors/gray.css";
-@import "@radix-ui/colors/gray-alpha.css";
-@import "@radix-ui/colors/gray-dark.css";
-@import "@radix-ui/colors/gray-dark-alpha.css";
-@import "@radix-ui/colors/pink.css";
-@import "@radix-ui/colors/pink-alpha.css";
-@import "@radix-ui/colors/pink-dark.css";
-@import "@radix-ui/colors/pink-dark-alpha.css";
-@import "@radix-ui/colors/yellow.css";
-@import "@radix-ui/colors/yellow-alpha.css";
-@import "@radix-ui/colors/yellow-dark.css";
-@import "@radix-ui/colors/yellow-dark-alpha.css";
-@import "@radix-ui/colors/black-alpha.css";
-@import "@radix-ui/colors/white-alpha.css";
 @import "tailwindcss";
-
-@config "../tailwind.config.ts";
+@import "./tokens.css";
 
 @layer base {
   @media (prefers-reduced-motion: reduce) {
@@ -32,30 +17,6 @@
     }
   }
 
-  /*
-  * We are using the Radix UI Colors package to generate a set of color variables that can be used in the project.
-  * @see: https://colors.radix-ui.com/
-  */
-
-  :root {
-    --bg: var(--gray-1);
-    --fg: var(--gray-12);
-    --muted: var(--gray-11);
-    --border: var(--gray-4);
-    --scrollbar-thumb: var(--gray-4);
-    --scrollbar-track: transparent;
-    --selection-background: var(--pink-3);
-    --selection-foreground: var(--pink-11);
-    --kbd-background: var(--gray-3);
-    --kbd-foreground: var(--gray-11);
-    --kbd-border: var(--gray-4);
-    --highlight-background: var(--yellow-3);
-    --highlight-foreground: var(--yellow-11);
-    --radius-small: 4px;
-    --radius-base: 8px;
-    --radius-large: 12px;
-  }
-
   * {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -65,42 +26,50 @@
   }
 
   *::selection {
-    color: var(--selection-foreground);
-    background-color: var(--selection-background);
+    color: var(--selection-fg);
+    background-color: var(--selection-bg);
   }
 
   html {
     scrollbar-gutter: stable;
     scroll-behavior: smooth;
-    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+    scrollbar-color: var(--border) transparent;
     scrollbar-width: thin;
   }
 
   html {
-    @apply text-default text-foreground bg-background;
+    @apply bg-bg text-base text-fg;
 
-    h1,
-    h2,
-    h3,
+    :focus-visible {
+      outline: 2px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    h1 {
+      @apply text-xl font-semibold text-fg;
+    }
+
+    h2 {
+      @apply text-lg text-fg;
+    }
+
+    h3 {
+      @apply text-md text-fg;
+    }
+
     h4,
     h5,
     h6 {
-      @apply font-medium;
+      @apply text-base text-fg-muted;
     }
 
-    h2,
-    h3,
     sub,
     sup {
-      @apply text-muted;
+      @apply text-fg-muted;
     }
 
     sub {
-      @apply text-small;
-    }
-
-    a {
-      @apply transition hover:opacity-50;
+      @apply text-sm;
     }
 
     ol {
@@ -116,15 +85,15 @@
 
       display: inline-block;
       min-width: 20px;
-      height: 20px;
       min-height: 20px;
       padding: 0 6px;
       font-size: 12px;
       line-height: 20px;
+      color: var(--fg-muted);
       text-align: center;
-      background: var(--kbd-background);
-      border-radius: 4px;
-      box-shadow: 0 0 0 1px var(--kbd-border);
+      background: var(--bg-elevated);
+      border-radius: var(--radius-small);
+      box-shadow: 0 0 0 1px var(--border);
     }
   }
 
@@ -140,7 +109,7 @@
 
     figure + h1,
     p + h1 {
-      margin-top: 48px !important;
+      margin-top: var(--space-section) !important;
     }
 
     p:not(:first-child),
@@ -155,7 +124,7 @@
     ol:not(:first-child),
     pre:not(:first-child),
     figure:not(:first-child) {
-      margin-top: 24px;
+      margin-top: var(--space-stack);
     }
 
     /*
@@ -171,7 +140,7 @@
     }
 
     [data-highlight="true"]::before {
-      @apply bg-highlight-background text-highlight-foreground scale-y-110;
+      @apply bg-accent scale-y-110;
     }
 
     [data-highlight="false"]::before {
@@ -206,7 +175,7 @@
       padding-top: 4px;
       padding-left: 6px;
       font-size: 12px;
-      color: var(--muted);
+      color: var(--fg-muted);
       counter-increment: list;
     }
 
@@ -288,9 +257,9 @@
       margin-right: 2px;
       margin-left: 2px;
       text-align: center;
-      background-color: var(--gray-2) !important;
+      background-color: var(--code-bg) !important;
       border-radius: 4px;
-      box-shadow: 0 0 0 1px var(--kbd-border);
+      box-shadow: 0 0 0 1px var(--border);
     }
   }
 
@@ -314,7 +283,7 @@
       width: 100%;
       margin-top: 4px;
       border: 1px solid var(--border);
-      border-radius: var(--radius-base);
+      border-radius: var(--radius-medium);
     }
   }
 }

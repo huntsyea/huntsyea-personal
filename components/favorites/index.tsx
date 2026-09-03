@@ -20,7 +20,7 @@ function FavoriteRows({ items }: { items: readonly Favorite[] }) {
         <li key={item.href} className="m-0 list-none border-border border-t">
           <Link href={item.href} newTab className="flex w-full flex-col py-2">
             <span>{item.title}</span>
-            <span className="text-muted">{favoriteCaption(item)}</span>
+            <span className="text-fg-muted">{favoriteCaption(item)}</span>
           </Link>
         </li>
       ))}
@@ -38,7 +38,7 @@ export const Favorites = ({ groups, asPage = false }: FavoritesProps) => {
         <h1 className="py-2">Favorites {count > 0 && `(${count})`}</h1>
       ) : (
         <NextViewTransition href="/favorites" className="flex justify-between">
-          <h2 className="py-2 text-muted">
+          <h2 className="py-2 text-fg-muted">
             Favorites {count > 0 && `(${count})`}
           </h2>
         </NextViewTransition>
@@ -47,7 +47,7 @@ export const Favorites = ({ groups, asPage = false }: FavoritesProps) => {
       {asPage ? (
         groups.map((group, index) => (
           <div key={group.title} className={index > 0 ? "mt-6" : undefined}>
-            <h2 className="py-2 text-muted">{group.title}</h2>
+            <h2 className="py-2 text-fg-muted">{group.title}</h2>
             <FavoriteRows items={group.items} />
           </div>
         ))

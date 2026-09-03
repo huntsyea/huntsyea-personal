@@ -2,6 +2,8 @@
 
 import type { ImageProps } from "next/image";
 
+import { cn } from "@/lib/cn";
+
 import { motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import React from "react";
@@ -17,7 +19,6 @@ export default function MDXImage({ caption, alt, ...props }: MDXImageProps) {
   const [isImageLoading, setImageLoading] = React.useState(true);
   const shouldReduceMotion = useReducedMotion();
   const href = props.src.toString();
-
   return (
     <motion.a
       className="my-6 flex cursor-pointer flex-col justify-end gap-2"
@@ -30,14 +31,10 @@ export default function MDXImage({ caption, alt, ...props }: MDXImageProps) {
         <Image
           alt={alt}
           sizes="(min-width: 768px) 640px, calc(100vw - 3rem)"
-          style={{
-            objectFit: "contain",
-            width: "100%",
-            height: "auto",
-            objectPosition: "center",
-            WebkitFilter: isImageLoading ? "blur(8px)" : "none",
-            transition: "all 0.5s ease",
-          }}
+          className={cn(
+            "h-auto w-full object-contain object-center transition-all duration-500",
+            isImageLoading ? "blur" : "blur-0",
+          )}
           onLoad={() => setImageLoading(false)}
           {...props}
         />

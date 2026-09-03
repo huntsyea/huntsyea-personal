@@ -27,7 +27,7 @@ export const AppThemeSwitcher = () => {
       <span
         aria-hidden="true"
         data-theme-placeholder=""
-        className="flex h-7 w-[82px] rounded-[6px] bg-gray-2 p-[2px]"
+        className="flex h-7 w-20 rounded-medium bg-bg-subtle p-0.5"
       />
     );
   }
@@ -45,7 +45,7 @@ export const AppThemeSwitcher = () => {
   return (
     <span
       aria-label="Theme"
-      className="flex w-[82px] items-center justify-center gap-0.5 overflow-hidden rounded-[6px] bg-gray-2 p-[2px]"
+      className="flex w-20 items-center justify-center gap-0.5 overflow-hidden rounded-medium bg-bg-subtle p-0.5"
       role="group"
     >
       {buttons.map(({ label, icon, active }) => (
@@ -56,8 +56,8 @@ export const AppThemeSwitcher = () => {
           aria-label={`Use ${label} theme`}
           aria-pressed={active}
           className={cn(
-            "transition-all flex h-6 w-6 items-center justify-center rounded-[4px] hover:opacity-50",
-            active ? "bg-gray-4 text-foreground" : "",
+            "transition-colors flex h-6 w-6 items-center justify-center rounded-small",
+            active ? "bg-bg-elevated text-fg" : "text-fg-muted hover:text-fg",
           )}
         >
           {icon}

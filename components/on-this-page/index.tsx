@@ -93,12 +93,12 @@ export const TableOfContents = ({ outline }: TableOfContentsProps) => {
               href={`#${heading.id}`}
               onClick={() => highlightHeading(heading.id)}
               className={cn({
-                "mt-0 ml-2 border-l border-l-gray-4 py-1 text-left text-muted opacity-100 transition ease-in-out hover:opacity-50": true,
-                "font-medium text-gray-12": visibleHeadings.has(heading.id),
+                "mt-0 ml-2 border-l border-border py-1 text-left text-fg-muted transition ease-in-out hover:text-fg": true,
+                "font-medium text-fg": visibleHeadings.has(heading.id),
                 "pl-4": heading.level === 2,
                 "pl-6": heading.level === 3,
                 "pl-7": heading.level >= 4,
-                "border-l border-l-gray-12": visibleHeadings.has(heading.id),
+                "border-accent": visibleHeadings.has(heading.id),
               })}
               aria-current={
                 visibleHeadings.has(heading.id) ? "location" : undefined

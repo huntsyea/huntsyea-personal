@@ -15,11 +15,11 @@ export const Breadcrumb = () => {
   return (
     <nav
       aria-label="Breadcrumb"
-      className={cn("mt-0 mb-4 w-full font-normal text-small")}
+      className={cn("mt-0 mb-4 w-full font-normal text-sm")}
     >
       <ol className="flex list-none items-center gap-1 align-middle">
         <li>
-          <Link className="text-muted" href="/">
+          <Link className="text-fg-muted" href="/">
             Home
           </Link>
         </li>
@@ -33,15 +33,15 @@ export const Breadcrumb = () => {
           return (
             <React.Fragment key={href}>
               <li aria-hidden="true">
-                <ChevronRightIcon className="text-muted" />
+                <ChevronRightIcon className="text-fg-muted" />
               </li>
               <li>
                 {isLast ? (
-                  <span aria-current="page" className="text-muted">
+                  <span aria-current="page" className="text-fg-muted">
                     {label}
                   </span>
                 ) : (
-                  <Link className="text-muted" href={href}>
+                  <Link className="text-fg-muted" href={href}>
                     {label}
                   </Link>
                 )}

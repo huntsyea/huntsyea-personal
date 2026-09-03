@@ -8,8 +8,6 @@ import { readHomeIntro } from "@/lib/home";
 
 import { ArrowRightIcon } from "@radix-ui/react-icons";
 
-const Spacer = () => <div style={{ marginTop: "24px" }} />;
-
 const contactLinks = [
   {
     label: "Email",
@@ -61,12 +59,12 @@ export default async function Home() {
               key={label}
               href={href}
               newTab={newTab}
-              className="inline-flex h-10 items-center gap-3 rounded-base border border-gray-5 bg-gray-1 px-3 font-medium text-base text-gray-12 transition-colors hover:bg-gray-2 hover:opacity-100 focus-visible:outline-2 focus-visible:outline-gray-8 focus-visible:outline-offset-2"
+              className="inline-flex h-10 items-center gap-3 rounded-medium border border-border-strong bg-bg px-3 font-medium text-base text-fg transition-colors hover:bg-bg-subtle"
             >
               {label}
               <span
                 aria-hidden="true"
-                className="flex size-5 items-center justify-center rounded-full border border-gray-8 text-gray-11"
+                className="flex size-5 items-center justify-center rounded-full border border-focus text-fg-muted"
               >
                 <ArrowRightIcon />
               </span>
@@ -74,7 +72,7 @@ export default async function Home() {
           ))}
         </nav>
       </FadeIn.Item>
-      {(title || tagline) && <Spacer />}
+      <div aria-hidden="true" className="mt-stack" />
       {body ? (
         <FadeIn.Item>
           <div data-authored-content="body">{body}</div>
@@ -103,7 +101,7 @@ export default async function Home() {
           !
         </p>
       </FadeIn.Item>
-      <Spacer />
+      <div aria-hidden="true" className="mt-stack" />
       <FadeIn.Item>
         <Footer />
       </FadeIn.Item>

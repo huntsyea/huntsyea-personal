@@ -1,0 +1,82 @@
+@import "@radix-ui/colors/gray.css";
+@import "@radix-ui/colors/gray-dark.css";
+@import "@radix-ui/colors/gray-alpha.css";
+@import "@radix-ui/colors/gray-dark-alpha.css";
+@import "@radix-ui/colors/teal.css";
+@import "@radix-ui/colors/teal-dark.css";
+@import "@radix-ui/colors/teal-alpha.css";
+@import "@radix-ui/colors/teal-dark-alpha.css";
+
+@theme {
+  /* Type scale. Each role pairs a size, line height, and tracking.
+     Values are absolute px so they hold against the 14px root. */
+  --text-xs: 11px;
+  --text-xs--line-height: 16px;
+  --text-xs--letter-spacing: 0.01px;
+  --text-sm: 12px;
+  --text-sm--line-height: 18px;
+  --text-sm--letter-spacing: 0.01px;
+  --text-base: 14px;
+  --text-base--line-height: 21px;
+  --text-base--letter-spacing: -0.09px;
+  --text-md: 16px;
+  --text-md--line-height: 24px;
+  --text-md--letter-spacing: -0.09px;
+  --text-lg: 18px;
+  --text-lg--line-height: 26px;
+  --text-lg--letter-spacing: -0.18px;
+  --text-xl: 22px;
+  --text-xl--line-height: 28px;
+  --text-xl--letter-spacing: -0.18px;
+  --text-2xl: 26px;
+  --text-2xl--line-height: 32px;
+  --text-2xl--letter-spacing: -0.26px;
+
+  /* Spacing rhythm. */
+  --space-stack: 24px;
+  --space-section: 48px;
+  --space-page: 64px;
+  --space-page-desktop: 96px;
+
+  /* Radius. */
+  --radius-small: 4px;
+  --radius-medium: 8px;
+  --radius-large: 12px;
+}
+
+@theme inline {
+  /* Semantic colour roles resolve per Theme through the primitives in :root. */
+  --color-bg: var(--bg);
+  --color-bg-subtle: var(--bg-subtle);
+  --color-bg-elevated: var(--bg-elevated);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-subtle: var(--fg-subtle);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-focus: var(--focus);
+  --color-selection-bg: var(--selection-bg);
+  --color-selection-fg: var(--selection-fg);
+  --color-code-bg: var(--code-bg);
+  --color-code-fg: var(--code-fg);
+}
+
+:root {
+  --bg: var(--gray-1);
+  --bg-subtle: var(--gray-2);
+  --bg-elevated: var(--gray-3);
+  --fg: var(--gray-12);
+  --fg-muted: var(--gray-11);
+  --fg-subtle: var(--gray-10);
+  --border: var(--gray-4);
+  --border-strong: var(--gray-6);
+  --accent: var(--teal-9);
+  --accent-fg: var(--teal-11);
+  --focus: var(--gray-8);
+  --selection-bg: var(--teal-3);
+  --selection-fg: var(--teal-11);
+  --code-bg: var(--gray-2);
+  --code-fg: var(--gray-12);
+}

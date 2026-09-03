@@ -31,7 +31,7 @@ const Link = ({
   ...props
 }: LinkProps) => {
   const linkClassName = clsx(className, {
-    "underline decoration-1 decoration-gray-a4 underline-offset-2": underline,
+    "underline decoration-1 decoration-fg-subtle underline-offset-2": underline,
   });
   const content = text || children;
 
