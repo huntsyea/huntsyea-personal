@@ -3,13 +3,58 @@ import type { Metadata } from "next";
 const SITE_NAME = "huntsyea";
 const SITE_DESCRIPTION = "I like to build and tinker with AI.";
 const SITE_LOCALE = "en_US";
+const AUTHOR_NAME = "Hunter";
+
+export type ContactLink = Readonly<{
+  label: string;
+  href: string;
+  newTab: boolean;
+}>;
 
 export type SiteProfile = Readonly<{
   name: string;
   description: string;
   locale: string;
   url: URL;
+  authorName: string;
+  contactLinks: readonly ContactLink[];
 }>;
+
+const CONTACT_LINKS: readonly ContactLink[] = validateContactLinks([
+  { label: "Email", href: "mailto:info@huntsyea.com", newTab: false },
+  { label: "X", href: "https://x.com/huntsyea", newTab: true },
+  { label: "GitHub", href: "https://github.com/huntsyea", newTab: true },
+]);
+
+export function validateContactLinks(
+  links: readonly ContactLink[],
+): readonly ContactLink[] {
+  for (const link of links) {
+    const label = link.label.trim();
+    if (!label) {
+      throw new Error("A Contact link must have a label.");
+    }
+    if (!isValidContactTarget(link.href.trim())) {
+      throw new Error(
+        `Contact link "${label}" must target an absolute HTTPS URL or a mailto: address.`,
+      );
+    }
+  }
+  return links;
+}
+
+function isValidContactTarget(href: string): boolean {
+  if (href.startsWith("mailto:")) {
+    return href.length > "mailto:".length;
+  }
+
+  try {
+    const url = new URL(href);
+    return url.protocol === "https:" && Boolean(url.hostname);
+  } catch {
+    return false;
+  }
+}
 
 export type SiteMetadataInput = {
   title?: string;
@@ -61,6 +106,8 @@ export function createSiteProfile(siteUrl: string | undefined): SiteProfile {
     description: SITE_DESCRIPTION,
     locale: SITE_LOCALE,
     url: getCanonicalSiteUrl(siteUrl),
+    authorName: AUTHOR_NAME,
+    contactLinks: CONTACT_LINKS,
   };
 }
 

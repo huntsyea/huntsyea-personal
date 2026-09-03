@@ -4,6 +4,7 @@ import {
   readMarkdownDirectory,
   reportContentWarning,
 } from "@/lib/content/markdown-source";
+import { siteProfile } from "@/lib/site/profile";
 
 import path from "node:path";
 
@@ -20,8 +21,7 @@ export type FavoriteGroup = {
   items: readonly Favorite[];
 };
 
-export const favoritesDescription =
-  "External articles and resources Hunter keeps coming back to.";
+export const favoritesDescription = `External articles and resources ${siteProfile.authorName} keeps coming back to.`;
 
 const optionalText = z.preprocess(
   (value) =>
