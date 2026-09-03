@@ -5,28 +5,11 @@ import { Posts } from "@/components/posts";
 import { contentCatalog } from "@/lib/content";
 import { renderMarkdown } from "@/lib/content/renderer";
 import { readHomeIntro } from "@/lib/home";
+import { siteProfile } from "@/lib/site/profile";
 
 import { ArrowRightIcon } from "@radix-ui/react-icons";
 
 const Spacer = () => <div style={{ marginTop: "24px" }} />;
-
-const contactLinks = [
-  {
-    label: "Email",
-    href: "mailto:info@huntsyea.com",
-    newTab: false,
-  },
-  {
-    label: "X",
-    href: "https://x.com/huntsyea",
-    newTab: true,
-  },
-  {
-    label: "GitHub",
-    href: "https://github.com/huntsyea",
-    newTab: true,
-  },
-] as const;
 
 export default async function Home() {
   const intro = readHomeIntro();
@@ -56,7 +39,7 @@ export default async function Home() {
           aria-label="Contact and social links"
           className="mt-6 flex flex-wrap gap-2"
         >
-          {contactLinks.map(({ label, href, newTab }) => (
+          {siteProfile.contactLinks.map(({ label, href, newTab }) => (
             <Link
               key={label}
               href={href}
@@ -94,15 +77,6 @@ export default async function Home() {
           </div>
         </FadeIn.Item>
       )}
-      <FadeIn.Item>
-        <p className="mt-6" data-authored-content="favorites">
-          I tend to save a lot of stuff across the web, check out{" "}
-          <Link href="/favorites" underline>
-            my favorites
-          </Link>
-          !
-        </p>
-      </FadeIn.Item>
       <Spacer />
       <FadeIn.Item>
         <Footer />

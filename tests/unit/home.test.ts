@@ -70,6 +70,29 @@ describe("readHomeIntro", () => {
     });
   });
 
+  it("returns the authored favorites sentence as part of the body", () => {
+    const root = createFixtureRoot();
+    writeHome(root, {
+      title: "huntsyea",
+      tagline: "Product & AI",
+      body: [
+        "I like to build cool products.",
+        "",
+        "I tend to save a lot of stuff across the web, check out [my favorites](/favorites)!",
+      ].join("\n"),
+    });
+
+    const intro = readHomeIntro(root);
+
+    expect(intro?.body).toContain(
+      "I tend to save a lot of stuff across the web",
+    );
+    expect(intro?.body).toContain("[my favorites](/favorites)");
+    expect(intro?.body).toBe(
+      "I like to build cool products.\n\nI tend to save a lot of stuff across the web, check out [my favorites](/favorites)!",
+    );
+  });
+
   it("fails when multiple root documents normalize to home", () => {
     const root = createFixtureRoot();
     fs.writeFileSync(path.join(root, "home.md"), "Primary");

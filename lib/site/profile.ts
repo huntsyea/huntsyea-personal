@@ -8,7 +8,11 @@ import {
   getSiteUrl as getUrl,
 } from "./profile-core";
 
-export type { SiteMetadataInput, SiteProfile } from "./profile-core";
+export type {
+  SiteMetadataInput,
+  SiteProfile,
+  ContactLink,
+} from "./profile-core";
 
 export const siteProfile = createSiteProfile(process.env.SITE_URL);
 export const SITE_URL = siteProfile.url;
