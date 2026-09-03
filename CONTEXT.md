@@ -8,11 +8,17 @@ This repository builds Hunter Yea's personal website. It renders Obsidian-author
 
 ### Site
 
-The complete generated portfolio and publishing experience, including pages, posts, metadata surfaces, theme behavior, and deployment identity.
+The complete generated reading and portfolio experience, including pages, posts, metadata surfaces, theme behavior, and the design system. The Site's primary mode is reading: the writing is the product and contact is a secondary action. The Site descends from the Sylph starter; that lineage is history, not identity, and starter affordances are not preserved.
+_Avoid_: Sylph, starter, template
 
 ### Site profile
 
-The validated canonical identity of a Site: origin, name, description, locale, and social defaults. Metadata surfaces consume the Site profile instead of assembling identity values independently.
+The validated canonical identity of a Site: origin, name, description, locale, and contact links. Metadata surfaces, the header, the footer, and the home page consume the Site profile instead of assembling identity values independently.
+
+### Contact link
+
+A labeled outbound way to reach the author, such as email or a social profile, owned by the Site profile. Contact links are identity, not content, and are not authored in Obsidian.
+_Avoid_: social link, socials
 
 ### Favorite
 
@@ -20,7 +26,7 @@ A curated outbound link to an external article or resource. Favorites are author
 
 ### Category
 
-A named collection of Posts exposed at one normalized route segment, such as posts or projects. Physical content folders define Categories and must resolve to a deterministic static route inventory.
+A named collection of Posts exposed at one normalized route segment, such as posts or projects, with an optional intro. Physical content folders define Categories and must resolve to a deterministic static route inventory. A file named `index` inside a Category folder is the Category intro, not a Post.
 
 ### Post
 
@@ -42,9 +48,15 @@ The server-side module that transforms trusted Post content into the Site's sema
 
 A search, social, or browser-discovery representation of the Site or a Post, including canonical metadata, Open Graph images, Twitter cards, icons, robots policy, and sitemap entries.
 
+### Design system
+
+The tokens (color roles, type scale, spacing, radius, motion), the prose rhythm, and the shared primitives that every surface of the Site consumes. Surfaces express visual roles through the design system rather than through raw palette values.
+_Avoid_: design language, visual language, styles, theme (when meaning the system rather than the state)
+
 ### Theme
 
-The system, light, or dark visual state applied to the Site, including Radix color tokens and syntax-highlighting colors. Theme selection persists across navigation and reloads and respects user accessibility preferences.
+The system, light, or dark visual state applied on top of the design system, resolving each color role to a concrete value. Theme selection persists across navigation and reloads and respects user accessibility preferences.
+_Avoid_: mode, color scheme, design system (when meaning the tokens rather than the state)
 
 ### Verification
 
