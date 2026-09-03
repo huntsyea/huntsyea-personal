@@ -33,7 +33,7 @@ export default function MDXImage({ caption, alt, ...props }: MDXImageProps) {
           sizes="(min-width: 768px) 640px, calc(100vw - 3rem)"
           className={cn(
             "h-auto w-full object-contain object-center transition-all duration-500",
-            isImageLoading ? "blur" : "blur-0",
+            isImageLoading ? "blur" : "blur-none",
           )}
           onLoad={() => setImageLoading(false)}
           {...props}

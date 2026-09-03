@@ -10,7 +10,7 @@ import React from "react";
 export const mdxComponents: MDXComponents = {
   Link,
   PreviewExample: () => (
-    <div className="flex h-10 w-32 items-center justify-center rounded-lg border border-yellow-6 bg-yellow-3 text-yellow-11">
+    <div className="flex h-10 w-32 items-center justify-center rounded-medium border border-border-strong bg-bg-subtle text-fg-muted">
       Showcase
     </div>
   ),

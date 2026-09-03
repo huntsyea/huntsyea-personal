@@ -4,6 +4,7 @@ import {
   createSiteProfile,
   getCanonicalSiteUrl,
   getSiteUrl,
+  validateContactLinks,
 } from "@/lib/site/profile-core";
 
 import { describe, expect, it } from "vitest";
@@ -20,6 +21,35 @@ describe("site profile", () => {
     expect(getSiteUrl(profile, "/posts/getting-started").toString()).toBe(
       "https://example.com/posts/getting-started",
     );
+  });
+
+  it("owns the author name and validated Contact links", () => {
+    const profile = createSiteProfile("https://example.com");
+
+    expect(profile.authorName).toBe("Hunter");
+    expect(profile.contactLinks).toEqual([
+      { label: "Email", href: "mailto:info@huntsyea.com", newTab: false },
+      { label: "X", href: "https://x.com/huntsyea", newTab: true },
+      { label: "GitHub", href: "https://github.com/huntsyea", newTab: true },
+    ]);
+  });
+
+  it.each([
+    { label: "Ghost", href: "http://insecure.example.com", newTab: true },
+    { label: "FTP", href: "ftp://example.com", newTab: false },
+    { label: "Empty mailto", href: "mailto:", newTab: false },
+    { label: "Nonsense", href: "not a url", newTab: true },
+  ])("rejects an invalid Contact link: $label", (link) => {
+    expect(() => validateContactLinks([link])).toThrow(/Contact link/i);
+  });
+
+  it("accepts mailto and absolute HTTPS Contact links with labels", () => {
+    const links = validateContactLinks([
+      { label: "Email", href: "mailto:info@huntsyea.com", newTab: false },
+      { label: "GitHub", href: "https://github.com/huntsyea", newTab: true },
+    ]);
+
+    expect(links).toHaveLength(2);
   });
 
   it.each([

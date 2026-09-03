@@ -99,6 +99,19 @@ test.describe("post design-system scale", () => {
     expect(body).toBeLessThan(h3);
     expect(h3).toBeLessThan(h2);
     expect(h2).toBeLessThan(h1);
+
+    const headingWeight = (locator: import("@playwright/test").Locator) =>
+      locator.evaluate((element) => getComputedStyle(element).fontWeight);
+    await expect
+      .poll(() =>
+        headingWeight(article.getByRole("heading", { level: 2 }).first()),
+      )
+      .toBe("500");
+    await expect
+      .poll(() =>
+        headingWeight(article.getByRole("heading", { level: 3 }).first()),
+      )
+      .toBe("500");
   });
 
   test("a focused row link shows the global focus ring", async ({ page }) => {

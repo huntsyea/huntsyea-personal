@@ -4,6 +4,7 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 const sourceRoots = ["app", "components"];
+const rootSourceFiles = ["mdx-components.tsx"];
 const rawPaletteClass = /\b(?:gray|pink|yellow|teal)-a?[0-9]+\b/;
 const arbitraryPixelUtility = /-\[-?[0-9.]+px\]/;
 const inlineStyleProp = /\bstyle\s*=\s*\{/;
@@ -39,8 +40,12 @@ function findViolators(
 ): string[] {
   return [
     ...new Set(
-      sourceRoots
-        .flatMap((root) => listSourceFiles(path.join(process.cwd(), root)))
+      [
+        ...sourceRoots.flatMap((root) =>
+          listSourceFiles(path.join(process.cwd(), root)),
+        ),
+        ...rootSourceFiles.map((file) => path.join(process.cwd(), file)),
+      ]
         .filter((file) => !isAllowed(file))
         .filter((file) => predicate(fs.readFileSync(file, "utf8")))
         .map((file) => path.relative(process.cwd(), file)),

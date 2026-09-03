@@ -50,17 +50,17 @@
     }
 
     h2 {
-      @apply text-lg text-fg;
+      @apply text-lg font-medium text-fg;
     }
 
     h3 {
-      @apply text-md text-fg;
+      @apply text-md font-medium text-fg;
     }
 
     h4,
     h5,
     h6 {
-      @apply text-base text-fg-muted;
+      @apply text-base font-medium text-fg-muted;
     }
 
     sub,
