@@ -20,7 +20,7 @@ export const Layout = async ({ post, adjacent }: Props) => {
     <article className="article">
       <header className="flex flex-col">
         <h1>{post.title}</h1>
-        <div className="mt-1 flex gap-2 text-muted text-small">
+        <div className="mt-1 flex gap-2 text-fg-muted text-sm">
           {post.createdAt ? (
             <time dateTime={post.time?.created}>
               Published {formatter.date(post.createdAt)}

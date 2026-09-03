@@ -10,7 +10,7 @@ import React from "react";
 export const mdxComponents: MDXComponents = {
   Link,
   PreviewExample: () => (
-    <div className="flex h-10 w-32 items-center justify-center rounded-lg border border-yellow-6 bg-yellow-3 text-yellow-11">
+    <div className="flex h-10 w-32 items-center justify-center rounded-medium border border-border-strong bg-bg-subtle text-fg-muted">
       Showcase
     </div>
   ),
@@ -24,7 +24,7 @@ export const mdxComponents: MDXComponents = {
     return (
       <Link
         href={href}
-        className="inline-flex items-center gap-1 text-muted"
+        className="inline-flex items-center gap-1 text-fg-muted"
         underline
         {...props}
       >
@@ -34,7 +34,10 @@ export const mdxComponents: MDXComponents = {
   },
   blockquote: ({ className, ...props }: React.HTMLAttributes<HTMLElement>) => (
     <blockquote
-      className={cn("mt-6 border-gray-4 border-l-2 pl-6 text-muted", className)}
+      className={cn(
+        "mt-6 border-border border-l-2 pl-6 text-fg-muted",
+        className,
+      )}
       {...props}
     />
   ),

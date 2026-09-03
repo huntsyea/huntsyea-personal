@@ -24,7 +24,7 @@ function PostNavigation({
           href={`/${category}/${previous.slug}`}
           className="flex w-full flex-col gap-1 text-left"
         >
-          <span className="text-muted">Previous</span>
+          <span className="text-fg-muted">Previous</span>
           <span>{previous.title}</span>
         </Link>
       )}
@@ -33,7 +33,7 @@ function PostNavigation({
           href={`/${category}/${next.slug}`}
           className="flex w-full flex-col gap-1 text-right"
         >
-          <span className="text-muted">Next</span>
+          <span className="text-fg-muted">Next</span>
           <span>{next.title}</span>
         </Link>
       )}

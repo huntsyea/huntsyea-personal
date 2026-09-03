@@ -24,7 +24,7 @@ export const Posts = ({ category, asCategoryPage = false }: PostProps) => {
           href={`/${category.slug}`}
           className="flex justify-between"
         >
-          <h2 className="py-2 text-muted capitalize">
+          <h2 className="py-2 text-fg-muted capitalize">
             {category.title} {posts.length > 0 && `(${posts.length})`}
           </h2>
         </NextViewTransition>
@@ -39,7 +39,7 @@ export const Posts = ({ category, asCategoryPage = false }: PostProps) => {
             >
               <span>{post.title}</span>
               {post.createdAt ? (
-                <time className="text-muted" dateTime={post.time?.created}>
+                <time className="text-fg-muted" dateTime={post.time?.created}>
                   {formatter.date(post.createdAt)}
                 </time>
               ) : null}

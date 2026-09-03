@@ -10,7 +10,7 @@
     margin-top: 4px;
     border-color: var(--border);
     border-width: 1px;
-    border-radius: var(--radius-base);
+    border-radius: var(--radius-medium);
 
     &[data-with-codeblock="true"] {
       border-bottom-right-radius: 0;

@@ -16,6 +16,7 @@
         "ignore": ["stylelint-commands"]
       }
     ],
+    "custom-property-pattern": null,
     "declaration-empty-line-before": [
       "always",
       {
