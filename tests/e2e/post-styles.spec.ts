@@ -8,7 +8,7 @@ test.describe("post typography", () => {
   }) => {
     await page.goto(postRoute);
 
-    const article = page.locator("article.article");
+    const article = page.locator("article.prose");
     const firstParagraph = article.locator("p").first();
     const sectionHeading = article.getByRole("heading", {
       level: 2,
@@ -133,5 +133,26 @@ test.describe("post design-system scale", () => {
     expect(outline.outlineStyle).toBe("solid");
     expect(Number.parseFloat(outline.outlineWidth)).toBeGreaterThan(0);
     expect(outline.outlineColor).not.toBe("rgba(0, 0, 0, 0)");
+  });
+});
+
+test.describe("home prose", () => {
+  test("the home intro carries the prose class and its rhythm", async ({
+    page,
+  }) => {
+    await page.goto("/");
+
+    const intro = page.locator('[data-authored-content="body"]');
+    await expect(intro).toBeVisible();
+    await expect(intro).toHaveClass(/prose/);
+
+    const spacedParagraph = intro.locator(`p`).last();
+    await expect
+      .poll(() =>
+        spacedParagraph.evaluate((element) =>
+          Number.parseFloat(getComputedStyle(element).marginTop),
+        ),
+      )
+      .toBeGreaterThan(0);
   });
 });

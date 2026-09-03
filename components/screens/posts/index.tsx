@@ -17,7 +17,7 @@ export const Layout = async ({ post, adjacent }: Props) => {
   const rendered = await renderPost(post);
 
   return (
-    <article className="article">
+    <article className="prose">
       <header className="flex flex-col">
         <h1>{post.title}</h1>
         <div className="mt-1 flex gap-2 text-fg-muted text-sm">
