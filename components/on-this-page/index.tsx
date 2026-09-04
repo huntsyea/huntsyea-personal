@@ -12,30 +12,19 @@ interface TableOfContentsProps {
 }
 
 /**
- * The table of contents. Below xl it renders as a native details/summary
- * disclosure labelled "On this page" above the article, collapsed by default.
- * At xl it is forced open and becomes the sticky aside in the Post layout's
- * second grid column. The nav landmark keeps the single accessible name
- * "On this page" in both layouts.
+ * The table of contents renders the same outline list twice from one
+ * visible-heading state: a plain nav inside the sticky aside shown only at xl,
+ * and a native details/summary disclosure shown only below xl (server-rendered
+ * closed). Each variant is display:none when inactive, so exactly one
+ * navigation named "On this page" is exposed to the accessibility tree at any
+ * width, with no JavaScript and no first-paint shift at either width.
  */
 export const TableOfContents = ({ outline }: TableOfContentsProps) => {
   const [visibleHeadings, setVisibleHeadings] = useState<Set<string>>(
     new Set(),
   );
-  // Server-rendered open so the outline is visible at xl without JavaScript
-  // (the summary is hidden at xl). The client island collapses the disclosure
-  // below xl on mount and re-evaluates on resize across the breakpoint.
-  const [open, setOpen] = useState(true);
   const highlightedHeading = useRef<HTMLElement | null>(null);
   const highlightTimeout = useRef<number | undefined>(undefined);
-
-  useEffect(() => {
-    const media = window.matchMedia("(min-width: 80rem)");
-    const update = () => setOpen(media.matches);
-    update();
-    media.addEventListener("change", update);
-    return () => media.removeEventListener("change", update);
-  }, []);
 
   useEffect(() => {
     const handleIntersection = (entries: IntersectionObserverEntry[]) => {
@@ -97,42 +86,50 @@ export const TableOfContents = ({ outline }: TableOfContentsProps) => {
     return null;
   }
 
+  const renderList = () => (
+    <ol className="mt-0 flex flex-col gap-0">
+      {outline.map((heading) => (
+        <li key={heading.id} className="mt-0 list-none">
+          <Link
+            href={`#${heading.id}`}
+            onClick={() => highlightHeading(heading.id)}
+            className={cn({
+              "mt-0 ml-2 border-l border-border py-1 text-left text-fg-muted transition ease-in-out hover:text-fg": true,
+              "font-medium text-fg": visibleHeadings.has(heading.id),
+              "pl-4": heading.level === 2,
+              "pl-6": heading.level === 3,
+              "pl-7": heading.level >= 4,
+              "border-accent": visibleHeadings.has(heading.id),
+            })}
+            aria-current={
+              visibleHeadings.has(heading.id) ? "location" : undefined
+            }
+          >
+            {heading.text}
+          </Link>
+        </li>
+      ))}
+    </ol>
+  );
+
   return (
-    <details
-      data-toc
-      open={open}
-      onToggle={(event) => setOpen(event.currentTarget.open)}
-      className="xl:sticky xl:top-6 xl:col-start-2 xl:row-start-1 xl:block xl:px-6"
-    >
-      <summary className="cursor-pointer list-none text-sm font-medium text-fg-muted xl:hidden">
-        On this page
-      </summary>
-      <nav aria-label="On this page">
-        <ol className="mt-0 flex flex-col gap-0">
-          {outline.map((heading) => (
-            <li key={heading.id} className="mt-0 list-none">
-              <Link
-                href={`#${heading.id}`}
-                onClick={() => highlightHeading(heading.id)}
-                className={cn({
-                  "mt-0 ml-2 border-l border-border py-1 text-left text-fg-muted transition ease-in-out hover:text-fg": true,
-                  "font-medium text-fg": visibleHeadings.has(heading.id),
-                  "pl-4": heading.level === 2,
-                  "pl-6": heading.level === 3,
-                  "pl-7": heading.level >= 4,
-                  "border-accent": visibleHeadings.has(heading.id),
-                })}
-                aria-current={
-                  visibleHeadings.has(heading.id) ? "location" : undefined
-                }
-              >
-                {heading.text}
-              </Link>
-            </li>
-          ))}
-        </ol>
+    <>
+      {/* Sticky aside at xl; hidden below xl. */}
+      <nav
+        aria-label="On this page"
+        className="hidden xl:sticky xl:top-6 xl:col-start-2 xl:row-start-1 xl:block xl:px-6"
+      >
+        {renderList()}
       </nav>
-    </details>
+
+      {/* Disclosure below xl; hidden at xl. Server-rendered closed. */}
+      <details data-toc className="xl:hidden">
+        <summary className="cursor-pointer list-none text-sm font-medium text-fg-muted">
+          On this page
+        </summary>
+        <nav aria-label="On this page">{renderList()}</nav>
+      </details>
+    </>
   );
 };
 

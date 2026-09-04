@@ -185,13 +185,12 @@ test.describe("table of contents layout", () => {
     const toc = page.getByRole("navigation", { name: "On this page" });
     await expect(toc).toBeVisible();
 
-    const position = await toc.evaluate((element) => {
-      const details = element.closest("details[data-toc]");
-      return details ? getComputedStyle(details).position : null;
-    });
+    const position = await toc.evaluate(
+      (element) => getComputedStyle(element).position,
+    );
     expect(position).toBe("sticky");
 
-    // The disclosure is forced open at xl, so its summary is hidden.
+    // The disclosure variant is hidden at xl, so its summary is not exposed.
     await expect(
       page.getByRole("button", { name: "On this page" }),
     ).toHaveCount(0);
@@ -246,6 +245,24 @@ test.describe("table of contents layout", () => {
     await expect(
       page.getByRole("navigation", { name: "On this page" }),
     ).toBeVisible();
+  });
+
+  test("below xl the article does not shift across hydration", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 375, height: 800 });
+    await page.goto(postRoute);
+
+    const articleTop = () =>
+      page
+        .locator("article")
+        .evaluate((element) => element.getBoundingClientRect().top);
+
+    const before = await articleTop();
+    await page.waitForLoadState("networkidle");
+    const after = await articleTop();
+
+    expect(after).toBe(before);
   });
 });
 
