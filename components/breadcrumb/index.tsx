@@ -19,7 +19,7 @@ export const Breadcrumb = () => {
     >
       <ol className="flex list-none items-center gap-1 align-middle">
         <li>
-          <Link className="text-fg-muted" href="/">
+          <Link href="/" variant="nav">
             Home
           </Link>
         </li>
@@ -41,7 +41,7 @@ export const Breadcrumb = () => {
                     {label}
                   </span>
                 ) : (
-                  <Link className="text-fg-muted" href={href}>
+                  <Link href={href} variant="nav">
                     {label}
                   </Link>
                 )}
