@@ -1,8 +1,12 @@
 "use client";
 
+import type { SegmentedOption } from "@/components/segmented-control";
 import type React from "react";
 
-import { cn } from "@/lib/cn";
+import {
+  SegmentedControl,
+  SegmentedControlPlaceholder,
+} from "@/components/segmented-control";
 
 import { Monitor, Moon, Sun } from "lucide-react";
 import { ThemeProvider, useTheme } from "next-themes";
@@ -18,52 +22,27 @@ function useHydrated() {
   );
 }
 
+const themeOptions: readonly SegmentedOption[] = [
+  { value: "system", label: "Use system theme", icon: <Monitor width={13} /> },
+  { value: "dark", label: "Use dark theme", icon: <Moon width={13} /> },
+  { value: "light", label: "Use light theme", icon: <Sun width={13} /> },
+];
+
 export const AppThemeSwitcher = () => {
   const mounted = useHydrated();
   const { theme, setTheme } = useTheme();
 
   if (!mounted) {
-    return (
-      <span
-        aria-hidden="true"
-        data-theme-placeholder=""
-        className="flex h-7 w-20 rounded-medium bg-bg-subtle p-0.5"
-      />
-    );
+    return <SegmentedControlPlaceholder options={themeOptions} />;
   }
 
-  const buttons = [
-    {
-      label: "system",
-      icon: <Monitor width={13} />,
-      active: theme === "system",
-    },
-    { label: "dark", icon: <Moon width={13} />, active: theme === "dark" },
-    { label: "light", icon: <Sun width={13} />, active: theme === "light" },
-  ];
-
   return (
-    <span
-      aria-label="Theme"
-      className="flex w-20 items-center justify-center gap-0.5 overflow-hidden rounded-medium bg-bg-subtle p-0.5"
-      role="group"
-    >
-      {buttons.map(({ label, icon, active }) => (
-        <button
-          type="button"
-          key={label}
-          onClick={() => setTheme(label)}
-          aria-label={`Use ${label} theme`}
-          aria-pressed={active}
-          className={cn(
-            "transition-colors flex h-6 w-6 items-center justify-center rounded-small",
-            active ? "bg-bg-elevated text-fg" : "text-fg-muted hover:text-fg",
-          )}
-        >
-          {icon}
-        </button>
-      ))}
-    </span>
+    <SegmentedControl
+      label="Theme"
+      value={theme ?? "system"}
+      options={themeOptions}
+      onSelect={(selected) => setTheme(selected)}
+    />
   );
 };
 

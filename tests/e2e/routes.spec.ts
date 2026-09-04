@@ -90,7 +90,17 @@ test.describe("production routes", () => {
     const contactLinks = page
       .getByRole("navigation", { name: "Contact and social links" })
       .getByRole("link");
-    await page.keyboard.press("Tab");
+
+    // The shared header and its theme control precede the home content in the
+    // tab order, so walk forward until the first Contact pill is reachable.
+    const focusIsOnFirstContact = () =>
+      contactLinks
+        .nth(0)
+        .evaluate((element) => element === document.activeElement);
+
+    for (let tab = 0; tab < 30 && !(await focusIsOnFirstContact()); tab += 1) {
+      await page.keyboard.press("Tab");
+    }
     await expect(contactLinks.nth(0)).toBeFocused();
     await page.keyboard.press("Tab");
     await expect(contactLinks.nth(1)).toBeFocused();
@@ -118,7 +128,7 @@ test.describe("production routes", () => {
   test("favorites exposes secure outbound links", async ({ page }) => {
     await page.goto(siteRoutes.home);
     await expect(
-      page.locator(`a[href="${siteRoutes.favorites}"]`),
+      page.locator(`a[href="${siteRoutes.favorites}"]`).first(),
     ).toBeVisible();
 
     await page.goto(siteRoutes.favorites);

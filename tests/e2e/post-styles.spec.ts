@@ -156,10 +156,9 @@ test.describe("post design-system scale", () => {
 
   test("a focused row link shows the global focus ring", async ({ page }) => {
     await page.goto("/projects");
-    await page.keyboard.press("Tab");
-    await page.keyboard.press("Tab");
 
     const row = page.locator('main a[href="/projects/pi-fusion"]');
+    await row.focus();
     await expect(row).toBeFocused();
 
     const outline = await row.evaluate((element) => {

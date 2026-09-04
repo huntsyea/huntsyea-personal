@@ -3,6 +3,8 @@ import "@/styles/main.css";
 import type { Metadata } from "next";
 
 import { Providers } from "@/components/providers";
+import { SiteFooter } from "@/components/site-footer";
+import { SiteHeader } from "@/components/site-header";
 import { createSiteMetadata } from "@/lib/site/profile";
 
 import clsx from "clsx";
@@ -45,9 +47,11 @@ export default function RootLayout({
     >
       <body>
         <Providers>
-          <main className="mx-auto max-w-screen-sm overflow-x-hidden px-6 py-24 md:overflow-x-visible">
+          <SiteHeader />
+          <main className="mx-auto w-full max-w-[36rem] px-6 py-[var(--space-page)] md:py-[var(--space-page-desktop)]">
             {children}
           </main>
+          <SiteFooter />
         </Providers>
       </body>
     </html>
