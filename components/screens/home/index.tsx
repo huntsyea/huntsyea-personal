@@ -58,7 +58,9 @@ export default async function Home() {
       <div aria-hidden="true" className="mt-stack" />
       {body ? (
         <FadeIn.Item>
-          <div data-authored-content="body">{body}</div>
+          <div data-authored-content="body" className="prose">
+            {body}
+          </div>
         </FadeIn.Item>
       ) : null}
       {posts && (

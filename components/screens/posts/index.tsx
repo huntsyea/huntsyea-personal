@@ -17,7 +17,7 @@ export const Layout = async ({ post, adjacent }: Props) => {
   const rendered = await renderPost(post);
 
   return (
-    <article className="article">
+    <article className="prose">
       <header className="flex flex-col">
         <h1 style={{ viewTransitionName: `post-title-${post.slug}` }}>
           {post.title}
