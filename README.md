@@ -80,8 +80,11 @@ Obsidian publishing fast without allowing invalid content to merge.
 
 - `lib/content/` is the content domain seam: schema validation, discovery, ordering, lookup, adjacency, and trusted MDX rendering.
 - `lib/site/` is the site-identity seam: canonical origin validation and shared metadata construction.
+- `styles/tokens.css` is the Design system's single source of visual truth: semantic colour roles, the type scale, spacing rhythm, radius, and column and aside widths, declared CSS-first for Tailwind v4 with no JavaScript config. `styles/main.css` imports it and owns the base layer, the `.prose` vertical rhythm, and the reduced-motion block. See [`DESIGN.md`](DESIGN.md).
+- `components/link` is the one site `Link` primitive and the only importer of `next-view-transitions`; every internal link routes through it (ADR 0002).
+- `app/layout.tsx` renders the shared shell — `SiteHeader` (site name, catalog-generated nav, Theme control) and `SiteFooter` (Contact links, copyright) — on every route; `main` owns content only.
 - `app/(posts)/[category]/` maps the catalog inventory to statically generated category and post routes.
 - `app/robots.ts`, `app/sitemap.ts`, and native `opengraph-image.tsx` files generate crawler and social surfaces from the same catalog and site profile.
-- `tests/unit/` verifies the two domain seams; `tests/e2e/` verifies the production-built site, accessibility, themes, metadata, and social images.
+- `tests/unit/` verifies the two domain seams and the design-system guardrail (which fails on raw palette classes, arbitrary pixel values, inline styles, and link-library imports outside the `Link` primitive); `tests/e2e/` verifies the production-built site, accessibility, themes, metadata, and social images.
 
 The shipped architecture and verification evidence are summarized in [`docs/modernization-report.md`](docs/modernization-report.md). The original audit, research, and requirements remain in [`docs/sylph-modernization-audit.md`](docs/sylph-modernization-audit.md), [`docs/nextjs-modernization-research.md`](docs/nextjs-modernization-research.md), and [`docs/specs/modernize-sylph.md`](docs/specs/modernize-sylph.md).

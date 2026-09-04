@@ -5,6 +5,22 @@
 **Change policy:** report and plan only. No source files were changed.
 **Rebase note (2026-09-03):** the review ran on a branch cut before the rebrand and post-typography commits landed on `main`. Findings N5, the deploy-button parts of N3 and N6, D2, and D9 are already fixed on `main` and are marked as such below. The remaining findings were re-checked against `main`.
 
+## Outcome
+
+The plan is complete as of today. Every phase shipped as its own pull request with Verification green, and the Design system reference is now [`DESIGN.md`](../DESIGN.md).
+
+| Phase               | Ticket(s)          | Pull request(s)    |
+| ------------------- | ------------------ | ------------------ |
+| 0 Identity          | #36                | #49                |
+| 1 Tokens            | #37                | #50                |
+| 2 Prose             | #38                | #53                |
+| 3 Primitives        | #39, #40           | #54, #57           |
+| 4 Shell             | #42, #44, #45, #46 | #59, #55, #60, #58 |
+| 5 Motion and images | #41, #47           | #51, #61           |
+| 6 Documentation     | #48                | this pull request  |
+
+Two additions surfaced during review and were folded in: the root font size must stay 16 px so rem-based spacing keeps the 4 px grid (#52, PR #56), and the row view-transition names were qualified by category and emitted only when a slug exists, fixed under #40 (PR #57).
+
 ## Verified baseline
 
 Run from a clean install on this checkout:
