@@ -19,6 +19,16 @@ export type ContentPost = Omit<PostFrontmatter, "time" | "title"> & {
 export type ContentCategory = {
   slug: string;
   title: string;
+  /**
+   * The authored body of the reserved `index` note inside the Category folder,
+   * if present. An `index` note is the Category intro, never a Post.
+   */
+  intro: string | undefined;
+  /**
+   * Source path of the `index` note, for diagnostics when rendering fails.
+   * Present whenever the intro is present.
+   */
+  introSourcePath: string | undefined;
   posts: readonly ContentPost[];
 };
 

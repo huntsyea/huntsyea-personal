@@ -357,6 +357,84 @@ describe("ContentCatalog", () => {
     });
   });
 
+  it("exposes an index note as the Category intro and excludes it from Posts and the inventory", () => {
+    const root = createFixtureRoot();
+    writeIndex(root, "posts", { title: "Posts", body: "An intro to posts." });
+    writePost(root, "posts", "first", {
+      title: "First",
+      created: "2024-01-01T00:00:00.000Z",
+    });
+
+    const catalog = createContentCatalog({ contentRoot: root });
+    const category = catalog.getCategory("posts");
+
+    expect(category?.intro).toBe("An intro to posts.");
+    expect(category?.posts.map((post) => post.slug)).toEqual(["first"]);
+    expect(
+      catalog.listPosts().map((post) => `${post.category}/${post.slug}`),
+    ).toEqual(["posts/first"]);
+    expect(
+      catalog
+        .listEntries()
+        .map((entry) =>
+          entry.kind === "category"
+            ? `category:${entry.category.slug}`
+            : `post:${entry.post.category}/${entry.post.slug}`,
+        ),
+    ).toEqual(["category:posts", "post:posts/first"]);
+    expect(catalog.getAdjacent("posts", "first")).toMatchObject({
+      previous: undefined,
+      next: undefined,
+    });
+  });
+
+  it("treats a Category with only an index note as valid and empty", () => {
+    const root = createFixtureRoot();
+    writeIndex(root, "notes", { title: "Notes", body: "Notes intro." });
+
+    const catalog = createContentCatalog({ contentRoot: root });
+
+    expect(catalog.getCategory("notes")).toMatchObject({
+      slug: "notes",
+      intro: "Notes intro.",
+      posts: [],
+    });
+    expect(
+      catalog
+        .listEntries()
+        .map((entry) =>
+          entry.kind === "category"
+            ? `category:${entry.category.slug}`
+            : `post:${entry.post.category}/${entry.post.slug}`,
+        ),
+    ).toEqual(["category:notes"]);
+    expect(catalog.listPosts()).toEqual([]);
+  });
+
+  it("ignores an index note at the content root rather than treating it as a Post or Category", () => {
+    const root = createFixtureRoot();
+    fs.writeFileSync(
+      path.join(root, "index.md"),
+      "---\ntitle: huntsyea\n---\n\nHome intro.\n",
+    );
+
+    const catalog = createContentCatalog({ contentRoot: root });
+
+    expect(catalog.listCategories()).toEqual([]);
+    expect(catalog.listPosts()).toEqual([]);
+    expect(catalog.listEntries()).toEqual([]);
+  });
+
+  it("fails when two index notes collide in the same Category folder", () => {
+    const root = createFixtureRoot();
+    writeIndex(root, "posts", { title: "One", body: "One" });
+    writePost(root, "posts", "index", { title: "Two", created: undefined });
+
+    expect(() =>
+      createContentCatalog({ contentRoot: root }).listCategories(),
+    ).toThrow(/intro route collision/i);
+  });
+
   it("accepts leftover publisher keys on an otherwise valid post", () => {
     const root = createFixtureRoot();
     writePost(root, "posts", "published", {
@@ -409,6 +487,19 @@ function writePost(
   fs.writeFileSync(
     path.join(directory, `${slug}.mdx`),
     `---\n${title}${extra}${time}---\n\n## ${slug}\n`,
+  );
+}
+
+function writeIndex(
+  root: string,
+  category: string,
+  frontmatter: { title: string; body: string },
+): void {
+  const directory = path.join(root, category);
+  fs.mkdirSync(directory, { recursive: true });
+  fs.writeFileSync(
+    path.join(directory, "index.md"),
+    `---\ntitle: ${JSON.stringify(frontmatter.title)}\n---\n\n${frontmatter.body}\n`,
   );
 }
 
