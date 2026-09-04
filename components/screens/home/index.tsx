@@ -20,7 +20,7 @@ export default async function Home() {
       {(title || tagline) && (
         <div className="flex justify-between" data-authored-content="identity">
           <div>
-            {title ? <h1>{title}</h1> : null}
+            {title ? <h1 className="text-2xl">{title}</h1> : null}
             {tagline ? <h2>{tagline}</h2> : null}
           </div>
         </div>

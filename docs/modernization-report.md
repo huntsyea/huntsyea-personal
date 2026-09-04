@@ -44,6 +44,10 @@ The production inventory contains the home page, folder-discovered category page
 
 Native `robots.ts`, `sitemap.ts`, and `opengraph-image.tsx` files replace committed crawler files, `next-sitemap`, and the query-string image API. Social cards use a bundled Inter font, meaningful alternate metadata, PNG output, and a 1200 by 630 canvas. Post cards use current catalog identity and authored dates when available. Content images use the Next.js optimizer, authored dimensions, responsive `sizes`, and a narrow remote pattern.
 
+## Design system
+
+The Design system is defined CSS-first in `styles/tokens.css` (semantic colour roles, type scale, spacing rhythm, radius, column and aside widths) with no JavaScript Tailwind config, and consumed through the shared shell and primitives. The reference is [`DESIGN.md`](../DESIGN.md). The tokens, prose layer, `Link` primitive, and shell are described in the README architecture notes.
+
 ## Theme and accessibility
 
 System, dark, and light themes retain the Radix palette and persist through navigation and reloads. Controls have accessible names and selected state, reserve the same footprint before hydration, follow live OS preference changes, and work from the keyboard. Meaningful text is not hidden behind an opacity animation. Reduced-motion preferences disable smooth scrolling and optional motion at both CSS and component boundaries.
@@ -82,7 +86,6 @@ Next.js 16.3.2 logs `Internal: NoFallbackError` when an intentionally ungenerate
 
 - TypeScript 7 and non-LTS Node type declarations
 - ESLint 10 after the Next.js lint peer family supports it cleanly
-- CSS-first Tailwind configuration after the temporary JavaScript bridge is no longer needed
 - A content adapter only if a second real content source is introduced
 
 The originating requirements remain in [the modernization specification](specs/modernize-sylph.md); the pre-change evidence remains in [the architecture audit](sylph-modernization-audit.md).
