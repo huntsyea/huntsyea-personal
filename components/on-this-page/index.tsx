@@ -2,6 +2,7 @@
 
 import type { HeadingOutlineItem } from "@/lib/content/types";
 
+import Link from "@/components/link";
 import { cn } from "@/lib/cn";
 
 import { useEffect, useRef, useState } from "react";
@@ -89,7 +90,7 @@ export const TableOfContents = ({ outline }: TableOfContentsProps) => {
       <ol className="mt-0 flex flex-col gap-0">
         {outline.map((heading) => (
           <li key={heading.id} className="mt-0 list-none">
-            <a
+            <Link
               href={`#${heading.id}`}
               onClick={() => highlightHeading(heading.id)}
               className={cn({
@@ -105,7 +106,7 @@ export const TableOfContents = ({ outline }: TableOfContentsProps) => {
               }
             >
               {heading.text}
-            </a>
+            </Link>
           </li>
         ))}
       </ol>

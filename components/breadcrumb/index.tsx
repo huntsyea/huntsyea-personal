@@ -1,48 +1,48 @@
-"use client";
-
+import Link from "@/components/link";
 import { cn } from "@/lib/cn";
 
 import { ChevronRightIcon } from "@radix-ui/react-icons";
-import { Link } from "next-view-transitions";
-import { usePathname } from "next/navigation";
 import React from "react";
 
-export const Breadcrumb = () => {
-  const pathname = usePathname();
+export type BreadcrumbItem = {
+  label: string;
+  href: string;
+};
 
-  const segments = pathname.split("/").filter(Boolean);
+export const Breadcrumb = ({
+  items,
+  className,
+}: {
+  items: readonly BreadcrumbItem[];
+  className?: string;
+}) => {
+  const trail = [{ label: "Home", href: "/" }, ...items];
+  const last = trail[trail.length - 1];
 
   return (
     <nav
       aria-label="Breadcrumb"
-      className={cn("mt-0 mb-4 w-full font-normal text-sm")}
+      className={cn("mt-0 mb-4 w-full font-normal text-sm", className)}
     >
       <ol className="flex list-none items-center gap-1 align-middle">
-        <li>
-          <Link className="text-fg-muted" href="/">
-            Home
-          </Link>
-        </li>
-        {segments.map((segment, index) => {
-          const href = `/${segments.slice(0, index + 1).join("/")}`;
-          const label = segment
-            .replaceAll("-", " ")
-            .replace(/\b\w/g, (character) => character.toUpperCase());
-          const isLast = index === segments.length - 1;
+        {trail.map((item, index) => {
+          const isLast = item === last;
 
           return (
-            <React.Fragment key={href}>
-              <li aria-hidden="true">
-                <ChevronRightIcon className="text-fg-muted" />
-              </li>
+            <React.Fragment key={item.href}>
+              {index > 0 ? (
+                <li aria-hidden="true">
+                  <ChevronRightIcon className="text-fg-muted" />
+                </li>
+              ) : null}
               <li>
                 {isLast ? (
                   <span aria-current="page" className="text-fg-muted">
-                    {label}
+                    {item.label}
                   </span>
                 ) : (
-                  <Link className="text-fg-muted" href={href}>
-                    {label}
+                  <Link href={item.href} variant="nav">
+                    {item.label}
                   </Link>
                 )}
               </li>

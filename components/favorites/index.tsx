@@ -2,8 +2,6 @@ import type { Favorite, FavoriteGroup } from "@/lib/favorites";
 
 import Link from "@/components/link";
 
-import { Link as NextViewTransition } from "next-view-transitions";
-
 interface FavoritesProps {
   groups: readonly FavoriteGroup[];
   asPage?: boolean;
@@ -37,11 +35,11 @@ export const Favorites = ({ groups, asPage = false }: FavoritesProps) => {
       {asPage ? (
         <h1 className="py-2">Favorites {count > 0 && `(${count})`}</h1>
       ) : (
-        <NextViewTransition href="/favorites" className="flex justify-between">
+        <Link href="/favorites" className="flex justify-between">
           <h2 className="py-2 text-fg-muted">
             Favorites {count > 0 && `(${count})`}
           </h2>
-        </NextViewTransition>
+        </Link>
       )}
 
       {asPage ? (

@@ -24,8 +24,8 @@ export const mdxComponents: MDXComponents = {
     return (
       <Link
         href={href}
+        variant="inline"
         className="inline-flex items-center gap-1 text-fg-muted"
-        underline
         {...props}
       >
         {children}

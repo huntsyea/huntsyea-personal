@@ -2,7 +2,7 @@
 
 import type { AdjacentPosts } from "@/lib/content/types";
 
-import { Link } from "next-view-transitions";
+import Link from "@/components/link";
 
 interface PostNavigationProps {
   category: string;
