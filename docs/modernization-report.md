@@ -57,7 +57,7 @@ Client chunk sizes (sum of `.next/static/chunks/*.js` in bytes) across the motio
 | Stage  | Bytes  |
 | ------ | ------ |
 | Before | 765775 |
-| After  | 765552 |
+| After  | 765724 |
 
 The route entrance moved from a home-only staggered blur-in to a single fade-and-rise applied through the shared shell. The motion dependencies (`framer-motion`, `next-view-transitions`) are retained per [ADR 0002](adr/0002-view-transitions-and-motion.md).
 

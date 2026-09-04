@@ -131,16 +131,12 @@ test.describe("theme and motion preferences", () => {
         .toBeLessThanOrEqual(0.001);
       await expect
         .poll(() =>
-          animated.evaluate(
-            (element) => getComputedStyle(element).opacity,
-          ),
+          animated.evaluate((element) => getComputedStyle(element).opacity),
         )
         .toBe("1");
       await expect
         .poll(() =>
-          animated.evaluate(
-            (element) => getComputedStyle(element).transform,
-          ),
+          animated.evaluate((element) => getComputedStyle(element).transform),
         )
         .toBe("none");
     }
@@ -156,9 +152,7 @@ test.describe("theme and motion preferences", () => {
       await expect
         .poll(
           () =>
-            entrance.evaluate(
-              (element) => getComputedStyle(element).opacity,
-            ),
+            entrance.evaluate((element) => getComputedStyle(element).opacity),
           { timeout: 1000 },
         )
         .toBe("1");
