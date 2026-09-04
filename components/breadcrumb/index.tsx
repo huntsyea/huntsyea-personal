@@ -1,9 +1,9 @@
 "use client";
 
+import Link from "@/components/link";
 import { cn } from "@/lib/cn";
 
 import { ChevronRightIcon } from "@radix-ui/react-icons";
-import { Link } from "next-view-transitions";
 import { usePathname } from "next/navigation";
 import React from "react";
 
@@ -19,7 +19,7 @@ export const Breadcrumb = () => {
     >
       <ol className="flex list-none items-center gap-1 align-middle">
         <li>
-          <Link className="text-fg-muted" href="/">
+          <Link href="/" variant="nav">
             Home
           </Link>
         </li>
@@ -41,7 +41,7 @@ export const Breadcrumb = () => {
                     {label}
                   </span>
                 ) : (
-                  <Link className="text-fg-muted" href={href}>
+                  <Link href={href} variant="nav">
                     {label}
                   </Link>
                 )}

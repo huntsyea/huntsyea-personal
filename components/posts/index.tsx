@@ -1,8 +1,8 @@
 import type { ContentCategory } from "@/lib/content/types";
 
+import Link from "@/components/link";
 import { formatter } from "@/lib/formatter";
 
-import { Link as NextViewTransition } from "next-view-transitions";
 import React from "react";
 
 interface PostProps {
@@ -20,30 +20,29 @@ export const Posts = ({ category, asCategoryPage = false }: PostProps) => {
           {category.title} {posts.length > 0 && `(${posts.length})`}
         </h1>
       ) : (
-        <NextViewTransition
-          href={`/${category.slug}`}
-          className="flex justify-between"
-        >
+        <Link href={`/${category.slug}`} className="flex justify-between">
           <h2 className="py-2 text-fg-muted capitalize">
             {category.title} {posts.length > 0 && `(${posts.length})`}
           </h2>
-        </NextViewTransition>
+        </Link>
       )}
 
       <ul className="m-0 list-none p-0">
         {posts.map((post) => (
           <li key={post.slug} className="m-0 list-none border-border border-t">
-            <NextViewTransition
+            <Link
               href={`/${category.slug}/${post.slug}`}
               className="flex w-full justify-between py-2"
             >
-              <span>{post.title}</span>
+              <span style={{ viewTransitionName: `post-title-${post.slug}` }}>
+                {post.title}
+              </span>
               {post.createdAt ? (
                 <time className="text-fg-muted" dateTime={post.time?.created}>
                   {formatter.date(post.createdAt)}
                 </time>
               ) : null}
-            </NextViewTransition>
+            </Link>
           </li>
         ))}
       </ul>

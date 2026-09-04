@@ -4,6 +4,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "server-only": `${import.meta.dirname}/tests/server-only.ts`,
+      "next-view-transitions": `${import.meta.dirname}/tests/mocks/next-view-transitions.tsx`,
       "@": import.meta.dirname,
     },
   },
