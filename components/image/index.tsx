@@ -1,47 +1,26 @@
-"use client";
-
 import type { ImageProps } from "next/image";
 
-import { cn } from "@/lib/cn";
-
-import { motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
-import React from "react";
 
-interface MDXImageProps extends ImageProps {
+interface MDXImageProps extends Omit<ImageProps, "alt"> {
   alt: string;
   caption?: string;
-  width: number | `${number}`;
-  height: number | `${number}`;
 }
 
 export default function MDXImage({ caption, alt, ...props }: MDXImageProps) {
-  const [isImageLoading, setImageLoading] = React.useState(true);
-  const shouldReduceMotion = useReducedMotion();
-  const href = props.src.toString();
   return (
-    <motion.a
-      className="my-6 flex cursor-pointer flex-col justify-end gap-2"
-      href={href}
-      whileHover={
-        shouldReduceMotion ? undefined : { scale: 0.975, opacity: 0.9 }
-      }
-    >
-      <div className="relative w-full overflow-hidden rounded-large border border-border">
-        <Image
-          alt={alt}
-          sizes="(min-width: 768px) 640px, calc(100vw - 3rem)"
-          className={cn(
-            "h-auto w-full object-contain object-center transition-all duration-500",
-            isImageLoading ? "blur" : "blur-none",
-          )}
-          onLoad={() => setImageLoading(false)}
-          {...props}
-        />
-      </div>
+    <figure className="flex flex-col overflow-hidden rounded-large border border-border">
+      <Image
+        alt={alt}
+        sizes="(min-width: 768px) 640px, calc(100vw - 3rem)"
+        className="h-auto w-full object-contain object-center"
+        {...props}
+      />
       {caption && (
-        <span className="pt-2 text-center text-xs leading-5">{caption}</span>
+        <figcaption className="w-full border-t border-border px-4 py-2 text-center text-sm leading-6 text-fg-muted">
+          {caption}
+        </figcaption>
       )}
-    </motion.a>
+    </figure>
   );
 }
