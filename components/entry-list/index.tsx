@@ -22,8 +22,10 @@ interface EntryRowProps {
   trailingMeta?: ReactNode;
   /** Optional caption (a favorite note or hostname) rendered under the title. */
   caption?: ReactNode;
-  /** When set, the title carries this post's shared-element view-transition name. */
-  viewTransitionSlug?: string;
+  /** Category slug qualifying a post row's shared-element view-transition name. */
+  category?: string;
+  /** Post slug sharing a view-transition name with the destination heading. */
+  slug?: string;
   newTab?: boolean;
 }
 
@@ -32,24 +34,39 @@ export const EntryRow = ({
   href,
   trailingMeta,
   caption,
-  viewTransitionSlug,
+  category,
+  slug,
   newTab = false,
-}: EntryRowProps) => (
-  <li className="m-0 list-none border-border border-t">
-    <Link
-      href={href}
-      newTab={newTab}
-      variant="quiet"
-      className="flex w-full justify-between py-2"
-    >
-      <span
-        className={caption ? "flex flex-col" : undefined}
-        style={{ viewTransitionName: `post-title-${viewTransitionSlug ?? ""}` }}
+}: EntryRowProps) => {
+  const content = (
+    <>
+      <span>{title}</span>
+      {caption ? <span className="text-fg-muted">{caption}</span> : null}
+    </>
+  );
+
+  return (
+    <li className="m-0 list-none border-border border-t">
+      <Link
+        href={href}
+        newTab={newTab}
+        variant="quiet"
+        className="flex w-full justify-between py-2"
       >
-        <span>{title}</span>
-        {caption ? <span className="text-fg-muted">{caption}</span> : null}
-      </span>
-      {trailingMeta ?? null}
-    </Link>
-  </li>
-);
+        {category && slug ? (
+          <span
+            className={caption ? "flex flex-col" : undefined}
+            style={{ viewTransitionName: `post-title-${category}-${slug}` }}
+          >
+            {content}
+          </span>
+        ) : (
+          <span className={caption ? "flex flex-col" : undefined}>
+            {content}
+          </span>
+        )}
+        {trailingMeta ?? null}
+      </Link>
+    </li>
+  );
+};

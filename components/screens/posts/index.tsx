@@ -14,18 +14,19 @@ interface Props {
 
 export const Layout = async ({ post, adjacent }: Props) => {
   const rendered = await renderPost(post);
+  const { title, category, slug } = post;
 
   return (
     <article className="prose">
       <header className="flex flex-col">
-        <h1 style={{ viewTransitionName: `post-title-${post.slug}` }}>
-          {post.title}
+        <h1 style={{ viewTransitionName: `post-title-${category}-${slug}` }}>
+          {title}
         </h1>
         <Meta post={post} />
       </header>
 
       {rendered.content}
-      <PostNavigation category={post.category} adjacent={adjacent} />
+      <PostNavigation category={category} adjacent={adjacent} />
       <TableOfContents outline={rendered.outline} />
     </article>
   );

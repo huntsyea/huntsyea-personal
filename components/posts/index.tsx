@@ -26,7 +26,8 @@ export const Posts = ({ category, asCategoryPage = false }: PostProps) => {
             key={post.slug}
             title={post.title}
             href={`/${category.slug}/${post.slug}`}
-            viewTransitionSlug={post.slug}
+            category={category.slug}
+            slug={post.slug}
             trailingMeta={
               post.createdAt ? (
                 <time className="text-fg-muted" dateTime={post.time?.created}>
