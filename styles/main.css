@@ -97,39 +97,54 @@
     }
   }
 
-  .article {
-    h1 + h2 {
-      margin-top: 4px !important;
-    }
+  .prose {
+    /* Vertical rhythm: the single owner, from the prose-stack spacing token. */
 
-    h1 + p,
-    h2 + p {
-      margin-top: 8px !important;
-    }
-
-    figure + h1,
-    p + h1 {
-      margin-top: var(--space-section) !important;
-    }
-
-    p:not(:first-child),
-    h1:not(:first-child),
-    h2:not(:first-child),
-    h3:not(:first-child),
-    h4:not(:first-child),
-    h5:not(:first-child),
-    h6:not(:first-child),
-    blockquote:not(:first-child),
-    ul:not(:first-child),
-    ol:not(:first-child),
-    pre:not(:first-child),
-    figure:not(:first-child) {
+    > p:not(:first-child),
+    > h1:not(:first-child),
+    > h2:not(:first-child),
+    > h3:not(:first-child),
+    > h4:not(:first-child),
+    > h5:not(:first-child),
+    > h6:not(:first-child),
+    > blockquote:not(:first-child),
+    > ul:not(:first-child),
+    > ol:not(:first-child),
+    > pre:not(:first-child),
+    > figure:not(:first-child),
+    > [data-table-wrap]:not(:first-child) {
       margin-top: var(--space-stack);
+    }
+
+    > ol,
+    > ul {
+      padding-left: 1.5rem;
+    }
+
+    blockquote {
+      padding-left: 1.5rem;
+      color: var(--fg-muted);
+      border-left: 2px solid var(--border);
+    }
+
+    /* Inline code from the code roles; Shiki inline tokens resolve to the roles too. */
+
+    :not(pre) > code {
+      padding: 2px 6px;
+      color: var(--code-fg);
+      background-color: var(--code-bg);
+      border-radius: var(--radius-small);
+    }
+
+    :not(pre) > code > [data-line] > span {
+      color: var(--code-fg);
     }
 
     /*
     * This handles our highlighting on selection of a table of contents item.
     */
+
+    /* The highlighted table-of-contents heading keeps its colour from the accent role. */
 
     [data-highlight] {
       @apply relative;
@@ -147,14 +162,12 @@
       @apply bg-transparent scale-y-100;
     }
 
-    /* 
-    * Here we are setting up the styles for our footnotes and references.
-    */
+    /* Footnotes render as a distinct, smaller list at the end of the prose. */
 
     .footnotes {
       position: relative;
       padding-top: 16px;
-      margin-top: 64px !important;
+      margin-top: var(--space-stack);
       border-top: 1px solid var(--border);
     }
 
@@ -162,19 +175,15 @@
       position: relative;
       display: block;
       padding: 0 0 0 4px;
-      margin-top: 16px !important;
       list-style: none;
-    }
-
-    .footnotes li {
-      margin-top: 0 !important;
     }
 
     .footnotes ol li {
       position: relative;
       padding-top: 4px;
       padding-left: 6px;
-      font-size: 12px;
+      font-size: 11px;
+      line-height: 16px;
       color: var(--fg-muted);
       counter-increment: list;
     }
@@ -205,17 +214,21 @@
   */
 
   html {
-    code[data-theme*=" "],
-    code[data-theme*=" "] span {
+    code[data-theme*=" "] {
+      color: var(--code-fg);
+    }
+
+    code[data-theme*=" "] > [data-line] {
+      color: var(--code-fg);
+    }
+
+    code[data-theme*=" "] > [data-line] > span {
       color: var(--shiki-light);
-      background-color: var(--shiki-light-bg);
     }
 
     &.dark {
-      code[data-theme*=" "],
-      code[data-theme*=" "] span {
+      code[data-theme*=" "] > [data-line] > span {
         color: var(--shiki-dark);
-        background-color: var(--shiki-dark-bg);
       }
     }
   }
@@ -234,7 +247,7 @@
       display: inline-block;
       width: 12px;
       margin-right: 2rem;
-      color: gray;
+      color: var(--fg-subtle);
       text-align: right;
       content: counter(line);
       counter-increment: line;
@@ -251,16 +264,6 @@
     code[data-line-numbers-max-digits="4"] > [data-line]::before {
       width: 2.25rem;
     }
-
-    p [data-line] {
-      padding: 2px 4px;
-      margin-right: 2px;
-      margin-left: 2px;
-      text-align: center;
-      background-color: var(--code-bg) !important;
-      border-radius: 4px;
-      box-shadow: 0 0 0 1px var(--border);
-    }
   }
 
   /* 
@@ -273,15 +276,15 @@
       padding: 16px;
       overflow-x: auto;
       font-size: 12px;
+      background-color: var(--code-bg);
 
       [data-line] {
-        margin-top: 0 !important;
+        margin-top: 0;
       }
     }
 
     figure {
       width: 100%;
-      margin-top: 4px;
       border: 1px solid var(--border);
       border-radius: var(--radius-medium);
     }

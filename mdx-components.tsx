@@ -32,24 +32,21 @@ export const mdxComponents: MDXComponents = {
       </Link>
     );
   },
-  blockquote: ({ className, ...props }: React.HTMLAttributes<HTMLElement>) => (
-    <blockquote
-      className={cn(
-        "mt-6 border-border border-l-2 pl-6 text-fg-muted",
-        className,
-      )}
-      {...props}
-    />
+  blockquote: ({ ...props }: React.HTMLAttributes<HTMLElement>) => (
+    <blockquote {...props} />
   ),
   table: ({ className, ...props }: React.HTMLAttributes<HTMLTableElement>) => (
-    <div className="my-6 w-full overflow-hidden overflow-y-auto">
-      <table className={cn("w-full overflow-hidden", className)} {...props} />
+    <div
+      data-table-wrap
+      className={cn("w-full overflow-hidden overflow-y-auto", className)}
+    >
+      <table className="w-full" {...props} />
     </div>
   ),
   th: ({ className, ...props }: React.HTMLAttributes<HTMLTableCellElement>) => (
     <th
       className={cn(
-        "border border-border px-4 py-2 text-left font-bold [&[align=center]]:text-center [&[align=right]]:text-right",
+        "border border-border-strong px-4 py-2 text-left font-bold [&[align=center]]:text-center [&[align=right]]:text-right",
         className,
       )}
       {...props}
@@ -58,21 +55,19 @@ export const mdxComponents: MDXComponents = {
   td: ({ className, ...props }: React.HTMLAttributes<HTMLTableCellElement>) => (
     <td
       className={cn(
-        "border border-border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right",
+        "border border-border-strong px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right",
         className,
       )}
       {...props}
     />
   ),
-  ol: ({ className, ...props }: React.HTMLAttributes<HTMLOListElement>) => (
-    <ol className={cn("mt-2 ml-2 list-decimal", className)} {...props} />
+  ol: ({ ...props }: React.HTMLAttributes<HTMLOListElement>) => (
+    <ol {...props} />
   ),
-  ul: ({ className, ...props }: React.HTMLAttributes<HTMLUListElement>) => (
-    <ul className={cn("mt-2 ml-2 list-disc", className)} {...props} />
+  ul: ({ ...props }: React.HTMLAttributes<HTMLUListElement>) => (
+    <ul {...props} />
   ),
-  li: ({ className, ...props }: React.HTMLAttributes<HTMLLIElement>) => (
-    <li className={cn("mt-2 ml-2 list-item", className)} {...props} />
-  ),
+  li: ({ ...props }: React.HTMLAttributes<HTMLLIElement>) => <li {...props} />,
 };
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
