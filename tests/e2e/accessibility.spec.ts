@@ -1,7 +1,9 @@
 import { AxeBuilder } from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
-const routes = ["/", "/favorites", "/this-category-does-not-exist"];
+import { indexableRoutes, notFoundRoute } from "../fixtures/routes";
+
+const routes = [...indexableRoutes, notFoundRoute];
 
 for (const route of routes) {
   test(`axe has no violations on ${route}`, async ({ page }) => {

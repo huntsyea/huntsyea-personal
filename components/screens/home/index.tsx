@@ -1,6 +1,5 @@
-import { Footer } from "@/components/footer";
-import Link from "@/components/link";
 import * as FadeIn from "@/components/motion/staggers/fade";
+import { Pill } from "@/components/pill";
 import { Posts } from "@/components/posts";
 import { contentCatalog } from "@/lib/content";
 import { renderMarkdown } from "@/lib/content/renderer";
@@ -38,12 +37,7 @@ export default async function Home() {
           className="mt-6 flex flex-wrap gap-2"
         >
           {siteProfile.contactLinks.map(({ label, href, newTab }) => (
-            <Link
-              key={label}
-              href={href}
-              newTab={newTab}
-              className="inline-flex h-10 items-center gap-3 rounded-medium border border-border-strong bg-bg px-3 font-medium text-base text-fg transition-colors hover:bg-bg-subtle"
-            >
+            <Pill key={label} href={href} newTab={newTab}>
               {label}
               <span
                 aria-hidden="true"
@@ -51,7 +45,7 @@ export default async function Home() {
               >
                 <ArrowRightIcon />
               </span>
-            </Link>
+            </Pill>
           ))}
         </nav>
       </FadeIn.Item>
@@ -77,10 +71,6 @@ export default async function Home() {
           </div>
         </FadeIn.Item>
       )}
-      <div aria-hidden="true" className="mt-stack" />
-      <FadeIn.Item>
-        <Footer />
-      </FadeIn.Item>
     </FadeIn.Container>
   );
 }
