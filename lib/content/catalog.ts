@@ -185,6 +185,7 @@ export class ContentCatalog {
       slug: category,
       title: titleFromFilename(directoryName),
       intro,
+      introSourcePath: introSources[0]?.sourcePath,
       posts,
     };
   }

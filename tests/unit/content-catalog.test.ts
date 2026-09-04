@@ -411,7 +411,7 @@ describe("ContentCatalog", () => {
     expect(catalog.listPosts()).toEqual([]);
   });
 
-  it("does not derive a Post or Category from an index note at the content root", () => {
+  it("ignores an index note at the content root rather than treating it as a Post or Category", () => {
     const root = createFixtureRoot();
     fs.writeFileSync(
       path.join(root, "index.md"),

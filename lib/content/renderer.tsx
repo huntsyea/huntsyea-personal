@@ -51,6 +51,40 @@ export async function renderMarkdown(source: string): Promise<React.ReactNode> {
   return content;
 }
 
+/**
+ * Renders a Category intro. Like a Post, an intro must not supply a page-level
+ * h1, because the Category page already owns one.
+ */
+export async function renderCategoryIntro(
+  source: string,
+  sourcePath: string,
+): Promise<React.ReactNode> {
+  try {
+    const { content } = await compileMDX({
+      source,
+      components: mdxComponents,
+      options: {
+        parseFrontmatter: false,
+        blockJS: true,
+        mdxOptions: {
+          remarkPlugins: [remarkGfm, validatePostSource(sourcePath)],
+        },
+      },
+    });
+
+    return content;
+  } catch (error) {
+    if (error instanceof ContentRenderError) {
+      throw error;
+    }
+
+    throw new ContentRenderError(
+      `Could not render category intro "${sourcePath}".`,
+      { cause: error },
+    );
+  }
+}
+
 export async function renderPost(post: ContentPost): Promise<RenderedPost> {
   const outline: HeadingOutlineItem[] = [];
   try {

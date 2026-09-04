@@ -24,6 +24,11 @@ export type ContentCategory = {
    * if present. An `index` note is the Category intro, never a Post.
    */
   intro: string | undefined;
+  /**
+   * Source path of the `index` note, for diagnostics when rendering fails.
+   * Present whenever the intro is present.
+   */
+  introSourcePath: string | undefined;
   posts: readonly ContentPost[];
 };
 
