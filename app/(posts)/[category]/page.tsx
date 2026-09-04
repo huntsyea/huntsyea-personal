@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { Breadcrumb } from "@/components/breadcrumb";
 import { Posts } from "@/components/posts";
 import { contentCatalog } from "@/lib/content";
 import { createSiteMetadata, siteProfile } from "@/lib/site/profile";
@@ -43,5 +44,12 @@ export default async function Page({ params }: PageProps) {
     notFound();
   }
 
-  return <Posts category={category} asCategoryPage />;
+  return (
+    <>
+      <Breadcrumb
+        items={[{ label: category.title, href: `/${category.slug}` }]}
+      />
+      <Posts category={category} asCategoryPage />
+    </>
+  );
 }
