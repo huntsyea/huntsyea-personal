@@ -17,7 +17,7 @@ export default function MDXImage({ caption, alt, ...props }: MDXImageProps) {
         {...props}
       />
       {caption && (
-        <figcaption className="w-full border-t border-border px-4 py-2 text-center text-sm leading-6 text-fg-muted">
+        <figcaption className="w-full border-t border-border px-4 py-2 text-center text-sm text-fg-muted">
           {caption}
         </figcaption>
       )}

@@ -9,7 +9,8 @@
 
 @theme {
   /* Type scale. Each role pairs a size, line height, and tracking.
-     Values are absolute px so they hold against the 14px root. */
+     Values are absolute px so they hold against the 16px root font-size,
+     which powers Tailwind's rem-based spacing grid. */
   --text-xs: 11px;
   --text-xs--line-height: 16px;
   --text-xs--letter-spacing: 0.01px;

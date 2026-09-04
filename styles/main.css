@@ -50,7 +50,10 @@
   }
 
   html {
-    @apply bg-bg text-base text-fg;
+    /* The 14px base text role stays off the root so rem values resolve against
+       a 16px root, keeping Tailwind's 4px spacing grid intact. It lands on body. */
+
+    @apply bg-bg text-fg;
 
     :focus-visible {
       outline: 2px solid var(--focus);
@@ -109,6 +112,12 @@
     }
   }
 
+  body {
+    /* Base text role: 14 px / 21 px on body text, not on the root. */
+
+    @apply text-base;
+  }
+
   .prose {
     /* Vertical rhythm: the single owner, from the prose-stack spacing token. */
 
@@ -130,11 +139,13 @@
 
     > ol,
     > ul {
-      padding-left: 1.5rem;
+      /* 24px at a 16px root; expressed through the stack token for a single source. */
+
+      padding-left: var(--space-stack);
     }
 
     blockquote {
-      padding-left: 1.5rem;
+      padding-left: var(--space-stack);
       color: var(--fg-muted);
       border-left: 2px solid var(--border);
     }

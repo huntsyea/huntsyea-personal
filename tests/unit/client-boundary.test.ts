@@ -24,6 +24,21 @@ describe("client catalog boundary", () => {
 
     expect(offenders).toEqual([]);
   });
+
+  it("renders the breadcrumb outside the client bundle", () => {
+    const breadcrumbRoot = path.join(process.cwd(), "components", "breadcrumb");
+    const breadcrumbSources = listSourceFiles(breadcrumbRoot).map((file) =>
+      path.relative(process.cwd(), file),
+    );
+
+    const clientGraph = sourceRoots
+      .flatMap((root) => listSourceFiles(path.join(process.cwd(), root)))
+      .filter((file) => hasUseClient(fs.readFileSync(file, "utf8")))
+      .flatMap((file) => walkClientGraph(file))
+      .map((file) => path.relative(process.cwd(), file));
+
+    expect(clientGraph).not.toContain(breadcrumbSources[0]);
+  });
 });
 
 function hasUseClient(source: string): boolean {
