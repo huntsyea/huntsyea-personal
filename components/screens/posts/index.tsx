@@ -17,17 +17,19 @@ export const Layout = async ({ post, adjacent }: Props) => {
   const { title, category, slug } = post;
 
   return (
-    <article className="prose">
-      <header className="flex flex-col">
-        <h1 style={{ viewTransitionName: `post-title-${category}-${slug}` }}>
-          {title}
-        </h1>
-        <Meta post={post} />
-      </header>
-
-      {rendered.content}
-      <PostNavigation category={category} adjacent={adjacent} />
+    <div className="xl:grid xl:w-column-wide xl:grid-cols-[minmax(0,var(--container-column))_var(--width-aside)] xl:items-start xl:gap-8">
       <TableOfContents outline={rendered.outline} />
-    </article>
+      <article className="prose xl:col-start-1 xl:row-start-1">
+        <header className="flex flex-col">
+          <h1 style={{ viewTransitionName: `post-title-${category}-${slug}` }}>
+            {title}
+          </h1>
+          <Meta post={post} />
+        </header>
+
+        {rendered.content}
+        <PostNavigation category={category} adjacent={adjacent} />
+      </article>
+    </div>
   );
 };

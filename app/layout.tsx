@@ -49,7 +49,7 @@ export default function RootLayout({
       <body>
         <Providers>
           <SiteHeader />
-          <main className="mx-auto w-full max-w-[36rem] px-6 py-[var(--space-page)] md:py-[var(--space-page-desktop)]">
+          <main className="mx-auto w-full max-w-column px-6 py-[var(--space-page)] md:py-[var(--space-page-desktop)]">
             <Entrance>{children}</Entrance>
           </main>
           <SiteFooter />

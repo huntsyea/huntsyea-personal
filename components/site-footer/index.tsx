@@ -9,7 +9,7 @@ export const SiteFooter = () => {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="mx-auto w-full max-w-[36rem] px-6 pt-4 pb-[var(--space-page)] md:pb-[var(--space-page-desktop)]">
+    <footer className="mx-auto w-full max-w-column px-6 pt-4 pb-[var(--space-page)] md:pb-[var(--space-page-desktop)]">
       <div className="border-border flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-t pt-4">
         <nav aria-label="Contact links">
           <ul className="m-0 flex list-none flex-wrap gap-x-4 gap-y-1 p-0">
