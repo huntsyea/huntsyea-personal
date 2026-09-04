@@ -15,3 +15,13 @@ for (const route of routes) {
     ).toEqual([]);
   });
 }
+
+test("axe has no violations on a Post at a narrow width", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 800 });
+  await page.goto("/posts/pi-fusion");
+  const results = await new AxeBuilder({ page }).analyze();
+  expect(
+    results.violations,
+    results.violations.map(({ id, help }) => `${id}: ${help}`).join("\n"),
+  ).toEqual([]);
+});

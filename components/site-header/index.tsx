@@ -11,7 +11,7 @@ export const SiteHeader = () => {
   const categories = contentCatalog.listCategories();
 
   return (
-    <header className="mx-auto flex w-full max-w-[36rem] flex-wrap items-center justify-between gap-x-4 gap-y-3 px-6 pt-[var(--space-page)] pb-6 md:pt-[var(--space-page-desktop)]">
+    <header className="mx-auto flex w-full max-w-column flex-wrap items-center justify-between gap-x-4 gap-y-3 px-6 pt-[var(--space-page)] pb-6 md:pt-[var(--space-page-desktop)]">
       <Link href="/" variant="quiet" className="font-semibold text-fg">
         {siteProfile.name}
       </Link>

@@ -175,6 +175,114 @@ test.describe("post design-system scale", () => {
   });
 });
 
+test.describe("table of contents layout", () => {
+  test("at xl the outline is a sticky aside beside the article, not fixed", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto(postRoute);
+
+    const toc = page.getByRole("navigation", { name: "On this page" });
+    await expect(toc).toBeVisible();
+
+    const position = await toc.evaluate(
+      (element) => getComputedStyle(element).position,
+    );
+    expect(position).toBe("sticky");
+
+    // The disclosure variant is hidden at xl, so its summary is not exposed.
+    await expect(
+      page.getByRole("button", { name: "On this page" }),
+    ).toHaveCount(0);
+
+    // The outline sits in the second grid column beside the article.
+    const grid = await toc.evaluate((element) => {
+      const parent = element.closest("div");
+      return parent ? getComputedStyle(parent).display : null;
+    });
+    expect(grid).toBe("grid");
+
+    // The article box and text align with the header brand at the main content
+    // edge.
+    const articleLeft = await page
+      .locator("article")
+      .evaluate((element) => element.getBoundingClientRect().left);
+    const brandLeft = await page
+      .getByRole("link", { name: "huntsyea" })
+      .evaluate((element) => element.getBoundingClientRect().left);
+    expect(articleLeft).toBe(brandLeft);
+  });
+
+  test("below xl the outline is a collapsed disclosure above the article", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 375, height: 800 });
+    await page.goto(postRoute);
+
+    const summary = page.locator("summary");
+    await expect(summary).toBeVisible();
+    await expect(summary).toHaveText("On this page");
+
+    // Collapsed by default: the nav is hidden inside the closed disclosure.
+    await expect(
+      page.getByRole("navigation", { name: "On this page" }),
+    ).toHaveCount(0);
+
+    const isAboveArticle = await page.evaluate(() => {
+      const disclosure = document.querySelector("details[data-toc]");
+      const article = document.querySelector("article");
+      return Boolean(
+        disclosure &&
+        article &&
+        disclosure.compareDocumentPosition(article) &
+          Node.DOCUMENT_POSITION_FOLLOWING,
+      );
+    });
+    expect(isAboveArticle).toBe(true);
+
+    // Opening the disclosure reveals the outline.
+    await summary.click();
+    await expect(
+      page.getByRole("navigation", { name: "On this page" }),
+    ).toBeVisible();
+  });
+
+  test("below xl the article does not shift across hydration", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 375, height: 800 });
+    await page.goto(postRoute);
+
+    const articleTop = () =>
+      page
+        .locator("article")
+        .evaluate((element) => element.getBoundingClientRect().top);
+
+    const before = await articleTop();
+    await page.waitForLoadState("networkidle");
+    const after = await articleTop();
+
+    expect(after).toBe(before);
+  });
+});
+
+test.describe("table of contents without JavaScript", () => {
+  test.use({ javaScriptEnabled: false });
+
+  test("at xl the outline links are visible without JavaScript", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto(postRoute);
+
+    const toc = page.getByRole("navigation", { name: "On this page" });
+    await expect(toc).toBeVisible();
+    await expect(
+      toc.getByRole("link", { name: "How Pi-Fusion works" }),
+    ).toBeVisible();
+  });
+});
+
 test.describe("home prose", () => {
   test("the home intro carries the prose class and its rhythm", async ({
     page,
