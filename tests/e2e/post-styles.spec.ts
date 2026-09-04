@@ -66,6 +66,46 @@ test.describe("post typography", () => {
 });
 
 test.describe("post design-system scale", () => {
+  test("the root font stays at 16px so rem spacing keeps the 4px grid", async ({
+    page,
+  }) => {
+    await page.goto("/");
+
+    // The base text role is 14px on body, never on the root, so the root font
+    // resolves against the browser default 16px.
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          Number.parseFloat(
+            getComputedStyle(document.documentElement).fontSize,
+          ),
+        ),
+      )
+      .toBe(16);
+
+    const measured = (className: string, property: string) =>
+      page.evaluate(
+        ({ className, property }) => {
+          const probe = document.createElement("div");
+          probe.className = className;
+          document.body.appendChild(probe);
+          const value = Number.parseFloat(
+            getComputedStyle(probe)[
+              property as keyof CSSStyleDeclaration
+            ] as string,
+          );
+          probe.remove();
+          return value;
+        },
+        { className, property },
+      );
+
+    // p-1 / gap-1 resolve to 0.25rem = 4px at a 16px root.
+    await expect.poll(() => measured("inline-flex gap-1", "columnGap")).toBe(4);
+    // leading-6 resolves to 1.5rem = 24px at a 16px root.
+    await expect.poll(() => measured("leading-6", "lineHeight")).toBe(24);
+  });
+
   test("heading font sizes increase from body to h3 to h2 to h1", async ({
     page,
   }) => {
