@@ -39,6 +39,16 @@
   --space-page: 64px;
   --space-page-desktop: 96px;
 
+  /* Reading column width, shared by the header, main, and footer. Exposed as
+     the max-w-column utility (the --container-* namespace drives max-w-*) so
+     the Post layout can widen at xl to hold the table-of-contents aside while
+     the reading column itself stays 36rem. */
+  --container-column: 36rem;
+
+  /* The Post layout widens at xl to hold the sticky table-of-contents aside
+     beside the 36rem reading column. Exposed as the w-column-wide utility. */
+  --width-column-wide: 52rem;
+
   /* Radius. */
   --radius-small: 4px;
   --radius-medium: 8px;

@@ -11,12 +11,35 @@ interface TableOfContentsProps {
   outline: readonly HeadingOutlineItem[];
 }
 
+/**
+ * The table of contents. Below xl it renders as a native details/summary
+ * disclosure labelled "On this page" above the article, collapsed by default.
+ * At xl it is forced open and becomes the sticky aside in the Post layout's
+ * second grid column. The nav landmark keeps the single accessible name
+ * "On this page" in both layouts.
+ */
 export const TableOfContents = ({ outline }: TableOfContentsProps) => {
   const [visibleHeadings, setVisibleHeadings] = useState<Set<string>>(
     new Set(),
   );
+  const [isXl, setIsXl] = useState(false);
+  const [open, setOpen] = useState(false);
   const highlightedHeading = useRef<HTMLElement | null>(null);
   const highlightTimeout = useRef<number | undefined>(undefined);
+
+  useEffect(() => {
+    const media = window.matchMedia("(min-width: 80rem)");
+    const update = () => setIsXl(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
+
+  // At xl the outline is a sticky aside, so the disclosure is forced open;
+  // below xl it stays collapsed by default and the reader can toggle it.
+  useEffect(() => {
+    setOpen(isXl);
+  }, [isXl]);
 
   useEffect(() => {
     const handleIntersection = (entries: IntersectionObserverEntry[]) => {
@@ -79,38 +102,41 @@ export const TableOfContents = ({ outline }: TableOfContentsProps) => {
   }
 
   return (
-    <nav
-      aria-label="On this page"
-      className={cn(
-        "top-[10rem] right-auto left-[2rem] hidden",
-        "xl:top-[6rem] xl:right-[6rem] xl:left-auto xl:block",
-        "fixed mt-0 h-full w-48 justify-start space-y-4",
-      )}
+    <details
+      data-toc
+      open={open}
+      onToggle={(event) => setOpen(event.currentTarget.open)}
+      className="xl:sticky xl:top-6 xl:col-start-2 xl:row-start-1 xl:block xl:px-6"
     >
-      <ol className="mt-0 flex flex-col gap-0">
-        {outline.map((heading) => (
-          <li key={heading.id} className="mt-0 list-none">
-            <Link
-              href={`#${heading.id}`}
-              onClick={() => highlightHeading(heading.id)}
-              className={cn({
-                "mt-0 ml-2 border-l border-border py-1 text-left text-fg-muted transition ease-in-out hover:text-fg": true,
-                "font-medium text-fg": visibleHeadings.has(heading.id),
-                "pl-4": heading.level === 2,
-                "pl-6": heading.level === 3,
-                "pl-7": heading.level >= 4,
-                "border-accent": visibleHeadings.has(heading.id),
-              })}
-              aria-current={
-                visibleHeadings.has(heading.id) ? "location" : undefined
-              }
-            >
-              {heading.text}
-            </Link>
-          </li>
-        ))}
-      </ol>
-    </nav>
+      <summary className="cursor-pointer list-none text-sm font-medium text-fg-muted xl:hidden">
+        On this page
+      </summary>
+      <nav aria-label="On this page">
+        <ol className="mt-0 flex flex-col gap-0">
+          {outline.map((heading) => (
+            <li key={heading.id} className="mt-0 list-none">
+              <Link
+                href={`#${heading.id}`}
+                onClick={() => highlightHeading(heading.id)}
+                className={cn({
+                  "mt-0 ml-2 border-l border-border py-1 text-left text-fg-muted transition ease-in-out hover:text-fg": true,
+                  "font-medium text-fg": visibleHeadings.has(heading.id),
+                  "pl-4": heading.level === 2,
+                  "pl-6": heading.level === 3,
+                  "pl-7": heading.level >= 4,
+                  "border-accent": visibleHeadings.has(heading.id),
+                })}
+                aria-current={
+                  visibleHeadings.has(heading.id) ? "location" : undefined
+                }
+              >
+                {heading.text}
+              </Link>
+            </li>
+          ))}
+        </ol>
+      </nav>
+    </details>
   );
 };
 
