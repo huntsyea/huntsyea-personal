@@ -81,7 +81,7 @@ Obsidian publishing fast without allowing invalid content to merge.
 - `lib/content/` is the content domain seam: schema validation, discovery, ordering, lookup, adjacency, and trusted MDX rendering.
 - `lib/site/` is the site-identity seam: canonical origin validation and shared metadata construction.
 - `styles/tokens.css` is the Design system's single source of visual truth: semantic colour roles, the type scale, spacing rhythm, radius, and column and aside widths, declared CSS-first for Tailwind v4 with no JavaScript config. `styles/main.css` imports it and owns the base layer, the `.prose` vertical rhythm, and the reduced-motion block. See [`DESIGN.md`](DESIGN.md).
-- `components/link` is the one site `Link` primitive and the only importer of `next-view-transitions`; every internal link routes through it (ADR 0002).
+- `components/link` is the one site `Link` primitive and the only importer of the Link component; the providers module imports the ViewTransitions provider, and the design-system guardrail exempts exactly those two (ADR 0002).
 - `app/layout.tsx` renders the shared shell — `SiteHeader` (site name, catalog-generated nav, Theme control) and `SiteFooter` (Contact links, copyright) — on every route; `main` owns content only.
 - `app/(posts)/[category]/` maps the catalog inventory to statically generated category and post routes.
 - `app/robots.ts`, `app/sitemap.ts`, and native `opengraph-image.tsx` files generate crawler and social surfaces from the same catalog and site profile.

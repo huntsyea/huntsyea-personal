@@ -9,7 +9,7 @@ Semantic colour roles are declared on `:root` and resolve through the Radix prim
 | Role            | Light primitive | Dark primitive | When to use                                                                     |
 | --------------- | --------------- | -------------- | ------------------------------------------------------------------------------- |
 | `bg`            | gray-1          | gray-1         | Page surface.                                                                   |
-| `bg-subtle`     | gray-2          | gray-2         | Hover surface, inline code, the Theme switcher track.                           |
+| `bg-subtle`     | gray-2          | gray-2         | Hover surface, the Theme switcher track.                                        |
 | `bg-elevated`   | gray-3          | gray-3         | Active segment, `kbd`.                                                          |
 | `fg`            | gray-12         | gray-12        | Primary text.                                                                   |
 | `fg-muted`      | gray-11         | gray-11        | Secondary text, meta lines, captions, breadcrumb, table of contents.            |
@@ -35,8 +35,8 @@ Each step pairs a size, line height, and tracking. Values are absolute pixels so
 | `base` | 14 / 21     | -0.09 px | Body text.                                           |
 | `md`   | 16 / 24     | -0.09 px | `h3`.                                                |
 | `lg`   | 18 / 26     | -0.18 px | `h2`.                                                |
-| `xl`   | 22 / 28     | -0.18 px | `h1` on posts, category pages, and the home name.    |
-| `2xl`  | 26 / 32     | -0.26 px | Reserved for display text.                           |
+| `xl`   | 22 / 28     | -0.18 px | `h1` on posts and category pages.                    |
+| `2xl`  | 26 / 32     | -0.26 px | The home name.                                       |
 
 ### Heading roles
 
@@ -48,6 +48,8 @@ Applied in the base layer so raw Markdown headings inherit the scale without uti
 | `h2`    | `lg`   | medium   | `fg`       |
 | `h3`    | `md`   | medium   | `fg`       |
 | `h4`+   | `base` | medium   | `fg-muted` |
+
+The home name is an `h1` that overrides the size with the `2xl` text role; post and category `h1` headings use `xl`.
 
 ## Spacing
 
@@ -100,7 +102,7 @@ All durations, the shared easing, and the entrance variants live in `lib/motion`
 
 Shared components under `components/`. Each is one line on purpose and props.
 
-- **`Link`** — the single site link primitive and the only importer of `next-view-transitions`; variants `inline` (underline, accent on hover), `nav` (muted, fg on hover), and `quiet` (no decoration, row links); handles hash, `mailto:`, `tel:`, and external targets with safe `rel`. Props: `variant`, `newTab`, `href`, `className`, `children`, `target`, `rel`.
+- **`Link`** — the single site link primitive and the only importer of the Link component; the providers module imports the ViewTransitions provider, and the design-system guardrail exempts exactly those two. Variants `inline` (underline, accent on hover), `nav` (muted, fg on hover), and `quiet` (no decoration, row links); handles hash, `mailto:`, `tel:`, and external targets with safe `rel`. Props: `variant`, `newTab`, `href`, `className`, `children`, `target`, `rel`.
 - **`EntryList` / `EntryRow`** — the shared bordered row list used by Posts, Projects, and Favorites. `EntryRow` takes `title`, `href`, optional `trailingMeta` (a date), optional `caption` (a favorite note or hostname), and optional `category`/`slug` to qualify the shared-element view-transition name.
 - **`SectionHeading`** — a list heading that is simply the collection name, without counts. Props: `title`, optional `href`, optional `asPage`.
 - **`Meta`** — the dot-separated Post metadata line (published, updated, reading time) in the `sm` text role and muted colour role. Props: `post`.

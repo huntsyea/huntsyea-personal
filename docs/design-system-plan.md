@@ -21,6 +21,8 @@ The plan is complete as of today. Every phase shipped as its own pull request wi
 
 Two additions surfaced during review and were folded in: the root font size must stay 16 px so rem-based spacing keeps the 4 px grid (#52, PR #56), and the row view-transition names were qualified by category and emitted only when a slug exists, fixed under #40 (PR #57).
 
+Follow-up: `--space-section` is declared in the tokens stylesheet but not yet consumed by any surface; wiring it in is a small follow-up.
+
 ## Verified baseline
 
 Run from a clean install on this checkout:
