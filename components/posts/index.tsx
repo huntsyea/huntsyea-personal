@@ -1,9 +1,8 @@
 import type { ContentCategory } from "@/lib/content/types";
 
-import Link from "@/components/link";
+import { EntryList, EntryRow } from "@/components/entry-list";
+import { SectionHeading } from "@/components/section-heading";
 import { formatter } from "@/lib/formatter";
-
-import React from "react";
 
 interface PostProps {
   category: ContentCategory;
@@ -15,37 +14,29 @@ export const Posts = ({ category, asCategoryPage = false }: PostProps) => {
 
   return (
     <section className="mt-6 flex flex-col">
-      {asCategoryPage ? (
-        <h1 className="py-2 capitalize">
-          {category.title} {posts.length > 0 && `(${posts.length})`}
-        </h1>
-      ) : (
-        <Link href={`/${category.slug}`} className="flex justify-between">
-          <h2 className="py-2 text-fg-muted capitalize">
-            {category.title} {posts.length > 0 && `(${posts.length})`}
-          </h2>
-        </Link>
-      )}
+      <SectionHeading
+        title={category.title}
+        href={asCategoryPage ? undefined : `/${category.slug}`}
+        asPage={asCategoryPage}
+      />
 
-      <ul className="m-0 list-none p-0">
+      <EntryList>
         {posts.map((post) => (
-          <li key={post.slug} className="m-0 list-none border-border border-t">
-            <Link
-              href={`/${category.slug}/${post.slug}`}
-              className="flex w-full justify-between py-2"
-            >
-              <span style={{ viewTransitionName: `post-title-${post.slug}` }}>
-                {post.title}
-              </span>
-              {post.createdAt ? (
+          <EntryRow
+            key={post.slug}
+            title={post.title}
+            href={`/${category.slug}/${post.slug}`}
+            viewTransitionSlug={post.slug}
+            trailingMeta={
+              post.createdAt ? (
                 <time className="text-fg-muted" dateTime={post.time?.created}>
                   {formatter.date(post.createdAt)}
                 </time>
-              ) : null}
-            </Link>
-          </li>
+              ) : undefined
+            }
+          />
         ))}
-      </ul>
+      </EntryList>
     </section>
   );
 };

@@ -1,6 +1,7 @@
 import type { Favorite, FavoriteGroup } from "@/lib/favorites";
 
-import Link from "@/components/link";
+import { EntryList, EntryRow } from "@/components/entry-list";
+import { SectionHeading } from "@/components/section-heading";
 
 interface FavoritesProps {
   groups: readonly FavoriteGroup[];
@@ -11,46 +12,42 @@ function favoriteCaption(item: Favorite) {
   return item.note || new URL(item.href).hostname.replace(/^www\./, "");
 }
 
-function FavoriteRows({ items }: { items: readonly Favorite[] }) {
+function FavoriteList({ items }: { items: readonly Favorite[] }) {
   return (
-    <ul className="m-0 list-none p-0">
+    <EntryList>
       {items.map((item) => (
-        <li key={item.href} className="m-0 list-none border-border border-t">
-          <Link href={item.href} newTab className="flex w-full flex-col py-2">
-            <span>{item.title}</span>
-            <span className="text-fg-muted">{favoriteCaption(item)}</span>
-          </Link>
-        </li>
+        <EntryRow
+          key={item.href}
+          title={item.title}
+          href={item.href}
+          caption={favoriteCaption(item)}
+          newTab
+        />
       ))}
-    </ul>
+    </EntryList>
   );
 }
 
 export const Favorites = ({ groups, asPage = false }: FavoritesProps) => {
   const favorites = groups.flatMap((group) => group.items);
-  const count = favorites.length;
 
   return (
     <section className="mt-6 flex flex-col">
-      {asPage ? (
-        <h1 className="py-2">Favorites {count > 0 && `(${count})`}</h1>
-      ) : (
-        <Link href="/favorites" className="flex justify-between">
-          <h2 className="py-2 text-fg-muted">
-            Favorites {count > 0 && `(${count})`}
-          </h2>
-        </Link>
-      )}
+      <SectionHeading
+        title="Favorites"
+        href={asPage ? undefined : "/favorites"}
+        asPage={asPage}
+      />
 
       {asPage ? (
         groups.map((group, index) => (
           <div key={group.title} className={index > 0 ? "mt-6" : undefined}>
-            <h2 className="py-2 text-fg-muted">{group.title}</h2>
-            <FavoriteRows items={group.items} />
+            <SectionHeading title={group.title} />
+            <FavoriteList items={group.items} />
           </div>
         ))
       ) : (
-        <FavoriteRows items={favorites} />
+        <FavoriteList items={favorites} />
       )}
     </section>
   );

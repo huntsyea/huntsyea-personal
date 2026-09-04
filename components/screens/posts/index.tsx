@@ -1,12 +1,11 @@
 import type { AdjacentPosts, ContentPost } from "@/lib/content/types";
 
+import { Meta } from "@/components/meta-line";
 import { TableOfContents } from "@/components/on-this-page";
 import { PostNavigation } from "@/components/post-navigation";
 import { renderPost } from "@/lib/content/renderer";
-import { formatter } from "@/lib/formatter";
 
 import React from "react";
-import { readingTime } from "reading-time-estimator";
 
 interface Props {
   post: ContentPost;
@@ -22,25 +21,7 @@ export const Layout = async ({ post, adjacent }: Props) => {
         <h1 style={{ viewTransitionName: `post-title-${post.slug}` }}>
           {post.title}
         </h1>
-        <div className="mt-1 flex gap-2 text-fg-muted text-sm">
-          {post.createdAt ? (
-            <time dateTime={post.time?.created}>
-              Published {formatter.date(post.createdAt)}
-            </time>
-          ) : null}
-          {post.createdAt && post.updatedAt ? (
-            <span aria-hidden="true">⋅</span>
-          ) : null}
-          {post.updatedAt ? (
-            <time dateTime={post.time?.updated}>
-              Updated {formatter.date(post.updatedAt)}
-            </time>
-          ) : null}
-          {post.createdAt || post.updatedAt ? (
-            <span aria-hidden="true">⋅</span>
-          ) : null}
-          <span>{readingTime(post.content).minutes} minutes read</span>
-        </div>
+        <Meta post={post} />
       </header>
 
       {rendered.content}
