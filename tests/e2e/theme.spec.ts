@@ -99,31 +99,64 @@ test.describe("theme and motion preferences", () => {
 
   test("reduced motion is observable to the document", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
-    await page.goto("/");
 
-    await expect
-      .poll(() =>
-        page.evaluate(
-          () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
-        ),
-      )
-      .toBe(true);
-    await expect
-      .poll(() =>
-        page.evaluate(
-          () => getComputedStyle(document.documentElement).scrollBehavior,
-        ),
-      )
-      .toBe("auto");
+    for (const route of ["/", "/posts/pi-fusion"]) {
+      await page.goto(route);
 
-    const animated = page.locator("main > div").first();
-    await expect
-      .poll(() =>
-        animated.evaluate((element) =>
-          Number.parseFloat(getComputedStyle(element).transitionDuration),
-        ),
-      )
-      .toBeLessThanOrEqual(0.001);
+      await expect
+        .poll(() =>
+          page.evaluate(
+            () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+          ),
+        )
+        .toBe(true);
+      await expect
+        .poll(() =>
+          page.evaluate(
+            () => getComputedStyle(document.documentElement).scrollBehavior,
+          ),
+        )
+        .toBe("auto");
+
+      // The shared entrance wrapper is the first child of main on every route;
+      // reduced motion must leave it with no transition at the CSS boundary
+      // and render it fully visible with no transform immediately after load.
+      const animated = page.locator("main > div").first();
+      await expect
+        .poll(() =>
+          animated.evaluate((element) =>
+            Number.parseFloat(getComputedStyle(element).transitionDuration),
+          ),
+        )
+        .toBeLessThanOrEqual(0.001);
+      await expect
+        .poll(() =>
+          animated.evaluate((element) => getComputedStyle(element).opacity),
+        )
+        .toBe("1");
+      await expect
+        .poll(() =>
+          animated.evaluate((element) => getComputedStyle(element).transform),
+        )
+        .toBe("none");
+    }
+  });
+
+  test("route entrance reaches full opacity within one second", async ({
+    page,
+  }) => {
+    for (const route of ["/", "/posts/pi-fusion"]) {
+      await page.goto(route);
+
+      const entrance = page.locator("main > div").first();
+      await expect
+        .poll(
+          () =>
+            entrance.evaluate((element) => getComputedStyle(element).opacity),
+          { timeout: 1000 },
+        )
+        .toBe("1");
+    }
   });
 });
 

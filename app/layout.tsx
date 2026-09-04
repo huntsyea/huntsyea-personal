@@ -2,6 +2,7 @@ import "@/styles/main.css";
 
 import type { Metadata } from "next";
 
+import { Entrance } from "@/components/motion/entrance";
 import { Providers } from "@/components/providers";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -49,7 +50,7 @@ export default function RootLayout({
         <Providers>
           <SiteHeader />
           <main className="mx-auto w-full max-w-column px-6 py-[var(--space-page)] md:py-[var(--space-page-desktop)]">
-            {children}
+            <Entrance>{children}</Entrance>
           </main>
           <SiteFooter />
         </Providers>

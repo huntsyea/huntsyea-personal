@@ -250,13 +250,19 @@ test.describe("table of contents layout", () => {
   test("below xl the article does not shift across hydration", async ({
     page,
   }) => {
+    // Reduced motion removes the route entrance so the measurement isolates
+    // the disclosure: the article must sit at the same document position
+    // before and after hydration.
+    await page.emulateMedia({ reducedMotion: "reduce" });
     await page.setViewportSize({ width: 375, height: 800 });
     await page.goto(postRoute);
 
     const articleTop = () =>
       page
         .locator("article")
-        .evaluate((element) => element.getBoundingClientRect().top);
+        .evaluate(
+          (element) => element.getBoundingClientRect().top + window.scrollY,
+        );
 
     const before = await articleTop();
     await page.waitForLoadState("networkidle");

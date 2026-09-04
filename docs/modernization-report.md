@@ -50,6 +50,17 @@ System, dark, and light themes retain the Radix palette and persist through navi
 
 Breadcrumbs are semantic navigation lists with current-page state. Category results are lists, posts are articles with semantic dates, authored sections begin below the route-owned `h1`, and the table of contents uses one observer with identity-preserving functional state.
 
+## Client budget
+
+Client chunk sizes (sum of `.next/static/chunks/*.js` in bytes) across the motion-and-images phase:
+
+| Stage  | Bytes  |
+| ------ | ------ |
+| Before | 765775 |
+| After  | 765724 |
+
+The route entrance moved from a home-only staggered blur-in to a single fade-and-rise applied through the shared shell. The motion dependencies (`framer-motion`, `next-view-transitions`) are retained per [ADR 0002](adr/0002-view-transitions-and-motion.md).
+
 ## Verification
 
 `SITE_URL=https://example.com pnpm verify` is the complete read-only gate:
