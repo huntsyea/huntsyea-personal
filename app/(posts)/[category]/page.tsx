@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { Posts } from "@/components/posts";
 import { contentCatalog } from "@/lib/content";
+import { renderMarkdown } from "@/lib/content/renderer";
 import { createSiteMetadata, siteProfile } from "@/lib/site/profile";
 
 import { notFound } from "next/navigation";
@@ -44,11 +45,16 @@ export default async function Page({ params }: PageProps) {
     notFound();
   }
 
+  const intro = category.intro
+    ? await renderMarkdown(category.intro)
+    : undefined;
+
   return (
     <>
       <Breadcrumb
         items={[{ label: category.title, href: `/${category.slug}` }]}
       />
+      {intro ? <div className="prose">{intro}</div> : null}
       <Posts category={category} asCategoryPage />
     </>
   );

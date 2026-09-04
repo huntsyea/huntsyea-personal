@@ -134,19 +134,15 @@ export class ContentCatalog {
       );
     }
 
-    return categoryDirectories.map(({ name, slug }) => {
-      return {
-        slug,
-        title: titleFromFilename(name),
-        posts: this.readPosts(slug, name),
-      };
-    });
+    return categoryDirectories.map(({ name, slug }) =>
+      this.readCategory(slug, name),
+    );
   }
 
-  private readPosts(
+  private readCategory(
     category: string,
     directoryName: string,
-  ): readonly ContentPost[] {
+  ): ContentCategory {
     const directory = path.join(this.contentDirectory, directoryName);
     let sources: readonly MarkdownSource[];
     try {
@@ -161,16 +157,36 @@ export class ContentCatalog {
       throw error;
     }
 
-    const duplicateSource = findDuplicate(sources);
+    // A note named `index` is the Category intro, not a Post. It is exposed on
+    // the Category and excluded from Posts, ordering, adjacency, entries,
+    // sitemap, and static params.
+    const introSources = sources.filter((source) => source.slug === "index");
+    const postSources = sources.filter((source) => source.slug !== "index");
+
+    if (introSources.length > 1) {
+      throw new ContentCatalogError(
+        `Intro route collision in "content/${directoryName}" between "${introSources[0].sourcePath}" and "${introSources[1].sourcePath}".`,
+      );
+    }
+
+    const duplicateSource = findDuplicate(postSources);
     if (duplicateSource) {
       throw new ContentCatalogError(
         `Post route collision at "/${category}/${duplicateSource.slug}" between "${duplicateSource.first.sourcePath}" and "${duplicateSource.second.sourcePath}".`,
       );
     }
 
-    return sources
+    const posts = postSources
       .map((source) => this.readPost(category, source))
       .sort(comparePosts);
+    const intro = introSources[0]?.content.trim() || undefined;
+
+    return {
+      slug: category,
+      title: titleFromFilename(directoryName),
+      intro,
+      posts,
+    };
   }
 
   private readPost(category: string, source: MarkdownSource): ContentPost {

@@ -44,6 +44,8 @@ The filename supplies the title when `title` is absent. Missing optional metadat
 
 `content/home.md` supplies the homepage introduction. `content/favorites/` contains outbound-link notes; only an absolute HTTP or HTTPS `href` is essential. The shared private Markdown reader handles discovery and normalization, while Posts, Home, and Favorites keep separate public domain interfaces.
 
+A note named `index` inside a Category folder is reserved as that Category's intro, rendered through the prose class above the Category list; it is never a Post, so it is excluded from ordering, adjacency, entries, sitemap, and static params. A Category folder containing only an `index` note is valid and empty. An `index` note at the content root is likewise reserved for the home intro, not a Post.
+
 The local Obsidian publisher uses path-based upload into `content/`, publishes only notes with the configured share key, excludes `Templates`, and leaves automatic cleanup disabled. Enveloppe can auto-merge only after the repository and Vercel checks pass.
 
 The content catalog discovers categories, sorts posts, supplies adjacent navigation, and generates the static route and sitemap inventory. Post titles provide the only page-level heading, so authored sections begin with `##`.
