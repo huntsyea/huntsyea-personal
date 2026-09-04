@@ -174,6 +174,42 @@ test.describe("view-transition navigation", () => {
     );
   });
 
+  test("home row view-transition names are unique and match their post headings", async ({
+    page,
+  }) => {
+    await page.goto(siteRoutes.home);
+
+    const rowNames = await page
+      .locator('main a span[style*="post-title-"]')
+      .evaluateAll((elements) =>
+        elements
+          .map((element) =>
+            getComputedStyle(element).getPropertyValue("view-transition-name"),
+          )
+          .filter(Boolean),
+      );
+    expect(rowNames.length).toBeGreaterThan(0);
+    expect(new Set(rowNames).size).toBe(rowNames.length);
+
+    const row = page.locator('main a[href="/projects/pi-fusion"]');
+    const rowName = await row
+      .locator('span[style*="post-title-"]')
+      .evaluate((element) =>
+        getComputedStyle(element).getPropertyValue("view-transition-name"),
+      );
+    await expect(rowName).not.toBe("");
+
+    await row.click();
+    await expect(page).toHaveURL(/\/projects\/pi-fusion$/);
+
+    const headingName = await page
+      .locator("h1")
+      .evaluate((element) =>
+        getComputedStyle(element).getPropertyValue("view-transition-name"),
+      );
+    expect(headingName).toBe(rowName);
+  });
+
   test("external links keep target and rel through the Link primitive", async ({
     page,
   }) => {
