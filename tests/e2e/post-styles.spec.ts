@@ -202,6 +202,16 @@ test.describe("table of contents layout", () => {
       return parent ? getComputedStyle(parent).display : null;
     });
     expect(grid).toBe("grid");
+
+    // The article box and text align with the header brand at the main content
+    // edge.
+    const articleLeft = await page
+      .locator("article")
+      .evaluate((element) => element.getBoundingClientRect().left);
+    const brandLeft = await page
+      .getByRole("link", { name: "huntsyea" })
+      .evaluate((element) => element.getBoundingClientRect().left);
+    expect(articleLeft).toBe(brandLeft);
   });
 
   test("below xl the outline is a collapsed disclosure above the article", async ({
@@ -235,6 +245,23 @@ test.describe("table of contents layout", () => {
     await summary.click();
     await expect(
       page.getByRole("navigation", { name: "On this page" }),
+    ).toBeVisible();
+  });
+});
+
+test.describe("table of contents without JavaScript", () => {
+  test.use({ javaScriptEnabled: false });
+
+  test("at xl the outline links are visible without JavaScript", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto(postRoute);
+
+    const toc = page.getByRole("navigation", { name: "On this page" });
+    await expect(toc).toBeVisible();
+    await expect(
+      toc.getByRole("link", { name: "How Pi-Fusion works" }),
     ).toBeVisible();
   });
 });

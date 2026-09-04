@@ -22,24 +22,20 @@ export const TableOfContents = ({ outline }: TableOfContentsProps) => {
   const [visibleHeadings, setVisibleHeadings] = useState<Set<string>>(
     new Set(),
   );
-  const [isXl, setIsXl] = useState(false);
-  const [open, setOpen] = useState(false);
+  // Server-rendered open so the outline is visible at xl without JavaScript
+  // (the summary is hidden at xl). The client island collapses the disclosure
+  // below xl on mount and re-evaluates on resize across the breakpoint.
+  const [open, setOpen] = useState(true);
   const highlightedHeading = useRef<HTMLElement | null>(null);
   const highlightTimeout = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     const media = window.matchMedia("(min-width: 80rem)");
-    const update = () => setIsXl(media.matches);
+    const update = () => setOpen(media.matches);
     update();
     media.addEventListener("change", update);
     return () => media.removeEventListener("change", update);
   }, []);
-
-  // At xl the outline is a sticky aside, so the disclosure is forced open;
-  // below xl it stays collapsed by default and the reader can toggle it.
-  useEffect(() => {
-    setOpen(isXl);
-  }, [isXl]);
 
   useEffect(() => {
     const handleIntersection = (entries: IntersectionObserverEntry[]) => {

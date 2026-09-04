@@ -49,6 +49,9 @@
      beside the 36rem reading column. Exposed as the w-column-wide utility. */
   --width-column-wide: 52rem;
 
+  /* The table-of-contents aside column width in the widened Post layout. */
+  --width-aside: 14rem;
+
   /* Radius. */
   --radius-small: 4px;
   --radius-medium: 8px;
