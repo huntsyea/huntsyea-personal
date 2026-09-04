@@ -1,4 +1,8 @@
-import { ContentRenderError, renderPost } from "@/lib/content/renderer";
+import {
+  ContentRenderError,
+  renderCategoryIntro,
+  renderPost,
+} from "@/lib/content/renderer";
 
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
@@ -58,6 +62,21 @@ describe("renderPost", () => {
     await expect(
       renderPost(createPost("# Duplicate page title")),
     ).rejects.toThrow(/fixture\.mdx/);
+  });
+
+  it("rejects a page-level heading in a category intro with a source-specific error", async () => {
+    await expect(
+      renderCategoryIntro(
+        "# Duplicate page title",
+        "content/projects/index.md",
+      ),
+    ).rejects.toThrow(ContentRenderError);
+    await expect(
+      renderCategoryIntro(
+        "# Duplicate page title",
+        "content/projects/index.md",
+      ),
+    ).rejects.toThrow(/index\.md/);
   });
 
   it("lets blockJS strip expressions instead of throwing", async () => {
