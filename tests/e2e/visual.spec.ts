@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
 
+import { siteRoutes } from "../fixtures/routes";
+
 test.describe("targeted visual baselines", () => {
   test("home", async ({ page }) => {
     await page.goto("/");
@@ -19,17 +21,28 @@ test.describe("targeted visual baselines", () => {
       .focus();
     await expect(contactLinks).toHaveScreenshot("home-contact-links-focus.png");
 
-    await page.getByRole("button", { name: /dark/i }).click();
+    await selectDarkTheme(page);
     await expect(contactLinks).toHaveScreenshot("home-contact-links-dark.png");
   });
 
   test("dark theme control", async ({ page }) => {
-    await page.goto("/");
-    await page.getByRole("button", { name: /dark/i }).click();
+    await selectDarkTheme(page);
     await hideAuthoredContent(page);
     await expect(page).toHaveScreenshot("home-dark.png", { fullPage: true });
   });
 });
+
+/**
+ * Home omits the shared header and its Theme control, so choose dark on the
+ * Posts page (the choice persists) and return to home.
+ */
+async function selectDarkTheme(page: import("@playwright/test").Page) {
+  await page.goto(siteRoutes.posts);
+  await page.getByRole("button", { name: /dark/i }).click();
+  await expect(page.locator("html")).toHaveClass(/\bdark\b/);
+  await page.goto(siteRoutes.home);
+  await expect(page.locator("html")).toHaveClass(/\bdark\b/);
+}
 
 async function hideAuthoredContent(
   page: import("@playwright/test").Page,

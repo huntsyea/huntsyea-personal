@@ -108,8 +108,9 @@ Shared components under `components/`. Each is one line on purpose and props.
 - **`Meta`** — the dot-separated Post metadata line (published, updated, reading time) in the `sm` text role and muted colour role. Props: `post`.
 - **`Pill`** — the home Contact link pill, built on `Link` and sharing the surface and border roles with `SegmentedControl`. Props: `href`, `newTab`, `children`.
 - **`SegmentedControl`** — the Theme switcher, sized by its content; the track uses the subtle surface role and the active segment the elevated surface role, with a pre-hydration placeholder that reserves the footprint. Props: `label`, `options`, `value`, `onSelect`.
-- **`SiteHeader`** — the shared header rendered by the root layout on every route: the site name, one nav link per catalog Category plus Favorites, and the Theme control. No props; reads the Content catalog and Site profile.
-- **`SiteFooter`** — the shared footer rendered by the root layout on every route: Contact links as text links plus a copyright line. No props; reads the Site profile.
+- **`SiteShell`** — the page frame: the reading column with the route entrance, between `SiteHeader` and `SiteFooter` unless `chrome` is false. Every route renders it; home turns the chrome off so the front door is content only.
+- **`SiteHeader`** — the shared header rendered by `SiteShell` on every route except home: the site name, one nav link per catalog Category plus Favorites, and the Theme control. No props; reads the Content catalog and Site profile.
+- **`SiteFooter`** — the shared footer rendered by `SiteShell` on every route except home: Contact links as text links plus a copyright line. No props; reads the Site profile.
 - **`Breadcrumb`** — a server-rendered navigation trail with current-page state, prefixed by Home. Props: `items`, `className`.
 - **`TableOfContents`** — renders the outline twice from one visible-heading state: a sticky aside at `xl` and a native "On this page" disclosure below `xl`, with the current heading highlighted in the accent role. Props: `outline`.
 - **`Entrance`** — the route entrance wrapper applying `fadeAndRise`, honouring reduced motion. Props: `children`.

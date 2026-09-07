@@ -95,8 +95,8 @@ test.describe("production routes", () => {
       .getByRole("navigation", { name: "Contact and social links" })
       .getByRole("link");
 
-    // The shared header and its theme control precede the home content in the
-    // tab order, so walk forward until the first Contact pill is reachable.
+    // Home renders no shared header, but walk forward anyway so the check does
+    // not depend on what precedes the first Contact pill in the tab order.
     const focusIsOnFirstContact = () =>
       contactLinks
         .nth(0)

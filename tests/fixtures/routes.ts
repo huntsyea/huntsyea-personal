@@ -1,5 +1,6 @@
 export const siteRoutes = {
   home: "/",
+  posts: "/posts",
   favorites: "/favorites",
   missingCategory: "/this-category-does-not-exist",
   missingPost: "/posts/this-post-does-not-exist",
@@ -7,11 +8,11 @@ export const siteRoutes = {
 
 /**
  * Every route published in the Content catalog: the home page, each Category
- * and Post, and Favorites. The shell renders on every one of them.
+ * and Post, and Favorites. The shell renders on every one of them except home.
  */
 export const indexableRoutes = [
   siteRoutes.home,
-  "/posts",
+  siteRoutes.posts,
   "/projects",
   "/posts/abstraction",
   "/posts/pi-fusion",
