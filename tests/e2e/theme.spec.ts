@@ -1,5 +1,11 @@
 import { expect, test } from "@playwright/test";
 
+import { siteRoutes } from "../fixtures/routes";
+
+// The Theme control lives in the shared header, which home omits, so drive it
+// from the Posts category page.
+const themeRoute = siteRoutes.posts;
+
 test.describe("theme and motion preferences", () => {
   test("theme control reserves the same space before hydration", async ({
     browser,
@@ -8,14 +14,14 @@ test.describe("theme and motion preferences", () => {
       javaScriptEnabled: false,
     });
     const serverRenderedPage = await serverRenderedContext.newPage();
-    await serverRenderedPage.goto("/");
+    await serverRenderedPage.goto(themeRoute);
     const serverRenderedBox = await serverRenderedPage
       .locator("[data-theme-placeholder]")
       .boundingBox();
     await serverRenderedContext.close();
 
     const hydratedPage = await browser.newPage();
-    await hydratedPage.goto("/");
+    await hydratedPage.goto(themeRoute);
     const hydratedBox = await hydratedPage
       .getByRole("group", { name: "Theme" })
       .boundingBox();
@@ -34,7 +40,7 @@ test.describe("theme and motion preferences", () => {
   test("theme controls have names, selected state, and persist", async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto(themeRoute);
 
     const light = page.getByRole("button", { name: /light/i });
     const dark = page.getByRole("button", { name: /dark/i });
@@ -52,10 +58,13 @@ test.describe("theme and motion preferences", () => {
     await expect(page.locator("html")).toHaveClass(/\bdark\b/);
     await expect(dark).toHaveAttribute("aria-pressed", "true");
 
-    await page.getByRole("link", { name: "my favorites", exact: true }).click();
+    await page.getByRole("link", { name: "Favorites", exact: true }).click();
     await expect(page.locator("html")).toHaveClass(/\bdark\b/);
 
-    await page.goto("/");
+    await page.goto(siteRoutes.home);
+    await expect(page.locator("html")).toHaveClass(/\bdark\b/);
+
+    await page.goto(themeRoute);
     await expect(dark).toHaveAttribute("aria-pressed", "true");
 
     await light.focus();
@@ -73,7 +82,7 @@ test.describe("theme and motion preferences", () => {
 
   test("embedded SVGs follow the selected site theme", async ({ page }) => {
     await page.emulateMedia({ colorScheme: "light" });
-    await page.goto("/");
+    await page.goto(themeRoute);
     await page.getByRole("button", { name: /light/i }).click();
     await page.goto("/projects/pi-fusion");
 
@@ -84,13 +93,13 @@ test.describe("theme and motion preferences", () => {
     await expect(diagram).toBeVisible();
     await expect.poll(() => readTopLeftLuminance(diagram)).toBeGreaterThan(240);
 
-    await page.goto("/");
+    await page.goto(themeRoute);
     await page.getByRole("button", { name: /dark/i }).click();
     await page.goto("/projects/pi-fusion");
     await expect(page.locator("html")).toHaveClass(/\bdark\b/);
     await expect.poll(() => readTopLeftLuminance(diagram)).toBeLessThan(40);
 
-    await page.goto("/");
+    await page.goto(themeRoute);
     await page.getByRole("button", { name: /light/i }).click();
     await page.goto("/projects/pi-fusion");
     await expect(page.locator("html")).toHaveClass(/\blight\b/);

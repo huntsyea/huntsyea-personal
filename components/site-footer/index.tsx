@@ -2,8 +2,9 @@ import Link from "@/components/link";
 import { siteProfile } from "@/lib/site/profile";
 
 /**
- * The shared footer rendered by the root layout on every route: Contact links
- * as text links plus a copyright line. Home renders no footer of its own.
+ * The shared footer rendered by SiteShell on every route except home: Contact
+ * links as text links plus a copyright line. Home's contact pills already
+ * carry the same links, so it renders no footer.
  */
 export const SiteFooter = () => {
   const year = new Date().getFullYear();

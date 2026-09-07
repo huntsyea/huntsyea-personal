@@ -2,10 +2,7 @@ import "@/styles/main.css";
 
 import type { Metadata } from "next";
 
-import { Entrance } from "@/components/motion/entrance";
 import { Providers } from "@/components/providers";
-import { SiteFooter } from "@/components/site-footer";
-import { SiteHeader } from "@/components/site-header";
 import { createSiteMetadata } from "@/lib/site/profile";
 
 import clsx from "clsx";
@@ -47,13 +44,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body>
-        <Providers>
-          <SiteHeader />
-          <main className="mx-auto w-full max-w-column px-6 py-section">
-            <Entrance>{children}</Entrance>
-          </main>
-          <SiteFooter />
-        </Providers>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

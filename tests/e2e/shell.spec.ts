@@ -1,9 +1,14 @@
 import { expect, test } from "@playwright/test";
 
-import { indexableRoutes, notFoundRoute } from "../fixtures/routes";
+import { indexableRoutes, notFoundRoute, siteRoutes } from "../fixtures/routes";
 import { expectPageToBeHealthy } from "./helpers";
 
-const shellRoutes = [...indexableRoutes, notFoundRoute];
+// Home is content only: its identity block and contact pills already carry
+// what the shared header and footer repeat.
+const shellRoutes = [
+  ...indexableRoutes.filter((route) => route !== siteRoutes.home),
+  notFoundRoute,
+];
 
 const headerNavLinks: ReadonlyArray<readonly [name: string, href: string]> = [
   ["Posts", "/posts"],
@@ -55,3 +60,24 @@ for (const route of shellRoutes) {
     await expect(footer).toContainText(/©/);
   });
 }
+
+test("home renders no header or footer", async ({ page }) => {
+  await page.goto(siteRoutes.home);
+  await expectPageToBeHealthy(page, siteRoutes.home);
+
+  await expect(page.getByRole("banner")).toHaveCount(0);
+  await expect(page.getByRole("contentinfo")).toHaveCount(0);
+  await expect(page.getByRole("navigation", { name: "Primary" })).toHaveCount(
+    0,
+  );
+  await expect(page.getByRole("group", { name: "Theme" })).toHaveCount(0);
+
+  // The section headings still lead into each Category.
+  const main = page.getByRole("main");
+  await expect(
+    main.getByRole("link", { name: "Posts", exact: true }),
+  ).toHaveAttribute("href", "/posts");
+  await expect(
+    main.getByRole("link", { name: "Projects", exact: true }),
+  ).toHaveAttribute("href", "/projects");
+});

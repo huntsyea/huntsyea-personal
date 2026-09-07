@@ -4,8 +4,8 @@ import { contentCatalog } from "@/lib/content";
 import { siteProfile } from "@/lib/site/profile";
 
 /**
- * The shared header rendered by the root layout on every route: the site name,
- * one nav link per catalog Category plus Favorites, and the Theme control.
+ * The shared header rendered by SiteShell on every route except home: the site
+ * name, one nav link per catalog Category plus Favorites, and the Theme control.
  */
 export const SiteHeader = () => {
   const categories = contentCatalog.listCategories();
