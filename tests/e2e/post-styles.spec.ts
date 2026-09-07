@@ -213,7 +213,7 @@ test.describe("table of contents layout", () => {
     expect(articleLeft).toBe(brandLeft);
   });
 
-  test("below xl the outline is a collapsed disclosure above the article", async ({
+  test("below xl the outline is a collapsed disclosure after the post header", async ({
     page,
   }) => {
     await page.setViewportSize({ width: 375, height: 800 });
@@ -228,17 +228,23 @@ test.describe("table of contents layout", () => {
       page.getByRole("navigation", { name: "On this page" }),
     ).toHaveCount(0);
 
-    const isAboveArticle = await page.evaluate(() => {
+    // The disclosure follows the title and meta line and precedes the first
+    // section heading, so the reader meets the title before the outline.
+    const isAfterHeader = await page.evaluate(() => {
       const disclosure = document.querySelector("details[data-toc]");
-      const article = document.querySelector("article");
+      const meta = document.querySelector("article header");
+      const firstSection = document.querySelector("article h2");
       return Boolean(
         disclosure &&
-        article &&
-        disclosure.compareDocumentPosition(article) &
+        meta &&
+        firstSection &&
+        meta.compareDocumentPosition(disclosure) &
+          Node.DOCUMENT_POSITION_FOLLOWING &&
+        disclosure.compareDocumentPosition(firstSection) &
           Node.DOCUMENT_POSITION_FOLLOWING,
       );
     });
-    expect(isAboveArticle).toBe(true);
+    expect(isAfterHeader).toBe(true);
 
     // Opening the disclosure reveals the outline.
     await summary.click();
