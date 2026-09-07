@@ -22,7 +22,7 @@ export const Breadcrumb = ({
   return (
     <nav
       aria-label="Breadcrumb"
-      className={cn("mt-0 mb-4 w-full font-normal text-sm", className)}
+      className={cn("mt-0 mb-stack w-full font-normal text-sm", className)}
     >
       <ol className="flex list-none items-center gap-1 align-middle">
         {trail.map((item, index) => {
