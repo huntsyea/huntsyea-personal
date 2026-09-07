@@ -13,7 +13,11 @@ export const Posts = ({ category, asCategoryPage = false }: PostProps) => {
   const { posts } = category;
 
   return (
-    <section className="mt-6 flex flex-col">
+    <section
+      className={
+        asCategoryPage ? "mt-6 flex flex-col" : "mt-section flex flex-col"
+      }
+    >
       <SectionHeading
         title={category.title}
         href={asCategoryPage ? undefined : `/${category.slug}`}

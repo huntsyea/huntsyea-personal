@@ -21,7 +21,7 @@ export default async function Home() {
         <div className="flex justify-between" data-authored-content="identity">
           <div>
             {title ? <h1 className="text-2xl">{title}</h1> : null}
-            {tagline ? <h2>{tagline}</h2> : null}
+            {tagline ? <p className="text-fg-muted">{tagline}</p> : null}
           </div>
         </div>
       )}
@@ -32,18 +32,12 @@ export default async function Home() {
         {siteProfile.contactLinks.map(({ label, href, newTab }) => (
           <Pill key={label} href={href} newTab={newTab}>
             {label}
-            <span
-              aria-hidden="true"
-              className="flex size-5 items-center justify-center rounded-full border border-focus text-fg-muted"
-            >
-              <ArrowRightIcon />
-            </span>
+            <ArrowRightIcon aria-hidden="true" className="text-fg-muted" />
           </Pill>
         ))}
       </nav>
-      <div aria-hidden="true" className="mt-stack" />
       {body ? (
-        <div data-authored-content="body" className="prose">
+        <div data-authored-content="body" className="prose mt-stack">
           {body}
         </div>
       ) : null}

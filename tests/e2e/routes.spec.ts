@@ -62,11 +62,15 @@ test.describe("production routes", () => {
     }
 
     const isBetweenIdentityAndIntroduction = await page.evaluate(() => {
-      const subtitle = document.querySelector("h2");
+      const subtitle = document.querySelector(
+        '[data-authored-content="identity"]',
+      );
       const contacts = document.querySelector(
         'nav[aria-label="Contact and social links"]',
       );
-      const introduction = document.querySelector("main p");
+      const introduction = document.querySelector(
+        '[data-authored-content="body"] p',
+      );
 
       return Boolean(
         subtitle &&
