@@ -12,12 +12,14 @@ import {
   Setting,
 } from "obsidian";
 
+import { fetchLogin, requestDeviceCode, waitForAuthorization } from "./auth";
 import { defaultContractSettings } from "./contract";
 import { GitHubClient } from "./github";
 import { Publisher, summarize } from "./publisher";
 import { readAssetFactory, readVaultSnapshot } from "./vault";
 
 interface PublishSettings {
+  clientId: string;
   owner: string;
   repo: string;
   baseBranch: string;
@@ -27,6 +29,7 @@ interface PublishSettings {
 }
 
 const defaultSettings: PublishSettings = {
+  clientId: "",
   owner: "huntsyea",
   repo: "huntsyea-personal",
   baseBranch: "main",
@@ -36,10 +39,12 @@ const defaultSettings: PublishSettings = {
 };
 
 /**
- * The token lives in Obsidian's device-local storage, never in the vault, so
- * Sync cannot delete it and every device keeps its own.
+ * The token GitHub issues after sign-in lives in Obsidian's device-local
+ * storage, never in the vault, so Sync cannot delete it and every device keeps
+ * its own.
  */
 const tokenStorageKey = "huntsyea-publish:github-token";
+const loginStorageKey = "huntsyea-publish:github-login";
 
 export default class PublishPlugin extends Plugin {
   settings: PublishSettings = { ...defaultSettings };
@@ -68,8 +73,65 @@ export default class PublishPlugin extends Plugin {
     return typeof stored === "string" ? stored : "";
   }
 
-  setToken(token: string) {
-    this.app.saveLocalStorage(tokenStorageKey, token.trim() || null);
+  getLogin(): string {
+    const stored: unknown = this.app.loadLocalStorage(loginStorageKey);
+    return typeof stored === "string" ? stored : "";
+  }
+
+  setSession(token: string | null, login: string | null) {
+    this.app.saveLocalStorage(tokenStorageKey, token);
+    this.app.saveLocalStorage(loginStorageKey, login);
+  }
+
+  /** Runs GitHub's device flow and stores the resulting token on this device. */
+  async signIn(onDone: () => void) {
+    const clientId = this.settings.clientId.trim();
+    if (!clientId) {
+      new Notice("Add the OAuth App client ID in the settings first.");
+      return;
+    }
+
+    try {
+      const code = await requestDeviceCode(obsidianRequest, clientId);
+      const modal = new DeviceCodeModal(
+        this.app,
+        code.userCode,
+        code.verificationUri,
+      );
+      modal.open();
+
+      const outcome = await waitForAuthorization(
+        obsidianRequest,
+        clientId,
+        code,
+        (seconds) =>
+          new Promise((resolve) => window.setTimeout(resolve, seconds * 1000)),
+        () => modal.cancelled,
+      );
+      modal.close();
+
+      if (outcome.status !== "authorized") {
+        new Notice(
+          outcome.status === "denied"
+            ? "GitHub sign-in was denied."
+            : "GitHub sign-in timed out. Try again.",
+        );
+        return;
+      }
+
+      const login = (await fetchLogin(obsidianRequest, outcome.token)) ?? "";
+      this.setSession(outcome.token, login);
+      new Notice(
+        login ? `Signed in to GitHub as ${login}.` : "Signed in to GitHub.",
+      );
+    } catch (error) {
+      new Notice(
+        `GitHub sign-in failed: ${error instanceof Error ? error.message : String(error)}`,
+        10_000,
+      );
+    } finally {
+      onDone();
+    }
   }
 
   async loadSettings() {
@@ -85,7 +147,7 @@ export default class PublishPlugin extends Plugin {
     const token = this.getToken();
     if (!token) {
       new Notice(
-        "Add a GitHub token in the Publish to huntsyea.com settings first.",
+        "Sign in to GitHub in the Publish to huntsyea.com settings first.",
       );
       return;
     }
@@ -150,6 +212,52 @@ async function obsidianRequest(request: HttpRequest): Promise<HttpResponse> {
     throw: false,
   });
   return { status: response.status, text: response.text };
+}
+
+class DeviceCodeModal extends Modal {
+  cancelled = false;
+
+  constructor(
+    app: App,
+    private readonly userCode: string,
+    private readonly verificationUri: string,
+  ) {
+    super(app);
+  }
+
+  onOpen() {
+    const { contentEl } = this;
+    contentEl.empty();
+    contentEl.createEl("h2", { text: "Sign in to GitHub" });
+    contentEl.createEl("p", {
+      text: "Enter this code on GitHub to let the plugin publish. This window closes on its own once GitHub confirms.",
+    });
+    contentEl.createEl("p", {
+      text: this.userCode,
+      attr: {
+        style: "font-size: 2em; letter-spacing: 0.15em; text-align: center;",
+      },
+    });
+    const actions = contentEl.createDiv({ cls: "modal-button-container" });
+    const open = actions.createEl("button", {
+      text: "Open GitHub",
+      cls: "mod-cta",
+    });
+    open.addEventListener("click", () => {
+      void navigator.clipboard?.writeText(this.userCode);
+      window.open(this.verificationUri);
+    });
+    const copy = actions.createEl("button", { text: "Copy code" });
+    copy.addEventListener("click", () => {
+      void navigator.clipboard?.writeText(this.userCode);
+      new Notice("Code copied.");
+    });
+  }
+
+  onClose() {
+    this.cancelled = true;
+    this.contentEl.empty();
+  }
 }
 
 class PreviewModal extends Modal {
@@ -283,18 +391,29 @@ class PublishSettingTab extends PluginSettingTab {
     const { containerEl, plugin } = this;
     containerEl.empty();
 
+    const login = plugin.getLogin();
+    const signedIn = Boolean(plugin.getToken());
     new Setting(containerEl)
-      .setName("GitHub token")
+      .setName("GitHub account")
       .setDesc(
-        "A fine-grained token with Contents and Pull requests write access to the site repository. Stored on this device only, never in the vault, so Sync cannot remove it.",
+        signedIn
+          ? `Signed in${login ? ` as ${login}` : ""} on this device. The sign-in is stored on this device only, never in the vault, so Sync cannot remove it.`
+          : "Sign in once per device. GitHub shows a short code to approve in the browser; no token to create or paste.",
       )
-      .addText((text) => {
-        text.inputEl.type = "password";
-        text
-          .setPlaceholder("github_pat_…")
-          .setValue(plugin.getToken())
-          .onChange((value) => plugin.setToken(value));
-      });
+      .addButton((button) =>
+        button
+          .setButtonText(signedIn ? "Sign out" : "Sign in with GitHub")
+          .setCta()
+          .onClick(async () => {
+            if (signedIn) {
+              plugin.setSession(null, null);
+              this.display();
+              return;
+            }
+            button.setDisabled(true);
+            await plugin.signIn(() => this.display());
+          }),
+      );
 
     const bind = (
       name: string,
@@ -312,6 +431,11 @@ class PublishSettingTab extends PluginSettingTab {
         );
     };
 
+    bind(
+      "OAuth App client ID",
+      "Client ID of a GitHub OAuth App with device flow enabled. Not a secret; it identifies the plugin to GitHub.",
+      "clientId",
+    );
     bind("Repository owner", "GitHub user or organisation.", "owner");
     bind("Repository name", "The site repository.", "repo");
     bind(
