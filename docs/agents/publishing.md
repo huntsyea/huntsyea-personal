@@ -5,12 +5,12 @@ Use this procedure for posts authored in Obsidian and published to this site.
 ## Contract
 
 - `/Users/huntsyea/Sylph` is the canonical authoring vault on Hunter's Mac. If it is absent, stop and ask for the vault location. Create no replacement vault.
-- Author post Markdown in `/Users/huntsyea/Sylph/posts/`. Treat `content/posts/` as Enveloppe output.
+- Author post Markdown in `/Users/huntsyea/Sylph/posts/`. Treat `content/posts/` as publish output from the repository's Obsidian plugin (`obsidian-plugin/`).
 - Use `/Users/huntsyea/Sylph/Templates/Post.md` for new posts.
 - Use a lowercase kebab-case filename. The filename becomes `/posts/<slug>` and must be unique after case-insensitive normalization.
 - Keep posts directly under `posts/`. The site ignores nested content folders.
 - The page title is the only `h1`. Start authored sections at `##`.
-- `share: true` makes a note eligible for Enveloppe. Set it when the post is ready to publish.
+- `share: true` makes a note eligible to publish. Set it when the post is ready. Removing it, or deleting or moving the note, removes the published copy on the next publish.
 
 Use this frontmatter shape:
 
@@ -63,12 +63,10 @@ Start from this structure:
 
 ### Deliver and embed the SVG
 
-The vault SVG is the source. The repository SVG is its delivery copy. Enveloppe does not populate the current `/assets/posts/` URL, so merge the delivery copy before publishing the note:
+The vault SVG is the source. The plugin delivers it to `public/assets/posts/<file>.svg` in the same publish as the note that references it, and refuses to publish a note whose asset is missing from the vault. Validate the source before publishing:
 
 ```bash
-cp "/Users/huntsyea/Sylph/posts/assets/<file>.svg" "public/assets/posts/<file>.svg"
 xmllint --noout "/Users/huntsyea/Sylph/posts/assets/<file>.svg"
-cmp "/Users/huntsyea/Sylph/posts/assets/<file>.svg" "public/assets/posts/<file>.svg"
 ```
 
 Embed it with the registered MDX component. `width` and `height` must equal the SVG viewBox dimensions so Next.js reserves the correct aspect ratio. Write alt text that explains the diagram's purpose.
@@ -94,26 +92,23 @@ Phone-only publishing supports Markdown and already-deployed assets. A new SVG r
 
 ## Publish
 
-### From Obsidian on the phone
+### From Obsidian on any device
 
-1. Open the ready note.
-2. Open the command palette.
-3. Run **Enveloppe: Upload single current active note**.
+1. Open the command palette.
+2. Run **Publish to huntsyea.com: Preview what would publish** and check the list.
+3. Run **Publish to huntsyea.com: Publish shared notes**.
 
 ### From an agent on the Mac
 
 Use Obsidian's official CLI instead of GUI automation:
 
 ```bash
-obsidian open vault="Sylph" path="posts/<slug>.md"
-obsidian command vault="Sylph" id="obsidian-mkdocs-publisher:share-one"
+obsidian command vault="Sylph" id="huntsyea-publish:publish"
 ```
 
-The Enveloppe command reads the active shared note, writes it to `content/posts/<slug>.md`, pushes a `Sylph-M-D-YYYY` branch, and opens a pull request against `main`. It excludes `Templates` and leaves automatic cleanup disabled. This is the publishing job; it is separate from the repository's GitHub Actions verification job.
+The publish command compares every shared note, category intro, the home intro, Favorites, and referenced assets with GitHub, writes one commit to the `obsidian/publish` branch, opens a pull request against `main`, and enables GitHub auto-merge. `verify` and Vercel remain the required gates. Publishing again while that pull request is open adds a commit to it. GitHub deletes the branch after merge.
 
-Enveloppe is configured to merge automatically, while `verify` and Vercel remain required gates. Confirm that GitHub auto-merge is enabled on the generated pull request; Enveloppe can open a pull request without registering GitHub auto-merge. Enable it when absent with `gh pr merge <number> --auto --merge`. Preserve the required checks.
-
-GitHub deletes merged head branches so Enveloppe can reuse its date-based branch name for another publish that day. If a date branch already has an open pull request, inspect and continue that pull request. Treat deletion of any remote branch as a confirmed destructive operation.
+The plugin refuses to publish while any note fails the site's frontmatter, route-collision, or asset checks and lists the problems instead. Warnings (ignored nested notes, invalid dates, favorites without an HTTP link) do not block.
 
 ## Verify publication
 

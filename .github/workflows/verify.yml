@@ -28,7 +28,7 @@ jobs:
           BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
         run: |
           changed_files="$(git diff --name-only "$BASE_SHA" HEAD)"
-          if test -n "$changed_files" && ! printf '%s\n' "$changed_files" | grep -qv '^content/'; then
+          if test -n "$changed_files" && ! printf '%s\n' "$changed_files" | grep -qvE '^(content/|public/assets/(posts|projects|favorites)/)'; then
             echo "content_only=true" >> "$GITHUB_OUTPUT"
           else
             echo "content_only=false" >> "$GITHUB_OUTPUT"
