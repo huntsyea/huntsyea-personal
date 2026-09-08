@@ -29,7 +29,7 @@ interface PublishSettings {
 }
 
 const defaultSettings: PublishSettings = {
-  clientId: "",
+  clientId: "Ov23libMm0XkNg38bp81",
   owner: "huntsyea",
   repo: "huntsyea-personal",
   baseBranch: "main",
