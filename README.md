@@ -52,7 +52,7 @@ A note named `index` inside a Category folder is reserved as that Category's int
 
 Publishing writes one commit to the `obsidian/publish` branch, opens a pull request against `main`, and enables auto-merge, so `verify` and Vercel remain the gates. Publishing again while that pull request is open adds to it. The plugin runs the same frontmatter, route-collision, and asset checks the content readers enforce and refuses to publish while any fail.
 
-There is no token to create. The plugin signs in with GitHub's device flow: it shows a short code, you approve it once in the browser, and GitHub issues the plugin a token that does not expire. That sign-in is stored in Obsidian's device-local storage, never in the vault, so Obsidian Sync cannot remove it; sign in once per device. The one-time setup is a GitHub OAuth App (Settings → Developer settings → OAuth Apps → New, any name and homepage, any callback URL, **Enable Device Flow** checked) whose Client ID goes into the plugin settings. Build and install into the authoring vault with:
+There is no token to create. The plugin signs in with GitHub's device flow: it shows a short code, you approve it once in the browser, and GitHub issues the plugin a token that does not expire. That sign-in is stored in Obsidian's device-local storage, never in the vault, so Obsidian Sync cannot remove it; sign in once per device. The one-time setup is a GitHub OAuth App (Settings → Developer settings → OAuth Apps → New, any name and homepage, any callback URL, **Enable Device Flow** checked) whose Client ID goes into the plugin settings; the plugin ships with the site's own app as the default. Build and install into the authoring vault with:
 
 ```bash
 pnpm plugin:install                      # installs into ~/Sylph
