@@ -1,9 +1,9 @@
 ---
-title: Why I Built Pi-Fusion
-summary: See where AI models disagree before trusting an answer.
+title: "Why I Built Pi-Fusion"
+summary: "See where AI models disagree before trusting an answer."
 time:
-  created: 2026-08-31T00:00:00.000Z
-  updated: 2026-08-31T00:00:00.000Z
+  created: "2026-08-31T00:00:00.000Z"
+  updated: "2026-08-31T00:00:00.000Z"
 share: true
 ---
 
