@@ -55,6 +55,29 @@ describe("publish contract", () => {
     ]);
   });
 
+  it("treats favorites/index.md as the group index, not an item", () => {
+    const good = planPublish(
+      snapshot([
+        note("favorites/index.md", { share: true, groups: ["Tools"] }),
+      ]),
+    );
+    expect(good.issues).toEqual([]);
+    expect(good.files.map((file) => file.repoPath)).toEqual([
+      "content/favorites/index.md",
+    ]);
+
+    const bad = planPublish(
+      snapshot([note("favorites/index.md", { share: true, groups: "Tools" })]),
+    );
+    expect(bad.issues).toEqual([
+      {
+        level: "error",
+        path: "favorites/index.md",
+        message: "Favorites index `groups` must be a list of names.",
+      },
+    ]);
+  });
+
   it("delivers referenced assets and reports missing ones", () => {
     const plan = planPublish(
       snapshot(

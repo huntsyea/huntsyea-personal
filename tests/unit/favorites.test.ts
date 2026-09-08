@@ -1,4 +1,4 @@
-import { readFavoriteGroups } from "@/lib/favorites";
+import { readFavoriteGroups, readFavoritesIndex } from "@/lib/favorites";
 
 import fs from "node:fs";
 import os from "node:os";
@@ -27,7 +27,47 @@ describe("favorites inventory", () => {
     expect(readFavoriteGroups(empty)).toEqual([]);
   });
 
-  it("ignores leftover publisher keys and orders extra groups after Articles and Resources", () => {
+  it("orders groups by the index note and renders its intro", () => {
+    const root = createFixtureRoot();
+    fs.writeFileSync(
+      path.join(root, "index.md"),
+      "---\ngroups:\n  - Tools\n  - Articles\n---\n\nThings I return to.\n",
+    );
+    for (const [file, group] of [
+      ["alpha.md", "Articles"],
+      ["guide.md", "Field Guides"],
+      ["tool.md", "Tools"],
+      ["loose.md", undefined],
+    ] as const) {
+      writeFavorite(root, file, {
+        title: file,
+        href: `https://example.com/${file}`,
+        note: undefined,
+        group,
+      });
+    }
+
+    const index = readFavoritesIndex(root);
+    expect(index.groups.map((group) => group.title)).toEqual([
+      "Tools",
+      "Articles",
+      "Field Guides",
+      "Other",
+    ]);
+    expect(
+      index.groups.flatMap((g) => g.items.map((i) => i.title)),
+    ).not.toContain("index");
+    expect(index.intro).toBe("Things I return to.");
+    expect(index.introSourcePath).toBe("content/index.md");
+  });
+
+  it("ignores an index whose groups is not a list", () => {
+    const root = createFixtureRoot();
+    fs.writeFileSync(path.join(root, "index.md"), "---\ngroups: Tools\n---\n");
+    expect(readFavoritesIndex(root).groups).toEqual([]);
+  });
+
+  it("ignores leftover publisher keys and orders unlisted groups alphabetically", () => {
     const root = createFixtureRoot();
     writeFavorite(root, "zeta-note.md", {
       title: "Zeta",
