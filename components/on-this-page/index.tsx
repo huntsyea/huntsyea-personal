@@ -163,7 +163,7 @@ export const OutlineAside = () => {
 };
 
 /**
- * Compact disclosure after the Post header below xl; hidden at xl. Server-
+ * Full-width disclosure after the Post header below xl; hidden at xl. Server-
  * rendered closed so phones see a collapsed control with no hydration shift.
  */
 export const OutlineDisclosure = () => {
@@ -172,7 +172,7 @@ export const OutlineDisclosure = () => {
 
   return (
     <details data-toc className="group mt-stack xl:hidden">
-      <summary className="inline-flex h-8 cursor-pointer list-none items-center gap-2 rounded-medium border border-border bg-bg px-3 text-sm font-medium text-fg-muted transition-colors hover:bg-bg-subtle [&::-webkit-details-marker]:hidden">
+      <summary className="flex h-8 w-full cursor-pointer list-none items-center justify-between gap-2 rounded-medium border border-border bg-bg px-3 text-sm font-medium text-fg-muted transition-colors hover:bg-bg-subtle [&::-webkit-details-marker]:hidden">
         On this page
         <ChevronDownIcon
           aria-hidden="true"
