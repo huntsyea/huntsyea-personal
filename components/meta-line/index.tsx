@@ -15,8 +15,8 @@ interface MetaItem {
 
 /**
  * The Post metadata block (published, updated, read time) in the sm text role
- * and muted colour role. Each item stacks its label above its value, and a
- * dot separates neighbouring items.
+ * and muted colour role. Each item stacks its label above its value; spacing
+ * alone separates neighbouring items.
  */
 export const Meta = ({ post }: MetaProps) => {
   const items: MetaItem[] = [];
@@ -49,14 +49,11 @@ export const Meta = ({ post }: MetaProps) => {
   });
 
   return (
-    <div className="mt-1 flex flex-wrap gap-x-3 gap-y-2 text-fg-muted text-sm">
-      {items.map((item, index) => (
-        <div key={item.label} className="flex items-start gap-x-3">
-          {index > 0 ? <span aria-hidden="true">⋅</span> : null}
-          <div className="flex flex-col">
-            <span>{item.label}</span>
-            <span className="text-fg">{item.value}</span>
-          </div>
+    <div className="mt-1 flex flex-wrap gap-x-6 gap-y-2 text-fg-muted text-sm">
+      {items.map((item) => (
+        <div key={item.label} className="flex flex-col">
+          <span>{item.label}</span>
+          <span className="text-fg">{item.value}</span>
         </div>
       ))}
     </div>

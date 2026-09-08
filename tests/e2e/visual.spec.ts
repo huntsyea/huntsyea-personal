@@ -33,7 +33,7 @@ test.describe("targeted visual baselines", () => {
 });
 
 /**
- * Home omits the shared header and its Theme control, so choose dark on the
+ * Home omits the shared footer and its Theme control, so choose dark on the
  * Posts page (the choice persists) and return to home.
  */
 async function selectDarkTheme(page: import("@playwright/test").Page) {

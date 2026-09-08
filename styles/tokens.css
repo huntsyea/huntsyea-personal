@@ -37,7 +37,7 @@
      --spacing-* pair exposes the same values as utilities (mt-stack, pt-section). */
   --space-stack: 24px;
   --space-section: 48px;
-  --space-page: 64px;
+  --space-page: 40px;
   --space-page-desktop: 96px;
   --spacing-stack: 24px;
   --spacing-section: 48px;
