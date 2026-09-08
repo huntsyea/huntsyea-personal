@@ -8,28 +8,57 @@ interface MetaProps {
   post: ContentPost;
 }
 
+interface MetaItem {
+  label: string;
+  value: React.ReactNode;
+}
+
 /**
- * The dot-separated Post metadata line (published, updated, reading time) in
- * the sm text role and muted colour role.
+ * The Post metadata block (published, updated, read time) in the sm text role
+ * and muted colour role. Each item stacks its label above its value, and a
+ * dot separates neighbouring items.
  */
-export const Meta = ({ post }: MetaProps) => (
-  <div className="mt-1 flex gap-2 text-fg-muted text-sm">
-    {post.createdAt ? (
-      <time dateTime={post.time?.created}>
-        Published {formatter.date(post.createdAt)}
-      </time>
-    ) : null}
-    {post.createdAt && post.updatedAt ? (
-      <span aria-hidden="true">⋅</span>
-    ) : null}
-    {post.updatedAt ? (
-      <time dateTime={post.time?.updated}>
-        Updated {formatter.date(post.updatedAt)}
-      </time>
-    ) : null}
-    {post.createdAt || post.updatedAt ? (
-      <span aria-hidden="true">⋅</span>
-    ) : null}
-    <span>{readingTime(post.content).minutes} minutes read</span>
-  </div>
-);
+export const Meta = ({ post }: MetaProps) => {
+  const items: MetaItem[] = [];
+
+  if (post.createdAt) {
+    items.push({
+      label: "Published",
+      value: (
+        <time dateTime={post.time?.created}>
+          {formatter.date(post.createdAt)}
+        </time>
+      ),
+    });
+  }
+
+  if (post.updatedAt) {
+    items.push({
+      label: "Updated",
+      value: (
+        <time dateTime={post.time?.updated}>
+          {formatter.date(post.updatedAt)}
+        </time>
+      ),
+    });
+  }
+
+  items.push({
+    label: "Read time",
+    value: `${readingTime(post.content).minutes} minutes`,
+  });
+
+  return (
+    <div className="mt-1 flex flex-wrap gap-x-3 gap-y-2 text-fg-muted text-sm">
+      {items.map((item, index) => (
+        <div key={item.label} className="flex items-start gap-x-3">
+          {index > 0 ? <span aria-hidden="true">⋅</span> : null}
+          <div className="flex flex-col">
+            <span>{item.label}</span>
+            <span className="text-fg">{item.value}</span>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
