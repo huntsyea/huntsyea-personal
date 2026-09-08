@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "files": {
+    "content/favorites/1000-true-fans.md": "favorites/1000-true-fans.md",
+    "content/favorites/a-software-design-blog-youll-actually-read.md": "favorites/a-software-design-blog-youll-actually-read.md",
+    "content/favorites/Agentation.md": "favorites/Agentation.md",
+    "content/favorites/designing-for-the-web.md": "favorites/designing-for-the-web.md",
+    "content/favorites/how-to-do-great-work.md": "favorites/how-to-do-great-work.md",
+    "content/favorites/makers-schedule-managers-schedule.md": "favorites/makers-schedule-managers-schedule.md",
+    "content/favorites/refactoring-ui.md": "favorites/refactoring-ui.md",
+    "content/favorites/shape-up.md": "favorites/shape-up.md",
+    "content/favorites/steveys-google-platforms-rant.md": "favorites/steveys-google-platforms-rant.md",
+    "content/favorites/taste-is-eating-silicon-valley.md": "favorites/taste-is-eating-silicon-valley.md",
+    "content/favorites/the-grug-brained-developer.md": "favorites/the-grug-brained-developer.md",
+    "content/favorites/the-ux-of-uuids.md": "favorites/the-ux-of-uuids.md",
+    "content/favorites/writing-tools-i-learned-from-the-economist.md": "favorites/writing-tools-i-learned-from-the-economist.md",
+    "content/home.md": "home.md",
+    "content/posts/abstraction.md": "posts/abstraction.md",
+    "content/posts/pi-fusion.md": "posts/pi-fusion.md",
+    "content/projects/pi-fusion.md": "projects/pi-fusion.md",
+    "public/assets/posts/pi-fusion-architecture.svg": "posts/assets/pi-fusion-architecture.svg",
+    "public/assets/posts/pi-fusion-flow.svg": "posts/assets/pi-fusion-flow.svg",
+    "public/assets/posts/pi-fusion-signals.svg": "posts/assets/pi-fusion-signals.svg"
+  }
+}

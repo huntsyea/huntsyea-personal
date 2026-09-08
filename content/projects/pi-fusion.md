@@ -112,5 +112,5 @@ Run `/reload` if Pi is already open. No configuration is required for `available
 
 - [Pi package](https://pi.dev/packages/pi-fusion)
 - [Source code and full configuration reference](https://github.com/synthetic-recon/pi-fusion)
-- [Why I built Pi-Fusion](../posts/pi-fusion.md#)
+- [Why I built Pi-Fusion](/posts/pi-fusion)
 - [OpenRouter Fusion, the original inspiration](https://openrouter.ai/blog/announcements/fusion-beats-frontier/)
