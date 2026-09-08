@@ -42,7 +42,7 @@ time:
 
 The filename supplies the title when `title` is absent. Missing optional metadata uses a safe default. Invalid optional dates, incomplete Favorites, and unsupported nested folders produce source-specific warnings and continue. Unreadable files, malformed frontmatter, empty route segments, normalized route collisions, and rendering failures stop verification.
 
-`content/home.md` supplies the homepage introduction. `content/favorites/` contains outbound-link notes; only an absolute HTTP or HTTPS `href` is essential. The shared private Markdown reader handles discovery and normalization, while Posts, Home, and Favorites keep separate public domain interfaces.
+`content/home.md` supplies the homepage introduction. `content/favorites/` contains outbound-link notes; only an absolute HTTP or HTTPS `href` is essential. Each note's `group` key names its group on `/favorites`, so a new group is just a new value. An optional `content/favorites/index.md` is never an item: its `groups` frontmatter list orders the groups, and its body is the intro above them. Unlisted groups follow alphabetically. The shared private Markdown reader handles discovery and normalization, while Posts, Home, and Favorites keep separate public domain interfaces.
 
 A note named `index` inside a Category folder is reserved as that Category's intro, rendered through the prose class above the Category list; it is never a Post, so it is excluded from ordering, adjacency, entries, sitemap, and static params. A Category folder containing only an `index` note is valid and empty. The `index` name is reserved only inside a Category folder: the home intro remains `content/home.md`, and an `index` note at the content root is ignored.
 

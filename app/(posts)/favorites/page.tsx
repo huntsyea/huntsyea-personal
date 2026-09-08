@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 
 import { Favorites } from "@/components/favorites";
-import { favoriteGroups, favoritesDescription } from "@/lib/favorites";
+import { renderCategoryIntro } from "@/lib/content/renderer";
+import { favoritesDescription, favoritesIndex } from "@/lib/favorites";
 import { createSiteMetadata } from "@/lib/site/profile";
 
 export const metadata: Metadata = createSiteMetadata({
@@ -10,6 +11,19 @@ export const metadata: Metadata = createSiteMetadata({
   path: "/favorites",
 });
 
-export default function Page() {
-  return <Favorites groups={favoriteGroups} asPage />;
+export default async function Page() {
+  const intro =
+    favoritesIndex.intro && favoritesIndex.introSourcePath
+      ? await renderCategoryIntro(
+          favoritesIndex.intro,
+          favoritesIndex.introSourcePath,
+        )
+      : undefined;
+
+  return (
+    <>
+      {intro ? <div className="prose">{intro}</div> : null}
+      <Favorites groups={favoritesIndex.groups} asPage />
+    </>
+  );
 }

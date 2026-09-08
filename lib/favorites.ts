@@ -1,6 +1,9 @@
 import "server-only";
 
+import type { MarkdownSource } from "@/lib/content/markdown-source";
+
 import {
+  normalizeContentSegment,
   readMarkdownDirectory,
   reportContentWarning,
 } from "@/lib/content/markdown-source";
@@ -21,6 +24,13 @@ export type FavoriteGroup = {
   items: readonly Favorite[];
 };
 
+export type FavoritesIndex = {
+  groups: readonly FavoriteGroup[];
+  /** Markdown body of `favorites/index.md`, rendered above the groups. */
+  intro: string | undefined;
+  introSourcePath: string | undefined;
+};
+
 export const favoritesDescription = `External articles and resources ${siteProfile.authorName} keeps coming back to.`;
 
 const optionalText = z.preprocess(
@@ -36,7 +46,9 @@ const favoriteFrontmatterSchema = z.object({
   group: optionalText,
 });
 
-const preferredGroupOrder = ["Articles", "Resources"];
+const favoritesIndexSchema = z.object({
+  groups: z.array(z.string().trim().min(1)).optional().catch(undefined),
+});
 
 const defaultFavoritesDirectory = path.join(
   process.cwd(),
@@ -44,9 +56,15 @@ const defaultFavoritesDirectory = path.join(
   "favorites",
 );
 
-export function readFavoriteGroups(
+/**
+ * Favorites are flat notes grouped by their `group` frontmatter key; a new
+ * group is simply a new value. `favorites/index.md` is never an item: its
+ * `groups` frontmatter list orders the groups (unlisted ones follow
+ * alphabetically) and its body is the intro above them.
+ */
+export function readFavoritesIndex(
   favoritesDirectory = defaultFavoritesDirectory,
-): readonly FavoriteGroup[] {
+): FavoritesIndex {
   const contentRoot =
     path.basename(favoritesDirectory) === "favorites"
       ? path.dirname(favoritesDirectory)
@@ -56,8 +74,10 @@ export function readFavoriteGroups(
     directory: favoritesDirectory,
   });
   const groups = new Map<string, Favorite[]>();
+  const indexSource = sources.find((source) => source.slug === "index");
 
   for (const source of sources) {
+    if (source === indexSource) continue;
     const result = favoriteFrontmatterSchema.safeParse(source.frontmatter);
     if (!result.success) {
       throw new Error(
@@ -85,25 +105,50 @@ export function readFavoriteGroups(
     groups.set(group, items);
   }
 
-  return [...groups.keys()].sort(compareGroupTitles).map((title) => ({
-    title,
-    items: groups.get(title) ?? [],
-  }));
+  const order = readGroupOrder(indexSource);
+
+  return {
+    groups: [...groups.keys()]
+      .sort(compareGroupTitles(order))
+      .map((title) => ({ title, items: groups.get(title) ?? [] })),
+    intro: indexSource?.content.trim() || undefined,
+    introSourcePath: indexSource?.sourcePath,
+  };
 }
 
-export const favoriteGroups = readFavoriteGroups();
+export function readFavoriteGroups(
+  favoritesDirectory = defaultFavoritesDirectory,
+): readonly FavoriteGroup[] {
+  return readFavoritesIndex(favoritesDirectory).groups;
+}
+
+export const favoritesIndex = readFavoritesIndex();
+
+export const favoriteGroups = favoritesIndex.groups;
 
 export const favorites: readonly Favorite[] = favoriteGroups.flatMap(
   (group) => group.items,
 );
 
-function compareGroupTitles(left: string, right: string): number {
-  const leftRank = preferredGroupOrder.indexOf(left);
-  const rightRank = preferredGroupOrder.indexOf(right);
-  const leftOrder = leftRank === -1 ? preferredGroupOrder.length : leftRank;
-  const rightOrder = rightRank === -1 ? preferredGroupOrder.length : rightRank;
+function readGroupOrder(indexSource: MarkdownSource | undefined): string[] {
+  if (!indexSource) return [];
+  const result = favoritesIndexSchema.safeParse(indexSource.frontmatter);
+  if (!result.success) {
+    throw new Error(
+      `Invalid Favorites index frontmatter in "${indexSource.sourcePath}".`,
+      { cause: result.error },
+    );
+  }
+  return (result.data.groups ?? []).map(normalizeContentSegment);
+}
 
-  return leftOrder - rightOrder || left.localeCompare(right);
+function compareGroupTitles(order: readonly string[]) {
+  const rank = (title: string) => {
+    const index = order.indexOf(normalizeContentSegment(title));
+    return index === -1 ? order.length : index;
+  };
+  return (left: string, right: string) =>
+    rank(left) - rank(right) || left.localeCompare(right);
 }
 
 function readHttpUrl(value: unknown): string | undefined {

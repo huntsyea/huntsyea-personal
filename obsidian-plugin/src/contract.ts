@@ -244,6 +244,8 @@ export function planPublish(
 
       if (note.frontmatterError) {
         issues.push(error(note.path, note.frontmatterError));
+      } else if (isFavorites && noteSlug === "index") {
+        validateFavoritesIndex(note, issues);
       } else if (isFavorites) {
         validateFavorite(note, issues);
       } else if (noteSlug !== "index") {
@@ -407,6 +409,19 @@ function validatePost(note: VaultNote, issues: Issue[]) {
         warning(note.path, `time.${field} is invalid and will be ignored.`),
       );
     }
+  }
+}
+
+const favoritesIndexSchema = z.object({
+  groups: z.array(z.string().trim().min(1)).optional(),
+});
+
+/** `favorites/index.md` orders the groups and carries the intro; it is never an item. */
+function validateFavoritesIndex(note: VaultNote, issues: Issue[]) {
+  if (!favoritesIndexSchema.safeParse(note.frontmatter ?? {}).success) {
+    issues.push(
+      error(note.path, "Favorites index `groups` must be a list of names."),
+    );
   }
 }
 
