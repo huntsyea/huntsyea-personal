@@ -1,0 +1,9 @@
+{
+  "id": "huntsyea-publish",
+  "name": "Publish to huntsyea.com",
+  "version": "1.0.0",
+  "minAppVersion": "1.5.0",
+  "description": "Publishes shared notes, category intros, the home intro, favorites, and their assets to the site repository through a pull request.",
+  "author": "huntsyea",
+  "isDesktopOnly": false
+}

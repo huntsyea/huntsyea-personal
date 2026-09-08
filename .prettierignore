@@ -4,3 +4,4 @@ content/**/*.md
 content/**/*.mdx
 playwright-report
 test-results
+obsidian-plugin/dist

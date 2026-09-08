@@ -20,7 +20,7 @@ corepack pnpm dev
 
 ## Content
 
-The repository mirrors content published from Obsidian through Enveloppe. Physical folders and filenames are the content contract. Add a folder under `content/`, then add `.md` or `.mdx` notes inside it:
+The repository mirrors content published from Obsidian through the repository's own plugin in `obsidian-plugin/`. Physical folders and filenames are the content contract. Add a folder under `content/`, then add `.md` or `.mdx` notes inside it:
 
 ```text
 content/
@@ -46,7 +46,20 @@ The filename supplies the title when `title` is absent. Missing optional metadat
 
 A note named `index` inside a Category folder is reserved as that Category's intro, rendered through the prose class above the Category list; it is never a Post, so it is excluded from ordering, adjacency, entries, sitemap, and static params. A Category folder containing only an `index` note is valid and empty. The `index` name is reserved only inside a Category folder: the home intro remains `content/home.md`, and an `index` note at the content root is ignored.
 
-The local Obsidian publisher uses path-based upload into `content/`, publishes only notes with the configured share key, excludes `Templates`, and leaves automatic cleanup disabled. Enveloppe can auto-merge only after the repository and Vercel checks pass.
+## Publishing from Obsidian
+
+`obsidian-plugin/` is a small Obsidian plugin that replaces Enveloppe. It copies every note whose `share` key is `true` into `content/` at the same path, delivers the images those notes reference from `<folder>/assets/` into `public/assets/<folder>/`, and excludes `Templates`. It covers the home intro, every Category folder and its `index` intro, Favorites, and assets. A manifest at `content/.publish-manifest.json` records what the plugin published, so unsharing, deleting, or moving a note removes its published copy on the next publish while hand-made repository files are never touched.
+
+Publishing writes one commit to the `obsidian/publish` branch, opens a pull request against `main`, and enables auto-merge, so `verify` and Vercel remain the gates. Publishing again while that pull request is open adds to it. The plugin runs the same frontmatter, route-collision, and asset checks the content readers enforce and refuses to publish while any fail.
+
+The GitHub token is stored in Obsidian's device-local storage, never in the vault, so Obsidian Sync cannot remove it; paste it once per device. Build and install into the authoring vault with:
+
+```bash
+pnpm plugin:install                      # installs into ~/Sylph
+OBSIDIAN_VAULT=/path/to/vault pnpm plugin:install
+```
+
+Then enable "Publish to huntsyea.com" in Obsidian's community plugins and run **Publish shared notes** or **Preview what would publish** from the command palette.
 
 The content catalog discovers categories, sorts posts, supplies adjacent navigation, and generates the static route and sitemap inventory. Post titles provide the only page-level heading, so authored sections begin with `##`.
 
@@ -72,9 +85,10 @@ SITE_URL=https://example.com pnpm verify
 ```
 
 CI runs the complete verification command for code and configuration changes.
-For changes confined to `content/`, CI runs the content domain tests while the
-required Vercel check performs the production build. This keeps trusted
-Obsidian publishing fast without allowing invalid content to merge.
+For changes confined to `content/` and delivered assets under `public/assets/`,
+CI runs the content domain tests while the required Vercel check performs the
+production build. This keeps trusted Obsidian publishing fast without allowing
+invalid content to merge.
 
 ## Architecture
 

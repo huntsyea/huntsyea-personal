@@ -23,7 +23,9 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:update": "playwright test --update-snapshots",
-    "verify": "prettier . --check --log-level warn && stylelint \"**/*.css\" && eslint . && tsc --noEmit && vitest run && next build && playwright test"
+    "verify": "prettier . --check --log-level warn && stylelint \"**/*.css\" && eslint . && tsc --noEmit && vitest run && next build && playwright test",
+    "plugin:build": "node obsidian-plugin/build.mjs",
+    "plugin:install": "node obsidian-plugin/build.mjs --install"
   },
   "dependencies": {
     "@radix-ui/colors": "^3.0.0",
@@ -56,8 +58,10 @@
     "@types/node": "24.13.3",
     "@types/react": "19.2.18",
     "@types/react-dom": "19.2.4",
+    "esbuild": "^0.28.2",
     "eslint": "9.39.2",
     "eslint-config-next": "16.3.2",
+    "obsidian": "^1.13.1",
     "postcss": "8.5.26",
     "prettier": "3.9.6",
     "stylelint": "17.14.1",
