@@ -20,7 +20,13 @@ export const SiteShell = ({ children, chrome = true }: SiteShellProps) => {
   return (
     <>
       {chrome ? <SiteHeader /> : null}
-      <main className="mx-auto w-full max-w-column px-6 py-section">
+      <main
+        className={
+          chrome
+            ? "mx-auto w-full max-w-column px-6 pt-stack pb-section"
+            : "mx-auto w-full max-w-column px-6 py-section"
+        }
+      >
         <Entrance>{children}</Entrance>
       </main>
       {chrome ? <SiteFooter /> : null}

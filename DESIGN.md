@@ -59,7 +59,7 @@ Tailwind's 4 px grid is retained. The rhythm is named so layout values are chose
 | ---------------------- | ----- | -------------------------------- |
 | `--space-stack`        | 24 px | Prose block gap and list indent. |
 | `--space-section`      | 48 px | Gap between major sections.      |
-| `--space-page`         | 64 px | Page inset on mobile.            |
+| `--space-page`         | 40 px | Page inset on mobile.            |
 | `--space-page-desktop` | 96 px | Page inset on desktop.           |
 
 ### Prose rhythm
@@ -105,12 +105,12 @@ Shared components under `components/`. Each is one line on purpose and props.
 - **`Link`** — the single site link primitive and the only importer of the Link component; the providers module imports the ViewTransitions provider, and the design-system guardrail exempts exactly those two. Variants `inline` (underline, accent on hover), `nav` (muted, fg on hover), and `quiet` (no decoration, row links); handles hash, `mailto:`, `tel:`, and external targets with safe `rel`. Props: `variant`, `newTab`, `href`, `className`, `children`, `target`, `rel`.
 - **`EntryList` / `EntryRow`** — the shared bordered row list used by Posts, Projects, and Favorites. `EntryRow` takes `title`, `href`, optional `trailingMeta` (a date), optional `caption` (a favorite note or hostname), and optional `category`/`slug` to qualify the shared-element view-transition name.
 - **`SectionHeading`** — a list heading that is simply the collection name, without counts. Props: `title`, optional `href`, optional `asPage`.
-- **`Meta`** — the Post metadata block (published, updated, read time) in the `sm` text role. Each item stacks a muted label above its value, with a dot between items. Props: `post`.
+- **`Meta`** — the Post metadata block (published, updated, read time) in the `sm` text role. Each item stacks a muted label above its value, separated by spacing alone. Props: `post`.
 - **`Pill`** — the home Contact link pill, built on `Link` and sharing the surface and border roles with `SegmentedControl`. Props: `href`, `newTab`, `children`.
 - **`SegmentedControl`** — the Theme switcher, sized by its content; the track uses the subtle surface role and the active segment the elevated surface role, with a pre-hydration placeholder that reserves the footprint. Props: `label`, `options`, `value`, `onSelect`.
 - **`SiteShell`** — the page frame: the reading column with the route entrance, between `SiteHeader` and `SiteFooter` unless `chrome` is false. Every route renders it; home turns the chrome off so the front door is content only.
-- **`SiteHeader`** — the shared header rendered by `SiteShell` on every route except home: the site name, one nav link per catalog Category plus Favorites, and the Theme control. The name and Theme control share the first row at every width; the nav sits between them at `md` and wraps onto its own row below. No props; reads the Content catalog and Site profile.
-- **`SiteFooter`** — the shared footer rendered by `SiteShell` on every route except home: Contact links as text links plus a copyright line. No props; reads the Site profile.
+- **`SiteHeader`** — the shared header rendered by `SiteShell` on every route except home: the site name on the left and one nav link per catalog Category plus Favorites on the right, on one row at every width. No props; reads the Content catalog and Site profile.
+- **`SiteFooter`** — the shared footer rendered by `SiteShell` on every route except home: Contact links as text links with the Theme control opposite, and a copyright line beneath. No props; reads the Site profile.
 - **`Breadcrumb`** — a server-rendered navigation trail with current-page state, prefixed by Home. Props: `items`, `className`.
 - **`TableOfContents`** — renders the outline twice from one visible-heading state: a sticky aside at `xl` and a native "On this page" disclosure below `xl`, with the current heading highlighted in the accent role. Props: `outline`.
 - **`Entrance`** — the route entrance wrapper applying `fadeAndRise`, honouring reduced motion. Props: `children`.

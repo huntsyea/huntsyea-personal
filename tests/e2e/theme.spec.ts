@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 import { siteRoutes } from "../fixtures/routes";
 
-// The Theme control lives in the shared header, which home omits, so drive it
+// The Theme control lives in the shared footer, which home omits, so drive it
 // from the Posts category page.
 const themeRoute = siteRoutes.posts;
 

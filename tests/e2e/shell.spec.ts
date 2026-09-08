@@ -28,7 +28,7 @@ for (const route of shellRoutes) {
     await page.goto(route);
     await expectPageToBeHealthy(page, route);
 
-    // Header landmark, generated nav, and Theme control.
+    // Header landmark and generated nav.
     const header = page.getByRole("banner");
     await expect(header).toBeVisible();
 
@@ -39,15 +39,16 @@ for (const route of shellRoutes) {
       await expect(link).toHaveAttribute("href", href);
     }
 
-    const themeControl = header.getByRole("group", { name: "Theme" });
+    // Footer landmark repeats Contact links as text links, carries the Theme
+    // control, and ends with the copyright.
+    const footer = page.getByRole("contentinfo");
+    await expect(footer).toBeVisible();
+
+    const themeControl = footer.getByRole("group", { name: "Theme" });
     await expect(themeControl).toBeVisible();
     await expect(
       themeControl.getByRole("button", { name: /system/i }),
     ).toHaveAttribute("aria-pressed", expect.stringMatching(/^(true|false)$/));
-
-    // Footer landmark repeats Contact links as text links, plus copyright.
-    const footer = page.getByRole("contentinfo");
-    await expect(footer).toBeVisible();
 
     const contactNav = footer.getByRole("navigation", {
       name: "Contact links",
