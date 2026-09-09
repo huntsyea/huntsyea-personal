@@ -1,7 +1,7 @@
 ---
 groups:
+  - My Stack
   - Articles
   - Resources
-  - Tools
 share: true
 ---
