@@ -1,7 +1,7 @@
 ---
-title: ChatGPT Pro Sub
-href: https://chatgpt.com/
-note: 5.6 Sol is my daily driver and now putting Astra through it’s paces (impressed).
-group: My Stack
+title: "ChatGPT Pro"
+href: "https://chatgpt.com/"
+note: "5.6 Sol is my main model. Currently testing Astra and I am impressed."
+group: "Subscriptions"
 share: true
 ---

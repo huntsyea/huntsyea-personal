@@ -1,7 +1,9 @@
 ---
 groups:
-  - My Stack
-  - Articles
-  - Resources
+  - Harnesses
+  - Clients
+  - Skills
+  - Subscriptions
+  - Reading
 share: true
 ---

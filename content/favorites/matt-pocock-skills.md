@@ -1,7 +1,7 @@
 ---
 title: "Matt Pocock Skills (modified)"
 href: "https://github.com/mattpocock/skills"
-note: "The skill set I build on, with my own changes."
-group: My Stack
+note: "I build on this skill set, with a few of my own changes."
+group: "Skills"
 share: true
 ---

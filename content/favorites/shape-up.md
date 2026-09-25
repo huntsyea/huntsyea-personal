@@ -1,8 +1,7 @@
 ---
 title: "Shape Up: Stop Running in Circles"
 href: "https://basecamp.com/shapeup"
-note: "Basecamp's product development methodology."
-group: Resources
+note: "Basecamp's way of developing products."
+group: "Reading"
 share: true
-category: favorites
 ---

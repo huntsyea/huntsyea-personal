@@ -1,7 +1,7 @@
 ---
 title: "SuperGrok Heavy"
 href: "https://grok.com/"
-note: "Grok Heavy's parallel agents for the hardest problems."
-group: My Stack
+note: "Parallel agents from Grok Heavy for the hardest problems."
+group: "Subscriptions"
 share: true
 ---
