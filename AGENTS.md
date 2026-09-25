@@ -1,5 +1,7 @@
 # Repository agent instructions
 
+Site content lives in the Obsidian vault `Sylph` at `/Users/huntsyea/Sylph` (posts, projects, favorites, home). Edit content there, not in `content/`, which the vault's publish plugin writes. Follow the vault's `/Users/huntsyea/Sylph/AGENTS.md` for layout, frontmatter, and routing rules.
+
 ## Agent skills
 
 - Use [docs/agents/issue-tracker.md](docs/agents/issue-tracker.md) to locate and publish project work.
