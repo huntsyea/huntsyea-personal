@@ -1,7 +1,7 @@
 ---
-title: bb
-href: https://getbb.app/
-note: Daily driver now. Want a feature? Build it! Sawyer is awesome and he is on to something here, I am hooked.
-group: My Stack
+title: "bb"
+href: "https://getbb.app/"
+note: "My daily driver. Sawyer is onto something here and I am hooked. Build your own features if you want them."
+group: "Clients"
 share: true
 ---

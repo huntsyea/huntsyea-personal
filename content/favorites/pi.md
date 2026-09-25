@@ -1,7 +1,7 @@
 ---
 title: "Pi"
 href: "https://pi.dev/"
-note: "The coding agent I run day to day. Open source and extensible in TypeScript."
-group: My Stack
+note: "My day-to-day coding agent. It is open source and extensible in TypeScript."
+group: "Harnesses"
 share: true
 ---

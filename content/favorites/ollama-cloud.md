@@ -1,7 +1,7 @@
 ---
 title: "Ollama Cloud"
 href: "https://ollama.com/"
-note: "Fixed-price open models with no overage surprises."
-group: My Stack
+note: "Open models with a fixed price and no overage surprises."
+group: "Subscriptions"
 share: true
 ---

@@ -1,7 +1,7 @@
 ---
 title: "Cursor Ultra"
 href: "https://cursor.com/"
-note: "For editor sessions."
-group: My Stack
+note: "What I reach for in editor sessions."
+group: "Subscriptions"
 share: true
 ---

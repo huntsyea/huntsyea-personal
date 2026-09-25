@@ -7,13 +7,13 @@ time:
 share: true
 ---
 
-Ask several models the same question and the useful part is often where they disagree. Their split exposes assumptions, blind spots, and claims that need evidence. I built [Pi-Fusion](https://pi.dev/packages/pi-fusion) to put those weak points in front of a coding agent before it acts.
+When several models answer the same question, their disagreements show me which assumptions need checking. They expose claims that need evidence and blind spots that one model may miss. I built [Pi-Fusion](https://pi.dev/packages/pi-fusion) to put that information in front of a coding agent before it acts.
 
 ## How Pi-Fusion works
 
-Pi-Fusion is an extension for Pi, a coding agent. Say I ask Pi whether a growing product should replace its REST API with GraphQL. The active model would normally reason through the trade-off and give me one answer. With Fusion, the same question goes to a panel of models I am already authenticated with. They answer independently and in parallel. One may focus on client flexibility, another on caching and operations, and another on migration cost.
+Pi-Fusion is an extension for Pi, a coding agent. Suppose I ask Pi whether a growing product should replace its REST API with GraphQL. The active model would normally reason through the trade-off and give me one answer. With Fusion, the same question goes to a panel of models I am already authenticated with. They answer independently and in parallel. One may focus on client flexibility, another on caching and operations, and another on migration cost.
 
-A judge model compares those responses and sorts the result into consensus, contradictions, partial coverage, unique insights, and blind spots. The active model gets that analysis and the panel's responses, then writes the final answer. When the panel splits over client needs or operational complexity, the active model can see which assumptions to verify before it recommends a direction.
+A judge model compares those responses and labels the shared conclusions, contradictions, partial coverage, unique insights, and blind spots. The active model gets that analysis and the panel's responses, then writes the final answer. When the panel splits over client needs or operational complexity, the active model can see which assumptions to verify before it recommends a direction.
 
 <Image src="/assets/posts/pi-fusion-flow.svg" alt="How Pi-Fusion sends a question through independent models, judge analysis, and the active model's final answer." width="760" height="560" />
 
@@ -27,13 +27,13 @@ A split gives the active model a claim to investigate. The outlier may be wrong.
 
 ## When I run Fusion
 
-Each Fusion run makes several model calls and, when enough panelists answer, a separate judge call. It takes more time and more tokens than asking one model, so the extra work should earn its place. I use it when another opinion could change the result: architecture decisions, difficult debugging, unfamiliar codebases, consequential refactors, research, and critiques.
+Each Fusion run makes several model calls and, when enough panelists answer, a separate judge call. It takes more time and more tokens than asking one model. I use it when a wrong assumption could change the decision: architecture, difficult debugging, unfamiliar codebases, consequential refactors, research, and critiques.
 
 For routine edits, formatting, or straightforward implementation, one capable model is usually enough. When a wrong assumption would cost more than another opinion, I run Fusion.
 
 ## You choose the panel, tools, and budget
 
-Fusion reaches several models and can spend more time, tokens, and provider budget. In available mode, the active model decides when to request it. I still choose the panel, judge, reasoning levels, token budgets, and tool access. The invoking model supplies the task but cannot override those settings. Panel tools start off, and Fusion includes recent conversation context only when requested.
+Fusion sends the task to several models and can spend more time, tokens, and provider budget. In available mode, the active model decides when to request it. I still choose the panel, judge, reasoning levels, token budgets, and tool access. The invoking model supplies the task but cannot override those settings. Panel tools start off, and Fusion includes recent conversation context only when requested.
 
 I can leave Fusion available, guarantee it for one prompt, force it for a session, or turn it off. When I want fixed cost and quality trade-offs, I can define named panels.
 
@@ -45,10 +45,10 @@ If you already use Pi, install [Pi-Fusion](https://github.com/synthetic-recon/pi
 pi install npm:pi-fusion
 ```
 
-Run `/reload` if Pi is already open. No configuration is required. Pi-Fusion selects a diverse panel from the models you are already authenticated with. Ask Pi to use Fusion when you want another perspective, or guarantee one run directly:
+Run `/reload` if Pi is already open. No configuration is required. Pi-Fusion chooses a panel from the models you are already authenticated with and spreads it across providers when possible. Ask Pi to use Fusion when you want another perspective, or guarantee one run directly:
 
 ```text
 /fusion Review this architecture and identify assumptions that may be wrong.
 ```
 
-`/fusion-setup` lets you choose the panel, judge, reasoning, and tool access later. Start with a decision where disagreement would change your next step.
+`/fusion-setup` lets you choose the panel, judge, reasoning, and tool access later. Use it first on a decision where disagreement would change your next step.

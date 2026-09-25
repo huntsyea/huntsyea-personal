@@ -1,7 +1,7 @@
 ---
 title: "Gemini Pro"
 href: "https://gemini.google.com/"
-note: "Google's models and the Google One bundle."
-group: My Stack
+note: "Google models via the Google One bundle."
+group: "Subscriptions"
 share: true
 ---
