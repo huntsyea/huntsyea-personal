@@ -2,51 +2,60 @@
 
 ## Purpose
 
-This repository builds Hunter Yea's personal website. It renders Obsidian-authored content as a statically discoverable site with theme-aware MDX, metadata, and social cards. `content/home.md` is the homepage intro, not a Post.
+This repository builds Hunter Yea's personal website: an Astro site that renders content from EmDash CMS on Cloudflare Workers. Everything a reader sees — posts, projects, favorites, page intros, the site title and tagline, navigation, and contact links — is edited in EmDash. The repository owns the design system, routes, and rendering.
 
 ## Domain glossary
 
 ### Site
 
-The complete generated reading and portfolio experience, including pages, posts, metadata surfaces, theme behavior, and the design system. The Site's primary mode is reading: the writing is the product and contact is a secondary action. The Site descends from the Sylph starter; that lineage is history, not identity, and starter affordances are not preserved.
+The complete reading and portfolio experience, including pages, posts, metadata surfaces, theme behavior, and the design system. The Site's primary mode is reading: the writing is the product and contact is a secondary action. The Site descends from the Sylph starter; that lineage is history, not identity.
 _Avoid_: Sylph, starter, template
 
-### Site profile
+### Site settings
 
-The validated canonical identity of a Site: origin, name, description, locale, and contact links. Metadata surfaces, the header, the footer, and the home page consume the Site profile instead of assembling identity values independently.
+The EmDash site settings that identify the Site: title (the site name), tagline, and canonical URL. Metadata surfaces, the header, the footer, and the home page read them instead of assembling identity values independently.
+_Avoid_: site profile (the pre-migration code module)
 
 ### Contact link
 
-A labeled outbound way to reach the author, such as email or a social profile, owned by the Site profile. Contact links are identity, not content, and are not authored in Obsidian.
+A labeled outbound way to reach the author, such as email or a social profile. Contact links are the items of the EmDash menu named `contact`; a `_blank` target opens the link in a new tab.
 _Avoid_: social link, socials
+
+### Primary navigation
+
+The EmDash menu named `primary`, rendered in the header on every route except home.
 
 ### Favorite
 
-A curated outbound link to an external article or resource. Favorites are authored as Markdown files under `content/favorites` — not Posts, not a Category, and not part of the Content catalog. An absolute HTTP or HTTPS `href` is essential. The title, note, and group are optional. Items sort by filename.
+A curated outbound link to an external article or resource, stored in the `favorites` collection. Favorites are not Posts and have no page of their own. An absolute HTTP or HTTPS link is essential; the note is optional. A Favorite belongs to at most one Favorite group; items sort by title within a group.
+
+### Favorite group
+
+A term of the `favorite_group` taxonomy. The term order set in the admin is the group order on `/favorites`. Favorites without a group collect under "Other" at the end.
 
 ### Category
 
-A named collection of Posts exposed at one normalized route segment, such as posts or projects, with an optional intro. Physical content folders define Categories and must resolve to a deterministic static route inventory. A file named `index` inside a Category folder is the Category intro, not a Post.
+A named collection of Posts exposed at one route segment: `posts` or `projects`. Each Category is an EmDash collection with the same fields. A Category's optional intro is the Page intro with the same slug.
 
 ### Post
 
-A trusted, repository-authored Markdown or MDX document with a Category, a filename-derived title, a normalized slug, optional metadata, and rendered content. Authored timestamps remain source data when present.
+An entry in a Category collection: title, summary, Portable Text content, and an optional revised date. The publication date orders Posts newest first, with the slug breaking ties. The title is the only page-level heading, so authored sections start at Heading 2.
 
-### Content catalog
+### Page intro
 
-The module that discovers Categories and Posts and owns normalization, collision detection, tolerant metadata parsing, ordering, lookup, adjacency, and the complete route inventory. Routes and metadata surfaces consume this module rather than reading the filesystem directly.
+An entry in the `pages` collection whose slug names the page it introduces: `home`, `posts`, `projects`, or `favorites`. The `home` intro's SEO description is the Site's description.
 
-### Markdown source reader
+### Diagram
 
-The private server-only module shared by the Content catalog, Home, and Favorites. It discovers trusted Markdown files, parses frontmatter, derives normalized names, and reports source-relative diagnostics. It is an implementation detail, not a generic storage adapter.
+A Portable Text block (from the in-repo `plugin-diagram`) holding a light and a dark Media Library image, alt text, and a caption. The site shows the variant that matches the active Theme. Diagrams are authored as SVG in `diagrams/` and exported to PNG pairs, because the Media Library does not accept SVG.
 
-### MDX renderer
+### Portable Text renderer
 
-The server-side module that transforms trusted Post content into the Site's semantic, theme-aware presentation. Interactive behavior is delegated to small client-side islands.
+The components under `src/components/portable-text/` that render content in the Site's prose styles: heading anchors for the "On this page" outline, Diagram blocks, and Shiki-highlighted code blocks. Media Library images render through EmDash's image component as responsive WebP inside the bordered figure frame.
 
 ### Metadata surface
 
-A search, social, or browser-discovery representation of the Site or a Post, including canonical metadata, Open Graph images, Twitter cards, icons, robots policy, and sitemap entries.
+A search, social, or browser-discovery representation of the Site or a Post: canonical metadata and Open Graph tags (via `EmDashHead`), the generated social cards under `/og/`, the favicon, `robots.txt`, and `sitemap.xml`.
 
 ### Design system
 
@@ -55,19 +64,17 @@ _Avoid_: design language, visual language, styles, theme (when meaning the syste
 
 ### Theme
 
-The system, light, or dark visual state applied on top of the design system, resolving each color role to a concrete value. Theme selection persists across navigation and reloads and respects user accessibility preferences.
+The system, light, or dark visual state applied on top of the design system, resolving each color role to a concrete value. Theme selection persists in local storage and respects user accessibility preferences.
 _Avoid_: mode, color scheme, design system (when meaning the tokens rather than the state)
 
 ### Verification
 
-The read-only set of install, formatting, linting, type, test, build, route, metadata, accessibility, and browser checks used to prove the Site from a clean checkout.
+The read-only formatting, style lint, type, and build checks (`pnpm verify`) that prove the Site from a clean checkout.
 
 ## Domain constraints
 
-- Post content is trusted and repository-authored; arbitrary user-controlled MDX is not supported.
-- Physical folders and filenames are canonical publishing data. Publisher routing fields such as `path` and `category` are not domain data.
-- Missing optional metadata must not block publishing. Unsafe route identities, collisions, unreadable files, malformed frontmatter, and rendering failures must block verification.
-- Production routes and metadata surfaces must be deterministic from the Content catalog.
-- The Site profile must provide one validated canonical production origin.
-- Verification must not rewrite source code or authored Post metadata.
+- Content is edited by trusted authors in EmDash; drafts are never visible on public routes.
+- Routes are server-rendered from EmDash on every request; a published edit appears without a deploy.
+- A Post route is `/<category>/<slug>`; slugs are unique within a Category.
+- The canonical origin is the `url` site setting, falling back to `https://huntsyea.com`.
 - New seams require a second real adapter or a demonstrated testing need; speculative adapters are avoided.

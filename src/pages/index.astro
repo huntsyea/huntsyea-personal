@@ -1,0 +1,70 @@
+---
+import ArrowRight from "@/components/icons/ArrowRight.astro";
+import Pill from "@/components/Pill.astro";
+import Prose from "@/components/portable-text/Prose.astro";
+import PostList from "@/components/PostList.astro";
+import Base from "@/layouts/Base.astro";
+import { CATEGORIES } from "@/lib/content";
+
+import {
+  getEmDashEntry,
+  getMenuWithCacheHint,
+  getSiteSettingsWithCacheHint,
+} from "emdash";
+
+const [settings, contact, intro] = await Promise.all([
+  getSiteSettingsWithCacheHint(),
+  getMenuWithCacheHint("contact"),
+  getEmDashEntry("pages", "home"),
+]);
+if (Astro.cache?.enabled) {
+  Astro.cache.set(settings.cacheHint);
+  Astro.cache.set(contact.cacheHint);
+  Astro.cache.set(intro.cacheHint);
+}
+
+const { title, tagline } = settings.data;
+const home = intro.entry;
+---
+
+<Base
+  chrome={false}
+  content={home
+    ? { collection: "pages", id: home.data.id, slug: home.id }
+    : undefined}
+>
+  {
+    (title || tagline) && (
+      <div class="flex justify-between" data-authored-content="identity">
+        <div>
+          {title && <h1 class="text-2xl">{title}</h1>}
+          {tagline && <p class="text-fg-muted">{tagline}</p>}
+        </div>
+      </div>
+    )
+  }
+  <nav aria-label="Contact and social links" class="mt-6 flex flex-wrap gap-2">
+    {
+      contact.data?.items.map((item) => (
+        <Pill href={item.url} newTab={item.target === "_blank"}>
+          {item.label}
+          <ArrowRight class="text-fg-muted" />
+        </Pill>
+      ))
+    }
+  </nav>
+  {
+    home && (
+      <div data-authored-content="body" class="mt-stack">
+        <Prose value={home.data.content} />
+      </div>
+    )
+  }
+  {
+    CATEGORIES.map((category) => (
+      <div data-authored-content={category.slug}>
+        <PostList category={category} />
+      </div>
+    ))
+  }
+</Base>

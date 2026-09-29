@@ -1,0 +1,38 @@
+---
+/**
+ * The shared bordered row. Every list on the Site (Posts, Projects,
+ * Favorites) renders through this primitive so rows behave, hover, and focus
+ * identically everywhere. Wrap rows in `<ul class="m-0 list-none p-0">`.
+ */
+interface Props {
+  title: string;
+  href: string;
+  /** Optional caption (a favorite note or hostname) rendered under the title. */
+  caption?: string;
+  /** Shared-element view-transition name with the destination heading. */
+  transitionName?: string;
+  newTab?: boolean;
+}
+
+const { title, href, caption, transitionName, newTab = false } = Astro.props;
+---
+
+<li class="m-0 list-none border-t border-border">
+  <a
+    href={href}
+    target={newTab ? "_blank" : undefined}
+    rel={newTab ? "noopener noreferrer" : undefined}
+    class="flex w-full justify-between py-2"
+  >
+    <span
+      class={caption ? "flex flex-col" : undefined}
+      style={transitionName
+        ? { viewTransitionName: transitionName }
+        : undefined}
+    >
+      <span>{title}</span>
+      {caption && <span class="text-fg-muted">{caption}</span>}
+    </span>
+    <slot name="meta" />
+  </a>
+</li>

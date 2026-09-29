@@ -1,20 +1,18 @@
 # Repository agent instructions
 
-Site content lives in the Obsidian vault `Sylph` at `/Users/huntsyea/Sylph` (posts, projects, favorites, home). Edit content there, not in `content/`, which the vault's publish plugin writes. Follow the vault's `/Users/huntsyea/Sylph/AGENTS.md` for layout, frontmatter, and routing rules.
+This is an Astro site with EmDash CMS, deployed to Cloudflare Workers (D1 database, R2 media). Site content lives in EmDash, not in this repository: edit it in the admin at `/_emdash/admin`, or through the EmDash CLI or MCP server. The Obsidian vault `Sylph` is a read-only archive of the content before the migration; do not publish from it.
 
 ## Agent skills
 
 - Use [docs/agents/issue-tracker.md](docs/agents/issue-tracker.md) to locate and publish project work.
 - Use [docs/agents/triage-labels.md](docs/agents/triage-labels.md) for issue readiness and triage states.
 - Use [docs/agents/domain.md](docs/agents/domain.md) to locate the domain glossary and architecture decisions.
-- Publishing: before creating, editing, previewing, or releasing an Obsidian post or SVG diagram, follow [docs/agents/publishing.md](docs/agents/publishing.md).
+- Editing content: before creating or editing a post, project, favorite, page intro, image, or diagram, follow [docs/agents/publishing.md](docs/agents/publishing.md).
+- EmDash: load the skills in [`.agents/skills/`](.agents/skills/) (`building-emdash-site`, `emdash-cli`, `creating-plugins`) before changing the schema, queries, or rendering. Check APIs against the EmDash docs MCP server in `.mcp.json` rather than memory.
 
-<!-- BEGIN:nextjs-agent-rules -->
+## Rules
 
-# This is NOT the Next.js you know
-
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
-
-This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
-
-<!-- END:nextjs-agent-rules -->
+- Every content page is server-rendered (`output: "server"`); do not add `getStaticPaths()` for EmDash content.
+- `entry.id` is the slug (URLs); `entry.data.id` is the database ID (API calls, `content` references).
+- The schema lives in the database. `seed/seed.json` only seeds a new database; change a deployed schema in the admin (Content Types) or through the API, then update the seed to match.
+- Never read secrets through `import.meta.env`. `EMDASH_ENCRYPTION_KEY` lives in `.env` locally and as a Worker secret in production.

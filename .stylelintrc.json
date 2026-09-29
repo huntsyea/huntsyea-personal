@@ -32,6 +32,7 @@
       {
         "except": ["first-nested"]
       }
-    ]
+    ],
+    "at-rule-prelude-no-invalid": null
   }
 }

@@ -1,0 +1,76 @@
+---
+/**
+ * The Diagram block (plugin-diagram): a light and a dark Media Library image
+ * that follow the active Theme. EmDash's Image renders both as responsive
+ * WebP and shows the one matching the `dark`/`light` class on <html>.
+ *
+ * The block's media pickers store file URLs, which carry no dimensions, and
+ * the image service needs dimensions to build a srcset. Each URL's storage
+ * key is looked up in the Media Library through EmDash's runtime database.
+ */
+import type { MediaValue } from "emdash";
+
+import { getDb } from "emdash/runtime";
+import { Image } from "emdash/ui";
+
+type Node = { light?: string; dark?: string; alt?: string; caption?: string };
+
+const MEDIA_FILE_PATH = "/_emdash/api/media/file/";
+
+const { node } = Astro.props as { node: Node };
+const db = await getDb();
+
+async function resolve(url: string | undefined): Promise<MediaValue | null> {
+  if (!url) return null;
+  const storageKey = url.startsWith(MEDIA_FILE_PATH)
+    ? decodeURIComponent(url.slice(MEDIA_FILE_PATH.length))
+    : undefined;
+  const media = storageKey
+    ? await db
+        .selectFrom("media")
+        .select(["id", "width", "height", "blurhash", "dominant_color"])
+        .where("storage_key", "=", storageKey)
+        .where("status", "=", "ready")
+        .executeTakeFirst()
+    : undefined;
+  return {
+    id: media?.id ?? "",
+    src: url,
+    width: media?.width ?? undefined,
+    height: media?.height ?? undefined,
+    blurhash: media?.blurhash ?? undefined,
+    dominantColor: media?.dominant_color ?? undefined,
+  };
+}
+
+const [light, dark] = await Promise.all([
+  resolve(node.light),
+  resolve(node.dark),
+]);
+
+// Diagrams fill the 36rem reading column, minus page padding on phones.
+// Candidate widths stop at the image's own width so nothing is upscaled.
+// Diagrams are mostly text and thin rules, so they keep a high quality.
+const sizes = "(min-width: 624px) 576px, calc(100vw - 48px)";
+const widths = [400, 576, 800, 1152, 1520].filter(
+  (width) => !light?.width || width <= light.width,
+);
+// EmDash's Image forwards extra props to Astro's <Image>, but types them as
+// <img> attributes, so Astro-only options are passed through untyped.
+const astroImageProps: Record<string, unknown> = { widths, quality: 95 };
+---
+
+{
+  light && (
+    <figure class="emdash-image">
+      <Image
+        image={light}
+        darkVariant={dark}
+        alt={node.alt ?? ""}
+        sizes={sizes}
+        {...astroImageProps}
+      />
+      {node.caption && <figcaption>{node.caption}</figcaption>}
+    </figure>
+  )
+}

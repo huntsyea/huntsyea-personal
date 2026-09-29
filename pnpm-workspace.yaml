@@ -1,7 +1,14 @@
 allowBuilds:
   esbuild: true
-  sharp: true
-  unrs-resolver: true
+  workerd: true
+  sharp: false
 
 enableGlobalVirtualStore: false
 strictDepBuilds: true
+
+# Cooldown on brand-new releases (EmDash exempt), as in the EmDash templates.
+minimumReleaseAge: 1440
+minimumReleaseAgeExclude:
+  - emdash
+  - "@emdash-cms/*"
+blockExoticSubdeps: true

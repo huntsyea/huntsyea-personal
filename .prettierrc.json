@@ -1,5 +1,5 @@
 {
-  "plugins": ["@ianvs/prettier-plugin-sort-imports"],
+  "plugins": ["prettier-plugin-astro", "@ianvs/prettier-plugin-sort-imports"],
   "importOrder": [
     "<TYPES>^(node:)",
     "",
@@ -14,5 +14,6 @@
     "<THIRD_PARTY_MODULES>",
     "",
     "^[.]"
-  ]
+  ],
+  "overrides": [{ "files": "*.astro", "options": { "parser": "astro" } }]
 }

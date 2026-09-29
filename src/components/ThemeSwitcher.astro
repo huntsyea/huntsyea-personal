@@ -1,0 +1,113 @@
+---
+/**
+ * The Theme control: a segmented control for system, dark, and light. The
+ * choice persists in localStorage under "theme" and is applied before first
+ * paint by the inline script in the Base layout.
+ */
+const options = [
+  { value: "system", label: "Use system theme" },
+  { value: "dark", label: "Use dark theme" },
+  { value: "light", label: "Use light theme" },
+];
+---
+
+<span
+  role="group"
+  aria-label="Theme"
+  data-theme-switcher
+  class="flex items-center gap-0.5 rounded-medium bg-bg-subtle p-0.5"
+>
+  {
+    options.map((option) => (
+      <button
+        type="button"
+        aria-label={option.label}
+        aria-pressed="false"
+        data-theme-value={option.value}
+        class="flex size-6 items-center justify-center rounded-small text-fg-muted transition-colors hover:text-fg aria-pressed:bg-bg-elevated aria-pressed:text-fg"
+      >
+        {option.value === "system" && (
+          <svg
+            aria-hidden="true"
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <rect width="20" height="14" x="2" y="3" rx="2" />
+            <line x1="8" x2="16" y1="21" y2="21" />
+            <line x1="12" x2="12" y1="17" y2="21" />
+          </svg>
+        )}
+        {option.value === "dark" && (
+          <svg
+            aria-hidden="true"
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401" />
+          </svg>
+        )}
+        {option.value === "light" && (
+          <svg
+            aria-hidden="true"
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2" />
+            <path d="M12 20v2" />
+            <path d="m4.93 4.93 1.41 1.41" />
+            <path d="m17.66 17.66 1.41 1.41" />
+            <path d="M2 12h2" />
+            <path d="M20 12h2" />
+            <path d="m6.34 17.66-1.41 1.41" />
+            <path d="m19.07 4.93-1.41 1.41" />
+          </svg>
+        )}
+      </button>
+    ))
+  }
+</span>
+
+<script>
+  const buttons = document.querySelectorAll<HTMLButtonElement>(
+    "[data-theme-switcher] button",
+  );
+
+  const sync = () => {
+    const current = localStorage.getItem("theme") ?? "system";
+    for (const button of buttons) {
+      button.setAttribute(
+        "aria-pressed",
+        String(button.dataset.themeValue === current),
+      );
+    }
+  };
+
+  for (const button of buttons) {
+    button.addEventListener("click", () => {
+      localStorage.setItem("theme", button.dataset.themeValue ?? "system");
+      window.__applyTheme?.();
+      sync();
+    });
+  }
+
+  sync();
+</script>

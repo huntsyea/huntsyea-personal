@@ -1,7 +1,9 @@
-.next
-coverage
-content/**/*.md
-content/**/*.mdx
-playwright-report
-test-results
-obsidian-plugin/dist
+dist
+.astro
+.wrangler
+.emdash
+seed/seed.json
+emdash-env.d.ts
+worker-configuration.d.ts
+pnpm-lock.yaml
+.agents

@@ -1,0 +1,23 @@
+---
+/**
+ * Block override. h2–h6 get the anchor id from the Post outline, so the "On
+ * this page" links and old #fragment links resolve. Other styles render as
+ * EmDash's Block does, keeping the editor's text alignment.
+ */
+type Props = {
+  node: { _key?: string; style?: string; textAlign?: string };
+};
+
+const { node } = Astro.props as Props;
+const headingIds = (Astro.locals as { headingIds?: Map<string, string> })
+  .headingIds;
+const style = node.style ?? "normal";
+const Tag = (/^h[1-6]$/.test(style) || style === "blockquote" ? style : "p") as
+  "h2" | "blockquote" | "p";
+const id = node._key && Tag !== "p" ? headingIds?.get(node._key) : undefined;
+const align = ["center", "right", "justify"].includes(node.textAlign ?? "")
+  ? { textAlign: node.textAlign }
+  : undefined;
+---
+
+<Tag id={id} style={align}><slot /></Tag>

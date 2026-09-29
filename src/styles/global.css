@@ -1,0 +1,369 @@
+@import "tailwindcss";
+@import "./tokens.css";
+
+/* Inter, self-hosted (regular, medium, semibold). */
+
+@font-face {
+  font-family: Inter;
+  font-style: normal;
+  font-weight: 400;
+  src: url("/assets/inter/regular.ttf") format("truetype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: Inter;
+  font-style: normal;
+  font-weight: 500;
+  src: url("/assets/inter/medium.ttf") format("truetype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: Inter;
+  font-style: normal;
+  font-weight: 600;
+  src: url("/assets/inter/semi-bold.ttf") format("truetype");
+  font-display: swap;
+}
+
+/* Cross-document view transitions between routes (ADR 0002). Post titles
+   share a view-transition-name between list rows and the Post heading. */
+
+@view-transition {
+  navigation: auto;
+}
+
+@layer base {
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      scroll-behavior: auto !important;
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+    }
+
+    /* View transitions fall back to instant navigation for reduced-motion
+       users (ADR 0002). */
+
+    ::view-transition-group(*),
+    ::view-transition-old(*),
+    ::view-transition-new(*) {
+      width: auto;
+      height: auto;
+      opacity: 1;
+      animation-duration: 0.01ms !important;
+    }
+  }
+
+  @keyframes fade-and-rise {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-variant-ligatures: common-ligatures;
+    text-wrap: pretty;
+    text-rendering: optimizelegibility;
+  }
+
+  *::selection {
+    color: var(--selection-fg);
+    background-color: var(--selection-bg);
+  }
+
+  html {
+    scrollbar-gutter: stable;
+    scroll-behavior: smooth;
+    scrollbar-color: var(--border) transparent;
+    scrollbar-width: thin;
+  }
+
+  html {
+    font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  }
+
+  html {
+    /* The 14px base text role stays off the root so rem values resolve against
+       a 16px root, keeping Tailwind's 4px spacing grid intact. It lands on body. */
+
+    @apply bg-bg text-fg;
+
+    :focus-visible {
+      outline: 2px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    h1 {
+      @apply text-xl font-semibold text-fg;
+    }
+
+    h2 {
+      @apply text-lg font-medium text-fg;
+    }
+
+    h3 {
+      @apply text-md font-medium text-fg;
+    }
+
+    h4,
+    h5,
+    h6 {
+      @apply text-base font-medium text-fg-muted;
+    }
+
+    sub,
+    sup {
+      @apply text-fg-muted;
+    }
+
+    sub {
+      @apply text-sm;
+    }
+
+    ol {
+      @apply list-decimal;
+    }
+
+    ul {
+      @apply list-disc;
+    }
+
+    kbd {
+      @apply mx-1;
+
+      display: inline-block;
+      min-width: 20px;
+      min-height: 20px;
+      padding: 0 6px;
+      font-size: 12px;
+      line-height: 20px;
+      color: var(--fg-muted);
+      text-align: center;
+      background: var(--bg-elevated);
+      border-radius: var(--radius-small);
+      box-shadow: 0 0 0 1px var(--border);
+    }
+  }
+
+  body {
+    /* Base text role: 14 px / 21 px on body text, not on the root. */
+
+    @apply text-base;
+  }
+
+  .prose {
+    /* Vertical rhythm: the single owner, from the prose-stack spacing token. */
+
+    > p:not(:first-child),
+    > h1:not(:first-child),
+    > h2:not(:first-child),
+    > h3:not(:first-child),
+    > h4:not(:first-child),
+    > h5:not(:first-child),
+    > h6:not(:first-child),
+    > blockquote:not(:first-child),
+    > ul:not(:first-child),
+    > ol:not(:first-child),
+    > pre:not(:first-child),
+    > figure:not(:first-child),
+    > [data-table-wrap]:not(:first-child) {
+      margin-top: var(--space-stack);
+    }
+
+    > ol,
+    > ul {
+      /* 24px at a 16px root; expressed through the stack token for a single source. */
+
+      padding-left: var(--space-stack);
+    }
+
+    /* Links in authored prose (unclassed): the inline Link variant in the
+       muted role. Site navigation inside prose carries its own classes. */
+
+    a:not([class]) {
+      color: var(--fg-muted);
+      text-decoration-line: underline;
+      text-decoration-thickness: 1px;
+      text-decoration-color: var(--fg-subtle);
+      text-underline-offset: 2px;
+      transition:
+        color 150ms,
+        text-decoration-color 150ms;
+    }
+
+    a:not([class]):hover {
+      color: var(--accent-fg);
+      text-decoration-color: var(--accent);
+    }
+
+    /* Images: full content width in a bordered frame, caption beneath. */
+
+    figure.emdash-image {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 0;
+      overflow: hidden;
+      border-radius: var(--radius-large);
+    }
+
+    figure.emdash-image img {
+      width: 100%;
+      height: auto;
+      object-fit: contain;
+    }
+
+    figure.emdash-image figcaption {
+      width: 100%;
+      padding: 8px 16px;
+      margin-top: 0;
+      font-size: var(--text-sm);
+      line-height: var(--text-sm--line-height);
+      color: var(--fg-muted);
+      text-align: center;
+      border-top: 1px solid var(--border);
+    }
+
+    blockquote {
+      padding-left: var(--space-stack);
+      color: var(--fg-muted);
+      border-left: 2px solid var(--border);
+    }
+
+    /* Inline code from the code roles; Shiki inline tokens resolve to the roles too. */
+
+    :not(pre) > code {
+      padding: 2px 6px;
+      color: var(--code-fg);
+      background-color: var(--code-bg);
+      border-radius: var(--radius-small);
+    }
+
+    :not(pre) > code > [data-line] > span {
+      color: var(--code-fg);
+    }
+
+    /*
+    * This handles our highlighting on selection of a table of contents item.
+    */
+
+    /* The highlighted table-of-contents heading keeps its colour from the accent role. */
+
+    [data-highlight] {
+      @apply relative;
+    }
+
+    [data-highlight]::before {
+      @apply absolute inset-0 -inset-x-1 -z-10 bg-transparent transition scale-y-[1.1] content-[""] duration-500;
+    }
+
+    [data-highlight="true"]::before {
+      @apply bg-accent scale-y-110;
+    }
+
+    [data-highlight="false"]::before {
+      @apply bg-transparent scale-y-100;
+    }
+
+    /* Footnotes render as a distinct, smaller list at the end of the prose. */
+
+    .footnotes {
+      position: relative;
+      padding-top: 16px;
+      margin-top: var(--space-stack);
+      border-top: 1px solid var(--border);
+    }
+
+    .footnotes ol {
+      position: relative;
+      display: block;
+      padding: 0 0 0 4px;
+      list-style: none;
+    }
+
+    .footnotes ol li {
+      position: relative;
+      padding-top: 4px;
+      padding-left: 6px;
+      font-size: 11px;
+      line-height: 16px;
+      color: var(--fg-muted);
+      counter-increment: list;
+    }
+
+    .footnotes ol li::before {
+      position: absolute;
+      top: 0;
+      right: 100%;
+      font-size: 8px;
+      content: counter(list);
+    }
+
+    .footnotes ol li p a {
+      z-index: 2;
+    }
+  }
+
+  /*
+  * Code blocks are highlighted on the server by Shiki (Astro's Code
+  * component) with a light and a dark theme. Each token carries both colours
+  * as custom properties; the active Theme picks one.
+  */
+
+  html {
+    .astro-code {
+      color: var(--code-fg);
+    }
+
+    .astro-code span {
+      color: var(--shiki-light);
+    }
+
+    &.dark .astro-code span {
+      color: var(--shiki-dark);
+    }
+  }
+
+  /* Code block and figure frames. */
+
+  * {
+    pre {
+      padding: 16px;
+      overflow-x: auto;
+      font-size: 12px;
+      background-color: var(--code-bg);
+
+      [data-line] {
+        margin-top: 0;
+      }
+    }
+
+    figure {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-medium);
+    }
+  }
+
+  /* The route entrance: a short fade and 8 px rise (ADR 0002). Reduced
+     motion collapses it through the rule at the top of this layer. */
+
+  [data-entrance] {
+    animation: fade-and-rise 400ms cubic-bezier(0.19, 1, 0.22, 1) both;
+  }
+}

@@ -1,0 +1,82 @@
+---
+import Breadcrumb from "@/components/Breadcrumb.astro";
+import EntryRow from "@/components/EntryRow.astro";
+import Prose from "@/components/portable-text/Prose.astro";
+import SectionHeading from "@/components/SectionHeading.astro";
+import Base from "@/layouts/Base.astro";
+
+import {
+  getEmDashCollection,
+  getEmDashEntry,
+  getTaxonomyTermsWithCacheHint,
+} from "emdash";
+
+/**
+ * Favorites grouped by their Favorite group, in the group order set in the
+ * admin. Items without a group collect under "Other" at the end.
+ */
+const [favorites, groups, intro] = await Promise.all([
+  getEmDashCollection("favorites", { limit: 1000 }),
+  getTaxonomyTermsWithCacheHint("favorite_group"),
+  getEmDashEntry("pages", "favorites"),
+]);
+if (Astro.cache?.enabled) {
+  Astro.cache.set(favorites.cacheHint);
+  Astro.cache.set(groups.cacheHint);
+  Astro.cache.set(intro.cacheHint);
+}
+
+const hostname = (url: string) => {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return url;
+  }
+};
+
+const items = favorites.entries
+  .filter((entry) => /^https?:\/\//.test(entry.data.url ?? ""))
+  .sort((a, b) => a.data.title.localeCompare(b.data.title));
+const groupOf = (entry: (typeof items)[number]) =>
+  entry.data.terms?.favorite_group?.[0]?.slug;
+
+const sections = [
+  ...groups.data.map((term) => ({
+    title: term.label,
+    items: items.filter((entry) => groupOf(entry) === term.slug),
+  })),
+  { title: "Other", items: items.filter((entry) => !groupOf(entry)) },
+].filter((section) => section.items.length > 0);
+const page = intro.entry;
+---
+
+<Base
+  title="Favorites"
+  description="External articles and resources Hunter keeps coming back to."
+  content={page
+    ? { collection: "pages", id: page.data.id, slug: page.id }
+    : undefined}
+>
+  <Breadcrumb items={[{ label: "Favorites", href: "/favorites" }]} />
+  {page && <Prose value={page.data.content} />}
+  <section class="mt-6 flex flex-col">
+    <SectionHeading title="Favorites" asPage />
+    {
+      sections.map((section, index) => (
+        <div class={index > 0 ? "mt-6" : undefined}>
+          <SectionHeading title={section.title} />
+          <ul class="m-0 list-none p-0">
+            {section.items.map((entry) => (
+              <EntryRow
+                title={entry.data.title}
+                href={entry.data.url}
+                caption={entry.data.note || hostname(entry.data.url)}
+                newTab
+              />
+            ))}
+          </ul>
+        </div>
+      ))
+    }
+  </section>
+</Base>

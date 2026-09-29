@@ -1,0 +1,29 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "huntsyea-personal",
+  "main": "./src/worker.ts",
+  "compatibility_date": "2026-02-24",
+  "compatibility_flags": ["nodejs_compat"],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "huntsyea-personal",
+    },
+  ],
+  "r2_buckets": [
+    {
+      "binding": "MEDIA",
+      "bucket_name": "huntsyea-media",
+    },
+  ],
+  // huntsyea.com is served by Workers routes in front of the zone's existing
+  // proxied DNS records; `www` redirects to the apex in src/worker.ts.
+  "routes": [
+    { "pattern": "huntsyea.com/*", "zone_name": "huntsyea.com" },
+    { "pattern": "www.huntsyea.com/*", "zone_name": "huntsyea.com" },
+  ],
+  // Scheduled publishing, backups, and EmDash maintenance.
+  "triggers": {
+    "crons": ["* * * * *"],
+  },
+}

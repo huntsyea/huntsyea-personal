@@ -1,6 +1,6 @@
 # ADR 0002: Library-backed view transitions and motion
 
-- Status: Accepted
+- Status: Superseded by [ADR 0003](0003-astro-emdash-on-cloudflare.md)
 - Date: 2026-09-02
 
 ## Context
