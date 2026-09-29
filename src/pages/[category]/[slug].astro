@@ -1,0 +1,87 @@
+---
+import Breadcrumb from "@/components/Breadcrumb.astro";
+import Outline from "@/components/Outline.astro";
+import Prose from "@/components/portable-text/Prose.astro";
+import PostMeta from "@/components/PostMeta.astro";
+import PostNavigation from "@/components/PostNavigation.astro";
+import Base from "@/layouts/Base.astro";
+import {
+  comparePosts,
+  getCategory,
+  headingOutline,
+  readingMinutes,
+} from "@/lib/content";
+
+import { decodeSlug, getEmDashCollection, getEmDashEntry } from "emdash";
+
+const category = getCategory(Astro.params.category);
+const slug = decodeSlug(Astro.params.slug);
+if (!category || !slug) return Astro.rewrite("/404");
+
+const [{ entry: post, cacheHint }, siblings] = await Promise.all([
+  getEmDashEntry(category.slug, slug),
+  getEmDashCollection(category.slug, { orderBy: { published_at: "desc" } }),
+]);
+if (!post) return Astro.rewrite("/404");
+if (Astro.cache?.enabled) {
+  Astro.cache.set(cacheHint);
+  Astro.cache.set(siblings.cacheHint);
+}
+
+const { title, summary, content, publishedAt, revised_at } = post.data;
+const outline = headingOutline(content);
+const revisedAt = revised_at ? new Date(revised_at) : null;
+
+// Previous is the next-older Post, Next the next-newer one.
+const ordered = siblings.entries.sort(comparePosts);
+const index = ordered.findIndex((entry) => entry.id === post.id);
+const reference = (entry: (typeof ordered)[number] | undefined) =>
+  entry ? { slug: entry.id, title: entry.data.title } : undefined;
+const previous = index === -1 ? undefined : reference(ordered[index + 1]);
+const next = index > 0 ? reference(ordered[index - 1]) : undefined;
+---
+
+<Base
+  title={title}
+  description={summary || `Read ${title} in ${category.slug}.`}
+  type="article"
+  publishedTime={publishedAt?.toISOString()}
+  modifiedTime={revisedAt?.toISOString()}
+  content={{ collection: category.slug, id: post.data.id, slug: post.id }}
+>
+  <Breadcrumb
+    items={[
+      { label: category.title, href: `/${category.slug}` },
+      { label: title, href: `/${category.slug}/${post.id}` },
+    ]}
+  />
+  <div
+    class="xl:grid xl:w-column-wide xl:grid-cols-[minmax(0,var(--container-column))_var(--width-aside)] xl:items-start xl:gap-8"
+  >
+    <Outline outline={outline} variant="aside" />
+    <article class="prose xl:col-start-1 xl:row-start-1">
+      <header class="flex flex-col">
+        <h1
+          {...post.edit.title}
+          style={{
+            viewTransitionName: `post-title-${category.slug}-${post.id}`,
+          }}
+        >
+          {title}
+        </h1>
+        <PostMeta
+          publishedAt={publishedAt}
+          revisedAt={revisedAt}
+          minutes={readingMinutes(content)}
+        />
+      </header>
+      <Outline outline={outline} variant="disclosure" />
+      <Prose value={content} outline={outline} bare />
+      <PostNavigation
+        category={category.slug}
+        previous={previous}
+        next={next}
+      />
+    </article>
+  </div>
+</Base>

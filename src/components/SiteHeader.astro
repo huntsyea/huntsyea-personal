@@ -1,0 +1,36 @@
+---
+/**
+ * The shared header on every route except home: the site name on the left
+ * and the editable "primary" menu on the right.
+ */
+interface Props {
+  siteTitle: string;
+  menu: readonly { label: string; url: string; target?: string | null }[];
+}
+
+const { siteTitle, menu } = Astro.props;
+---
+
+<header
+  class="mx-auto flex w-full max-w-column flex-wrap items-center justify-between gap-x-4 gap-y-3 px-6 pt-[var(--space-page)] md:pt-[var(--space-page-desktop)]"
+>
+  <a href="/" class="font-semibold text-fg">{siteTitle}</a>
+  <nav aria-label="Primary">
+    <ul class="m-0 flex list-none flex-wrap gap-x-4 p-0">
+      {
+        menu.map((item) => (
+          <li class="m-0 list-none p-0">
+            <a
+              href={item.url}
+              target={item.target ?? undefined}
+              rel={item.target === "_blank" ? "noopener noreferrer" : undefined}
+              class="text-fg-muted transition-colors hover:text-fg"
+            >
+              {item.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+</header>

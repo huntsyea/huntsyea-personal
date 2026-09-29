@@ -1,6 +1,6 @@
 # ADR 0001: Folder-discovered static content routes
 
-- Status: Accepted
+- Status: Superseded by [ADR 0003](0003-astro-emdash-on-cloudflare.md)
 - Date: 2026-08-23
 - Supersedes: duplicated `guides` and `examples` route implementations
 

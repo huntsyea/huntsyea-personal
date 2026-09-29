@@ -1,0 +1,135 @@
+---
+import "@/styles/global.css";
+
+import SiteFooter from "@/components/SiteFooter.astro";
+import SiteHeader from "@/components/SiteHeader.astro";
+
+import { getMenuWithCacheHint, getSiteSettingsWithCacheHint } from "emdash";
+import { createPublicPageContext } from "emdash/page";
+import { EmDashBodyEnd, EmDashBodyStart, EmDashHead } from "emdash/ui";
+
+interface Props {
+  /** Page title without the site name; omit on home. */
+  title?: string;
+  description?: string | null;
+  type?: "website" | "article";
+  publishedTime?: string | null;
+  modifiedTime?: string | null;
+  /** The content entry this page renders, for its SEO panel values. */
+  content?: { collection: string; id: string; slug?: string | null };
+  /**
+   * Whether to wrap the page in the shared header and footer. Home turns this
+   * off: its identity block and contact pills already carry what the shell
+   * repeats.
+   */
+  chrome?: boolean;
+}
+
+const {
+  title,
+  description,
+  type = "website",
+  publishedTime,
+  modifiedTime,
+  content,
+  chrome = true,
+} = Astro.props;
+
+const [settingsResult, primaryResult, contactResult] = await Promise.all([
+  getSiteSettingsWithCacheHint(),
+  getMenuWithCacheHint("primary"),
+  getMenuWithCacheHint("contact"),
+]);
+if (Astro.cache?.enabled) {
+  Astro.cache.set(settingsResult.cacheHint);
+  Astro.cache.set(primaryResult.cacheHint);
+  Astro.cache.set(contactResult.cacheHint);
+}
+
+const settings = settingsResult.data;
+const siteTitle = settings.title || "huntsyea";
+const siteUrl = settings.url || Astro.site?.origin || Astro.url.origin;
+const fullTitle = title ? `${title} | ${siteTitle}` : siteTitle;
+const canonical = new URL(Astro.url.pathname, siteUrl).toString();
+const ogPath =
+  Astro.url.pathname === "/" ? "/index" : Astro.url.pathname.replace(/\/$/, "");
+const ogImage = new URL(`/og${ogPath}.png`, siteUrl).toString();
+
+const page = createPublicPageContext({
+  Astro,
+  kind: content ? "content" : "custom",
+  pageType: type,
+  title: fullTitle,
+  pageTitle: title ?? siteTitle,
+  description: description ?? settings.tagline,
+  canonical,
+  image: ogImage,
+  content,
+  seo: { ogImage },
+  articleMeta: { publishedTime, modifiedTime },
+  siteName: siteTitle,
+  siteUrl,
+});
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    {
+      !settings.favicon && (
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+      )
+    }
+    <script is:inline>
+      // Resolve the stored Theme (system, dark, light) before first paint.
+      window.__applyTheme = function () {
+        var stored = localStorage.getItem("theme");
+        var dark =
+          stored === "dark" ||
+          (stored !== "light" &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches);
+        var root = document.documentElement;
+        root.classList.toggle("dark", dark);
+        root.classList.toggle("light", !dark);
+        root.style.colorScheme = dark ? "dark" : "light";
+      };
+      window.__applyTheme();
+      window
+        .matchMedia("(prefers-color-scheme: dark)")
+        .addEventListener("change", window.__applyTheme);
+    </script>
+    <EmDashHead page={page} />
+  </head>
+  <body>
+    <EmDashBodyStart page={page} />
+    {
+      chrome && (
+        <SiteHeader
+          siteTitle={siteTitle}
+          menu={primaryResult.data?.items ?? []}
+        />
+      )
+    }
+    <main
+      class={chrome
+        ? "mx-auto w-full max-w-column px-6 pt-stack pb-section"
+        : "mx-auto w-full max-w-column px-6 py-section"}
+    >
+      <div data-entrance>
+        <slot />
+      </div>
+    </main>
+    {
+      chrome && (
+        <SiteFooter
+          siteTitle={siteTitle}
+          contact={contactResult.data?.items ?? []}
+        />
+      )
+    }
+    <EmDashBodyEnd page={page} />
+  </body>
+</html>

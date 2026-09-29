@@ -1,0 +1,13 @@
+{
+  "name": "@huntsyea/plugin-diagram",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "EmDash Portable Text block for theme-aware diagrams: a light and a dark image with alt text and a caption.",
+  "exports": {
+    ".": "./index.js"
+  },
+  "peerDependencies": {
+    "emdash": "*"
+  }
+}

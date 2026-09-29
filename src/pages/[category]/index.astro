@@ -1,0 +1,30 @@
+---
+import Breadcrumb from "@/components/Breadcrumb.astro";
+import Prose from "@/components/portable-text/Prose.astro";
+import PostList from "@/components/PostList.astro";
+import Base from "@/layouts/Base.astro";
+import { getCategory } from "@/lib/content";
+
+import { getEmDashEntry, getSiteSettings } from "emdash";
+
+const category = getCategory(Astro.params.category);
+if (!category) return Astro.rewrite("/404");
+
+const [{ entry: intro, cacheHint }, settings] = await Promise.all([
+  getEmDashEntry("pages", category.slug),
+  getSiteSettings(),
+]);
+if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
+---
+
+<Base
+  title={category.title}
+  description={`Browse ${category.title.toLowerCase()} published with ${settings.title ?? "huntsyea"}.`}
+  content={intro
+    ? { collection: "pages", id: intro.data.id, slug: intro.id }
+    : undefined}
+>
+  <Breadcrumb items={[{ label: category.title, href: `/${category.slug}` }]} />
+  {intro && <Prose value={intro.data.content} />}
+  <PostList category={category} asCategoryPage />
+</Base>

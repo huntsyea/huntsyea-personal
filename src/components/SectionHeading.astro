@@ -1,0 +1,27 @@
+---
+/**
+ * List heading names without counts. Used by every list on the Site so the
+ * heading is simply the name of the collection.
+ */
+interface Props {
+  title: string;
+  /** When set, the heading becomes a quiet link to this path. */
+  href?: string;
+  /** When true, renders a page-level h1 instead of a section h2. */
+  asPage?: boolean;
+}
+
+const { title, href, asPage = false } = Astro.props;
+---
+
+{
+  asPage ? (
+    <h1 class="py-2">{title}</h1>
+  ) : href ? (
+    <a href={href} class="flex justify-between">
+      <h2 class="py-2 text-fg-muted">{title}</h2>
+    </a>
+  ) : (
+    <h2 class="py-2 text-fg-muted">{title}</h2>
+  )
+}

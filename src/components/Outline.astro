@@ -1,0 +1,132 @@
+---
+/**
+ * "On this page" for one Post. The sticky aside shows at xl; below xl a
+ * disclosure after the Post header, rendered closed. Each variant is
+ * display:none when inactive, so exactly one navigation named "On this page"
+ * is exposed at any width. A small script marks visible headings and
+ * highlights the heading a link jumps to.
+ */
+import type { OutlineItem } from "@/lib/content";
+
+import ChevronDown from "./icons/ChevronDown.astro";
+
+interface Props {
+  outline: readonly OutlineItem[];
+  variant: "aside" | "disclosure";
+}
+
+const { outline, variant } = Astro.props;
+const indent = { 2: "pl-4", 3: "pl-6", 4: "pl-8", 5: "pl-8", 6: "pl-8" };
+---
+
+{
+  outline.length > 0 && (
+    <Fragment>
+      {variant === "aside" ? (
+        <nav
+          aria-label="On this page"
+          class="hidden xl:sticky xl:top-6 xl:col-start-2 xl:row-start-1 xl:block"
+        >
+          <ol
+            data-outline
+            class="m-0 flex list-none flex-col border-l border-border p-0"
+          >
+            {outline.map((heading) => (
+              <li
+                data-outline-item={heading.id}
+                class:list={["m-0 list-none", indent[heading.level]]}
+              >
+                <a
+                  href={`#${heading.id}`}
+                  class="block py-1 text-fg-muted transition-colors hover:text-fg"
+                >
+                  {heading.text}
+                </a>
+              </li>
+            ))}
+          </ol>
+        </nav>
+      ) : (
+        <details data-toc class="group mt-stack xl:hidden">
+          <summary class="flex h-8 w-full cursor-pointer list-none items-center justify-between gap-2 rounded-medium border border-border bg-bg px-3 text-sm font-medium text-fg-muted transition-colors hover:bg-bg-subtle [&::-webkit-details-marker]:hidden">
+            On this page
+            <ChevronDown class="transition-transform group-open:rotate-180" />
+          </summary>
+          <nav aria-label="On this page" class="mt-3">
+            <ol
+              data-outline
+              class="m-0 flex list-none flex-col border-l border-border p-0"
+            >
+              {outline.map((heading) => (
+                <li
+                  data-outline-item={heading.id}
+                  class:list={["m-0 list-none", indent[heading.level]]}
+                >
+                  <a
+                    href={`#${heading.id}`}
+                    class="block py-1 text-fg-muted transition-colors hover:text-fg"
+                  >
+                    {heading.text}
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </nav>
+        </details>
+      )}
+    </Fragment>
+  )
+}
+
+<script>
+  const items = document.querySelectorAll<HTMLElement>("[data-outline-item]");
+  const visible = new Set<string>();
+
+  const render = () => {
+    for (const item of items) {
+      const active = visible.has(item.dataset.outlineItem ?? "");
+      item.classList.toggle("-ml-px", active);
+      item.classList.toggle("border-l", active);
+      item.classList.toggle("border-accent", active);
+      const link = item.querySelector("a");
+      link?.classList.toggle("font-medium", active);
+      link?.classList.toggle("text-fg", active);
+      if (active) link?.setAttribute("aria-current", "location");
+      else link?.removeAttribute("aria-current");
+    }
+  };
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) visible.add(entry.target.id);
+        else visible.delete(entry.target.id);
+      }
+      render();
+    },
+    { threshold: 0 },
+  );
+
+  const ids = new Set([...items].map((item) => item.dataset.outlineItem));
+  for (const id of ids) {
+    const heading = id && document.getElementById(id);
+    if (heading) observer.observe(heading);
+  }
+
+  let highlighted: HTMLElement | null = null;
+  let timeout: number | undefined;
+  for (const link of document.querySelectorAll<HTMLAnchorElement>(
+    "[data-outline] a",
+  )) {
+    link.addEventListener("click", () => {
+      window.clearTimeout(timeout);
+      highlighted?.setAttribute("data-highlight", "false");
+      highlighted = document.getElementById(link.hash.slice(1));
+      highlighted?.setAttribute("data-highlight", "true");
+      timeout = window.setTimeout(() => {
+        highlighted?.setAttribute("data-highlight", "false");
+        highlighted = null;
+      }, 2_000);
+    });
+  }
+</script>

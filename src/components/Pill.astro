@@ -1,0 +1,21 @@
+---
+/**
+ * Home Contact link pill. It shares the surface and border colour roles with
+ * the Theme control (bg, bg-subtle, border, rounded-medium).
+ */
+interface Props {
+  href: string;
+  newTab?: boolean;
+}
+
+const { href, newTab = false } = Astro.props;
+---
+
+<a
+  href={href}
+  target={newTab ? "_blank" : undefined}
+  rel={newTab ? "noopener noreferrer" : undefined}
+  class="inline-flex h-8 items-center gap-2 rounded-medium border border-border bg-bg px-3 text-base font-medium text-fg transition-colors hover:bg-bg-subtle"
+>
+  <slot />
+</a>

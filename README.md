@@ -1,104 +1,69 @@
 # huntsyea.com
 
-This repository builds Hunter Yea's personal website with the Next.js App Router, React, Tailwind CSS, and trusted server-rendered MDX published from Obsidian.
+Hunter Yea's personal website: an [Astro](https://astro.build) site with [EmDash](https://emdashcms.com) CMS, deployed to Cloudflare Workers with D1 (database) and R2 (media). All content — posts, projects, favorites, page intros, the site title and tagline, navigation, and contact links — is edited in the EmDash admin, and a published edit is live without a deploy.
 
 ## Requirements
 
-- Node.js 24 LTS
+- Node.js 24 or later
 - pnpm 11.23.0 through Corepack
 
-## Setup
+## Local development
 
 ```bash
 corepack enable
-corepack pnpm install --frozen-lockfile
-cp .env.example .env.local
-corepack pnpm dev
+pnpm install --frozen-lockfile
+pnpm exec emdash secrets generate --write=.env   # first time only
+pnpm dev
 ```
 
-`SITE_URL` is the canonical production origin. It must be an absolute HTTP or HTTPS origin without a path, query, or fragment. Builds fail on a missing or invalid value so canonical, Open Graph, robots, and sitemap URLs cannot silently drift.
+- Site: <http://localhost:4321/>
+- Admin: <http://localhost:4321/_emdash/admin/>
 
-## Content
+`pnpm dev` runs the site in the Workers runtime with a local D1 database and R2 bucket under `.wrangler/state`. On a new database, EmDash applies `seed/seed.json` (collections, settings, menus) on the first request, and the admin opens a setup wizard where you create the first administrator with a passkey.
 
-The repository mirrors content published from Obsidian through the repository's own plugin in `obsidian-plugin/`. Physical folders and filenames are the content contract. Add a folder under `content/`, then add `.md` or `.mdx` notes inside it:
-
-```text
-content/
-  Field Notes/
-    First Note.mdx
-```
-
-Natural names normalize to URL-safe segments, so this example publishes at `/field-notes/first-note`. A post can contain only Markdown. Frontmatter is optional:
-
-```yaml
----
-title: "First note"
-summary: "A short route-specific description."
-time:
-  created: "2026-08-23T12:00:00.000Z"
-  updated: "2026-08-23T12:00:00.000Z"
----
-```
-
-The filename supplies the title when `title` is absent. Missing optional metadata uses a safe default. Invalid optional dates, incomplete Favorites, and unsupported nested folders produce source-specific warnings and continue. Unreadable files, malformed frontmatter, empty route segments, normalized route collisions, and rendering failures stop verification.
-
-`content/home.md` supplies the homepage introduction. `content/favorites/` contains outbound-link notes; only an absolute HTTP or HTTPS `href` is essential. Each note's `group` key names its group on `/favorites`, so a new group is just a new value. An optional `content/favorites/index.md` is never an item: its `groups` frontmatter list orders the groups, and its body is the intro above them. Unlisted groups follow alphabetically. The shared private Markdown reader handles discovery and normalization, while Posts, Home, and Favorites keep separate public domain interfaces.
-
-A note named `index` inside a Category folder is reserved as that Category's intro, rendered through the prose class above the Category list; it is never a Post, so it is excluded from ordering, adjacency, entries, sitemap, and static params. A Category folder containing only an `index` note is valid and empty. The `index` name is reserved only inside a Category folder: the home intro remains `content/home.md`, and an `index` note at the content root is ignored.
-
-## Publishing from Obsidian
-
-`obsidian-plugin/` is a small Obsidian plugin that replaces Enveloppe. It copies every note whose `share` key is `true` into `content/` at the same path, delivers the images those notes reference from `<folder>/assets/` into `public/assets/<folder>/`, and excludes `Templates`. It covers the home intro, every Category folder and its `index` intro, Favorites, and assets. A manifest at `content/.publish-manifest.json` records what the plugin published, so unsharing, deleting, or moving a note removes its published copy on the next publish while hand-made repository files are never touched.
-
-Publishing writes one commit to the `obsidian/publish` branch, opens a pull request against `main`, and enables auto-merge, so `verify` and Vercel remain the gates. Publishing again while that pull request is open adds to it. The plugin runs the same frontmatter, route-collision, and asset checks the content readers enforce and refuses to publish while any fail.
-
-There is no token to create. The plugin signs in with GitHub's device flow: it shows a short code, you approve it once in the browser, and GitHub issues the plugin a token that does not expire. That sign-in is stored in Obsidian's device-local storage, never in the vault, so Obsidian Sync cannot remove it; sign in once per device. The one-time setup is a GitHub OAuth App (Settings → Developer settings → OAuth Apps → New, any name and homepage, any callback URL, **Enable Device Flow** checked) whose Client ID goes into the plugin settings; the plugin ships with the site's own app as the default. Build and install into the authoring vault with:
+To load the pre-migration content from the Obsidian vault into an empty database:
 
 ```bash
-pnpm plugin:install                      # installs into ~/Sylph
-OBSIDIAN_VAULT=/path/to/vault pnpm plugin:install
+pnpm import:vault                     # reads /Users/huntsyea/Sylph (override with VAULT=...)
 ```
 
-Then enable "Publish to huntsyea.com" in Obsidian's community plugins, press **Sign in with GitHub** in its settings, and run **Publish shared notes** or **Preview what would publish** from the command palette.
+The import is idempotent: it skips entries that already exist. Against the local dev server it signs in with EmDash's dev bypass, which creates a `dev@emdash.local` admin; complete setup first, or delete that user before running the setup wizard.
 
-The content catalog discovers categories, sorts posts, supplies adjacent navigation, and generates the static route and sitemap inventory. Post titles provide the only page-level heading, so authored sections begin with `##`.
+## Content model
 
-MDX is trusted repository content compiled on the server. JavaScript expressions and MDX imports/exports are intentionally rejected. Interactive behavior remains isolated to small client components.
+| Collection / feature                    | Route                                                      | Notes                                                                       |
+| --------------------------------------- | ---------------------------------------------------------- | --------------------------------------------------------------------------- |
+| `posts`, `projects`                     | `/posts`, `/posts/<slug>`, `/projects`, `/projects/<slug>` | Title, summary, Portable Text content, optional Revised date                |
+| `favorites` + `favorite_group` taxonomy | `/favorites`                                               | Group order is the term order in the admin                                  |
+| `pages` (Page intros)                   | —                                                          | Slug `home`, `posts`, `projects`, or `favorites` supplies that page's intro |
+| Settings → title, tagline, URL          | every page                                                 | Site name, tagline, canonical origin                                        |
+| Menus `primary`, `contact`              | header, footer, home                                       | Navigation and contact links                                                |
+
+See [docs/agents/publishing.md](docs/agents/publishing.md) for the editing workflow and [CONTEXT.md](CONTEXT.md) for the domain glossary.
 
 ## Commands
 
 ```bash
-pnpm format:check     # read-only formatting check
-pnpm format:write     # explicitly format source
-pnpm lint             # Stylelint and framework-aware ESLint
-pnpm typecheck        # TypeScript without emitting files
-pnpm test             # Vitest domain tests
-pnpm build            # production Next.js build
-pnpm verify           # all read-only gates, including the production browser suite
-pnpm test:e2e         # rerun Playwright against a completed production build
+pnpm dev            # Astro dev server in the Workers runtime
+pnpm build          # production build into dist/
+pnpm preview        # build, then serve the built Worker with wrangler dev (port 8787)
+pnpm verify         # formatting, style lint, astro check, and build
+pnpm deploy         # build and deploy to Cloudflare (requires wrangler login)
 ```
 
-Set `SITE_URL` when building or starting outside `.env.local`:
+## Deploying to Cloudflare
+
+The site runs as the `huntsyea-personal` Worker with the `huntsyea-personal` D1 database, the `huntsyea-media` R2 bucket, and a session KV namespace. Workers routes for `huntsyea.com/*` and `www.huntsyea.com/*` (in `wrangler.jsonc`) put the Worker in front of the zone's proxied DNS records; `src/worker.ts` redirects `www` to the apex.
 
 ```bash
-SITE_URL=https://example.com pnpm verify
+pnpm exec wrangler login   # once per machine
+pnpm deploy                # build with EMDASH_SITE_URL=https://huntsyea.com and deploy
 ```
 
-CI runs the complete verification command for code and configuration changes.
-For changes confined to `content/` and delivered assets under `public/assets/`,
-CI runs the content domain tests while the required Vercel check performs the
-production build. This keeps trusted Obsidian publishing fast without allowing
-invalid content to merge.
+Content changes need no deploy; only code changes do. The production encryption key is a Worker secret (`EMDASH_ENCRYPTION_KEY`); keep its backup somewhere safe, because EmDash cannot read encrypted plugin settings without it.
 
-## Architecture
+`pnpm deploy` sets `EMDASH_SITE_URL=https://huntsyea.com` at build time and as a Worker variable. EmDash requires this public origin for production setup and uses it for passkeys, CSRF checks, and image optimization (without it, images ship as the original PNG instead of resized WebP). Local development leaves it unset so `localhost` works. Passkeys are bound to that origin.
 
-- `lib/content/` is the content domain seam: schema validation, discovery, ordering, lookup, adjacency, and trusted MDX rendering.
-- `lib/site/` is the site-identity seam: canonical origin validation and shared metadata construction.
-- `styles/tokens.css` is the Design system's single source of visual truth: semantic colour roles, the type scale, spacing rhythm, radius, and column and aside widths, declared CSS-first for Tailwind v4 with no JavaScript config. `styles/main.css` imports it and owns the base layer, the `.prose` vertical rhythm, and the reduced-motion block. See [`DESIGN.md`](DESIGN.md).
-- `components/link` is the one site `Link` primitive and the only importer of the Link component; the providers module imports the ViewTransitions provider, and the design-system guardrail exempts exactly those two (ADR 0002).
-- `components/site-shell` renders the shared shell — `SiteHeader` (site name, catalog-generated nav), `main` with the route entrance, and `SiteFooter` (Contact links, Theme control, copyright). The `(posts)` layout and the not-found page use it with chrome; the home page turns the header and footer off because its identity block and contact pills already carry what they repeat.
-- `app/(posts)/[category]/` maps the catalog inventory to statically generated category and post routes.
-- `app/robots.ts`, `app/sitemap.ts`, and native `opengraph-image.tsx` files generate crawler and social surfaces from the same catalog and site profile.
-- `tests/unit/` verifies the two domain seams and the design-system guardrail (which fails on raw palette classes, arbitrary pixel values, inline styles, and link-library imports outside the `Link` primitive); `tests/e2e/` verifies the production-built site, accessibility, themes, metadata, and social images.
+To roll back to another host, remove the two routes (from `wrangler.jsonc` and redeploy, or in the Cloudflare dashboard under the Worker's Domains & Routes); the zone's DNS records are untouched by the routes.
 
-The shipped architecture and verification evidence are summarized in [`docs/modernization-report.md`](docs/modernization-report.md). The original audit, research, and requirements remain in [`docs/sylph-modernization-audit.md`](docs/sylph-modernization-audit.md), [`docs/nextjs-modernization-research.md`](docs/nextjs-modernization-research.md), and [`docs/specs/modernize-sylph.md`](docs/specs/modernize-sylph.md).
+The `.well-known/matrix` routes are served by the Worker, so Matrix federation keeps working after the DNS move.

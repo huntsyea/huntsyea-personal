@@ -1,0 +1,254 @@
+{
+  "$schema": "https://emdashcms.com/seed.schema.json",
+  "version": "1",
+  "meta": {
+    "name": "huntsyea",
+    "description": "Hunter Yea's personal site: posts, projects, and favorite links.",
+    "author": "Hunter Yea"
+  },
+  "settings": {
+    "title": "huntsyea",
+    "tagline": "Building products & AI",
+    "url": "https://huntsyea.com",
+    "timezone": "UTC"
+  },
+  "collections": [
+    {
+      "slug": "posts",
+      "label": "Posts",
+      "labelSingular": "Post",
+      "description": "Writing listed on the home page and at /posts. The title is the only page heading; start sections at Heading 2.",
+      "icon": "article",
+      "sortOrder": 1,
+      "urlPattern": "/posts/{slug}",
+      "supports": [
+        "drafts",
+        "revisions",
+        "preview",
+        "scheduling",
+        "search",
+        "seo"
+      ],
+      "admin": {
+        "listColumns": [
+          "summary"
+        ]
+      },
+      "fields": [
+        {
+          "slug": "title",
+          "label": "Title",
+          "type": "string",
+          "required": true,
+          "searchable": true
+        },
+        {
+          "slug": "summary",
+          "label": "Summary",
+          "type": "text",
+          "searchable": true
+        },
+        {
+          "slug": "content",
+          "label": "Content",
+          "type": "portableText",
+          "searchable": true
+        },
+        {
+          "slug": "revised_at",
+          "label": "Revised",
+          "type": "datetime"
+        }
+      ]
+    },
+    {
+      "slug": "projects",
+      "label": "Projects",
+      "labelSingular": "Project",
+      "description": "Things I have built, listed on the home page and at /projects. Start sections at Heading 2.",
+      "icon": "hammer",
+      "sortOrder": 2,
+      "urlPattern": "/projects/{slug}",
+      "supports": [
+        "drafts",
+        "revisions",
+        "preview",
+        "scheduling",
+        "search",
+        "seo"
+      ],
+      "admin": {
+        "listColumns": [
+          "summary"
+        ]
+      },
+      "fields": [
+        {
+          "slug": "title",
+          "label": "Title",
+          "type": "string",
+          "required": true,
+          "searchable": true
+        },
+        {
+          "slug": "summary",
+          "label": "Summary",
+          "type": "text",
+          "searchable": true
+        },
+        {
+          "slug": "content",
+          "label": "Content",
+          "type": "portableText",
+          "searchable": true
+        },
+        {
+          "slug": "revised_at",
+          "label": "Revised",
+          "type": "datetime"
+        }
+      ]
+    },
+    {
+      "slug": "favorites",
+      "label": "Favorites",
+      "labelSingular": "Favorite",
+      "description": "Outbound links shown at /favorites, grouped by Favorite group. Items sort by title within a group.",
+      "icon": "star",
+      "sortOrder": 3,
+      "routable": false,
+      "supports": [
+        "drafts"
+      ],
+      "admin": {
+        "listColumns": [
+          "url"
+        ]
+      },
+      "fields": [
+        {
+          "slug": "title",
+          "label": "Title",
+          "type": "string",
+          "required": true
+        },
+        {
+          "slug": "url",
+          "label": "Link",
+          "type": "url",
+          "required": true
+        },
+        {
+          "slug": "note",
+          "label": "Note",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "slug": "pages",
+      "label": "Page intros",
+      "labelSingular": "Page intro",
+      "description": "Intro text above a page. The slug picks the page: home, posts, projects, or favorites.",
+      "icon": "note",
+      "sortOrder": 4,
+      "supports": [
+        "drafts",
+        "revisions",
+        "seo"
+      ],
+      "fields": [
+        {
+          "slug": "title",
+          "label": "Title",
+          "type": "string",
+          "required": true
+        },
+        {
+          "slug": "content",
+          "label": "Intro",
+          "type": "portableText"
+        }
+      ]
+    }
+  ],
+  "taxonomies": [
+    {
+      "name": "favorite_group",
+      "label": "Favorite groups",
+      "labelSingular": "Favorite group",
+      "hierarchical": false,
+      "collections": [
+        "favorites"
+      ],
+      "terms": [
+        {
+          "slug": "harnesses",
+          "label": "Harnesses"
+        },
+        {
+          "slug": "clients",
+          "label": "Clients"
+        },
+        {
+          "slug": "skills",
+          "label": "Skills"
+        },
+        {
+          "slug": "subscriptions",
+          "label": "Subscriptions"
+        },
+        {
+          "slug": "reading",
+          "label": "Reading"
+        }
+      ]
+    }
+  ],
+  "menus": [
+    {
+      "name": "primary",
+      "label": "Primary navigation",
+      "items": [
+        {
+          "type": "custom",
+          "label": "Posts",
+          "url": "/posts"
+        },
+        {
+          "type": "custom",
+          "label": "Projects",
+          "url": "/projects"
+        },
+        {
+          "type": "custom",
+          "label": "Favorites",
+          "url": "/favorites"
+        }
+      ]
+    },
+    {
+      "name": "contact",
+      "label": "Contact links",
+      "items": [
+        {
+          "type": "custom",
+          "label": "Email",
+          "url": "mailto:info@huntsyea.com"
+        },
+        {
+          "type": "custom",
+          "label": "X",
+          "url": "https://x.com/huntsyea",
+          "target": "_blank"
+        },
+        {
+          "type": "custom",
+          "label": "GitHub",
+          "url": "https://github.com/huntsyea",
+          "target": "_blank"
+        }
+      ]
+    }
+  ]
+}

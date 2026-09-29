@@ -1,0 +1,47 @@
+---
+/**
+ * The Post metadata block (published, updated, read time) in the sm text role
+ * and muted colour role. Each item stacks its label above its value.
+ */
+import { formatDate } from "@/lib/content";
+
+interface Props {
+  publishedAt: Date | null;
+  revisedAt?: Date | null;
+  minutes: number;
+}
+
+const { publishedAt, revisedAt, minutes } = Astro.props;
+const updated =
+  revisedAt && (!publishedAt || revisedAt >= publishedAt) ? revisedAt : null;
+---
+
+<div class="mt-1 flex flex-wrap gap-x-6 gap-y-2 text-sm text-fg-muted">
+  {
+    publishedAt && (
+      <div class="flex flex-col">
+        <span>Published</span>
+        <span class="text-fg">
+          <time datetime={publishedAt.toISOString()}>
+            {formatDate(publishedAt)}
+          </time>
+        </span>
+      </div>
+    )
+  }
+  {
+    updated && (
+      <div class="flex flex-col">
+        <span>Updated</span>
+        <span class="text-fg">
+          <time datetime={updated.toISOString()}>{formatDate(updated)}</time>
+        </span>
+      </div>
+    )
+  }
+  <div class="flex flex-col">
+    <span>Read time</span>
+    <span class="text-fg">{minutes} {minutes === 1 ? "minute" : "minutes"}</span
+    >
+  </div>
+</div>

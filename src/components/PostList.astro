@@ -1,0 +1,53 @@
+---
+import type { CategorySlug } from "@/lib/content";
+
+import { comparePosts, formatDate } from "@/lib/content";
+
+import { getEmDashCollection } from "emdash";
+
+import EntryRow from "./EntryRow.astro";
+import SectionHeading from "./SectionHeading.astro";
+
+interface Props {
+  category: { slug: CategorySlug; title: string };
+  asCategoryPage?: boolean;
+}
+
+const { category, asCategoryPage = false } = Astro.props;
+const { entries, cacheHint } = await getEmDashCollection(category.slug, {
+  orderBy: { published_at: "desc" },
+});
+entries.sort(comparePosts);
+if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
+---
+
+<section
+  class={asCategoryPage ? "mt-6 flex flex-col" : "mt-section flex flex-col"}
+>
+  <SectionHeading
+    title={category.title}
+    href={asCategoryPage ? undefined : `/${category.slug}`}
+    asPage={asCategoryPage}
+  />
+  <ul class="m-0 list-none p-0">
+    {
+      entries.map((entry) => (
+        <EntryRow
+          title={entry.data.title}
+          href={`/${category.slug}/${entry.id}`}
+          transitionName={`post-title-${category.slug}-${entry.id}`}
+        >
+          {entry.data.publishedAt && (
+            <time
+              slot="meta"
+              class="text-fg-muted"
+              datetime={entry.data.publishedAt.toISOString()}
+            >
+              {formatDate(entry.data.publishedAt)}
+            </time>
+          )}
+        </EntryRow>
+      ))
+    }
+  </ul>
+</section>

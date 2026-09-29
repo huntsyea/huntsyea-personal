@@ -1,0 +1,38 @@
+---
+/**
+ * Renders a Portable Text field in the Site's prose styles. Pass the Post
+ * outline so headings carry the ids the "On this page" navigation links to.
+ */
+import type { OutlineItem } from "@/lib/content";
+import type { PortableTextBlock } from "emdash";
+
+import { PortableText } from "emdash/ui";
+
+import Block from "./Block.astro";
+import Code from "./Code.astro";
+import Diagram from "./Diagram.astro";
+
+interface Props {
+  value: PortableTextBlock[] | undefined;
+  outline?: readonly OutlineItem[];
+  class?: string;
+  /** Render the blocks without the `.prose` wrapper, inside an existing one. */
+  bare?: boolean;
+}
+
+const { value, outline = [], class: className, bare = false } = Astro.props;
+(Astro.locals as { headingIds?: Map<string, string> }).headingIds = new Map(
+  outline.map((item) => [item.key, item.id]),
+);
+const components = { block: Block, type: { code: Code, diagram: Diagram } };
+---
+
+{
+  value && value.length > 0 && bare ? (
+    <PortableText value={value} components={components} />
+  ) : value && value.length > 0 ? (
+    <div class:list={["prose", className]}>
+      <PortableText value={value} components={components} />
+    </div>
+  ) : null
+}

@@ -1,0 +1,33 @@
+---
+/**
+ * Code block override: server-side Shiki highlighting with a light and a dark
+ * theme. Unknown languages fall back to plain text.
+ */
+import type { BundledLanguage } from "shiki";
+
+import { Code } from "astro:components";
+import { bundledLanguages } from "shiki";
+
+type Node = { code?: string; language?: string; filename?: string };
+
+const { node } = Astro.props as { node: Node };
+const requested = (node.language ?? "").toLowerCase();
+const lang = (requested in bundledLanguages ? requested : "text") as
+  BundledLanguage | "text";
+---
+
+{
+  node.code && (
+    <figure>
+      <Code
+        code={node.code}
+        lang={lang}
+        themes={{
+          light: "github-light-high-contrast",
+          dark: "github-dark-high-contrast",
+        }}
+        defaultColor={false}
+      />
+    </figure>
+  )
+}
