@@ -242,11 +242,11 @@
       margin-top: 32px;
     }
 
-    > h2 + *:not(h2, h3) {
+    > h2 + *:not(h2, h3, :first-child) {
       margin-top: 12px;
     }
 
-    > h3 + *:not(h2, h3) {
+    > h3 + *:not(h2, h3, :first-child) {
       margin-top: 8px;
     }
 
