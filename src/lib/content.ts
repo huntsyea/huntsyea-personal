@@ -102,3 +102,75 @@ export function comparePosts(left: Dated, right: Dated): number {
   if (a === undefined && b !== undefined) return 1;
   return left.id.localeCompare(right.id);
 }
+
+const TYPOS: readonly (readonly [string, string])[] = [
+  [
+    "build product people love and exploring",
+    "build products people love and explore",
+  ],
+  ["countless ours", "countless hours"],
+  ["we are create", "we create"],
+];
+
+/** Correct known copy typos until the EmDash entries are updated. */
+export function fixTypos(text: string): string {
+  let next = text;
+  for (const [from, to] of TYPOS) {
+    if (next.includes(from)) next = next.replaceAll(from, to);
+  }
+  return next;
+}
+
+/**
+ * Apply {@link fixTypos} to Portable Text spans. Returns the same value when
+ * nothing changes, and keeps EmDash's edit-mode tag on the array.
+ */
+export function fixPortableTextTypos<T>(value: T): T {
+  if (!Array.isArray(value)) return value;
+  let changed = false;
+  const next = value.map((block) => {
+    if (!block || typeof block !== "object" || !("children" in block))
+      return block;
+    const children = block.children;
+    if (!Array.isArray(children)) return block;
+    let blockChanged = false;
+    const fixedChildren = children.map((child) => {
+      if (!child || typeof child !== "object" || !("text" in child))
+        return child;
+      if (typeof child.text !== "string") return child;
+      const fixed = fixTypos(child.text);
+      if (fixed === child.text) return child;
+      blockChanged = true;
+      return { ...child, text: fixed };
+    });
+    if (!blockChanged) return block;
+    changed = true;
+    return { ...block, children: fixedChildren };
+  });
+  if (!changed) return value;
+  const edit = Object.getOwnPropertyDescriptor(value, Symbol.for("__emdash"));
+  if (edit) Object.defineProperty(next, Symbol.for("__emdash"), edit);
+  return next as T;
+}
+
+function seoRecord(data: object): { description?: unknown } | undefined {
+  if (!("seo" in data)) return undefined;
+  const seo = data.seo;
+  if (!seo || typeof seo !== "object") return undefined;
+  return seo;
+}
+
+/** Correct a content entry's SEO description when it still has a known typo. */
+export function fixSeoDescription(data: object): void {
+  const seo = seoRecord(data);
+  if (!seo || typeof seo.description !== "string") return;
+  const fixed = fixTypos(seo.description);
+  if (fixed !== seo.description) seo.description = fixed;
+}
+
+/** Use the visible tagline as the homepage meta description for this request. */
+export function setSeoDescription(data: object, description: string): void {
+  const seo = seoRecord(data);
+  if (!seo || !description) return;
+  seo.description = description;
+}

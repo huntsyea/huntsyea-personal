@@ -1,16 +1,19 @@
 ---
-/**
- * Renders a Portable Text field in the Site's prose styles. Pass the Post
- * outline so headings carry the ids the "On this page" navigation links to.
- */
 import type { OutlineItem } from "@/lib/content";
 import type { PortableTextBlock } from "emdash";
+
+import { fixPortableTextTypos } from "@/lib/content";
 
 import { PortableText } from "emdash/ui";
 
 import Block from "./Block.astro";
 import Code from "./Code.astro";
 import Diagram from "./Diagram.astro";
+
+/**
+ * Renders a Portable Text field in the Site's prose styles. Pass the Post
+ * outline so headings carry the ids the "On this page" navigation links to.
+ */
 
 interface Props {
   value: PortableTextBlock[] | undefined;
@@ -20,7 +23,13 @@ interface Props {
   bare?: boolean;
 }
 
-const { value, outline = [], class: className, bare = false } = Astro.props;
+const {
+  value: source,
+  outline = [],
+  class: className,
+  bare = false,
+} = Astro.props;
+const value = fixPortableTextTypos(source);
 (Astro.locals as { headingIds?: Map<string, string> }).headingIds = new Map(
   outline.map((item) => [item.key, item.id]),
 );

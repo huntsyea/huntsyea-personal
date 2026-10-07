@@ -9,17 +9,29 @@ interface Props {
   href?: string;
   /** When true, renders a page-level h1 instead of a section h2. */
   asPage?: boolean;
+  /** Quiet label at the end of a linked heading, such as "All posts →". */
+  trailing?: string;
 }
 
-const { title, href, asPage = false } = Astro.props;
+const { title, href, asPage = false, trailing } = Astro.props;
 ---
 
 {
   asPage ? (
     <h1 class="py-2">{title}</h1>
   ) : href ? (
-    <a href={href} class="flex justify-between">
-      <h2 class="py-2 text-fg-muted">{title}</h2>
+    <a
+      href={href}
+      class="group flex items-baseline justify-between gap-4 transition-colors"
+    >
+      <h2 class="py-2 text-fg-muted transition-colors group-hover:text-fg">
+        {title}
+      </h2>
+      {trailing && (
+        <span class="py-2 text-fg-muted transition-colors group-hover:text-fg">
+          {trailing}
+        </span>
+      )}
     </a>
   ) : (
     <h2 class="py-2 text-fg-muted">{title}</h2>

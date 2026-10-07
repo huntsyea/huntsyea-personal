@@ -1,5 +1,4 @@
 ---
-import Breadcrumb from "@/components/Breadcrumb.astro";
 import Outline from "@/components/Outline.astro";
 import Prose from "@/components/portable-text/Prose.astro";
 import PostMeta from "@/components/PostMeta.astro";
@@ -7,6 +6,8 @@ import PostNavigation from "@/components/PostNavigation.astro";
 import Base from "@/layouts/Base.astro";
 import {
   comparePosts,
+  fixSeoDescription,
+  fixTypos,
   getCategory,
   headingOutline,
   readingMinutes,
@@ -28,7 +29,9 @@ if (Astro.cache?.enabled) {
   Astro.cache.set(siblings.cacheHint);
 }
 
-const { title, summary, content, publishedAt, revised_at } = post.data;
+fixSeoDescription(post.data);
+const { title, content, publishedAt, revised_at } = post.data;
+const summary = fixTypos(post.data.summary ?? "");
 const outline = headingOutline(content);
 const revisedAt = revised_at ? new Date(revised_at) : null;
 
@@ -49,12 +52,6 @@ const next = index > 0 ? reference(ordered[index - 1]) : undefined;
   modifiedTime={revisedAt?.toISOString()}
   content={{ collection: category.slug, id: post.data.id, slug: post.id }}
 >
-  <Breadcrumb
-    items={[
-      { label: category.title, href: `/${category.slug}` },
-      { label: title, href: `/${category.slug}/${post.id}` },
-    ]}
-  />
   <div
     class="xl:grid xl:w-column-wide xl:grid-cols-[minmax(0,var(--container-column))_var(--width-aside)] xl:items-start xl:gap-8"
   >

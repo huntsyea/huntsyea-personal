@@ -4,7 +4,7 @@ import Pill from "@/components/Pill.astro";
 import Prose from "@/components/portable-text/Prose.astro";
 import PostList from "@/components/PostList.astro";
 import Base from "@/layouts/Base.astro";
-import { CATEGORIES } from "@/lib/content";
+import { CATEGORIES, setSeoDescription } from "@/lib/content";
 
 import {
   getEmDashEntry,
@@ -25,10 +25,11 @@ if (Astro.cache?.enabled) {
 
 const { title, tagline } = settings.data;
 const home = intro.entry;
+if (home && tagline) setSeoDescription(home.data, tagline);
 ---
 
 <Base
-  chrome={false}
+  description={tagline}
   content={home
     ? { collection: "pages", id: home.data.id, slug: home.id }
     : undefined}
@@ -37,7 +38,7 @@ const home = intro.entry;
     (title || tagline) && (
       <div class="flex justify-between" data-authored-content="identity">
         <div>
-          {title && <h1 class="text-2xl">{title}</h1>}
+          {title && <h1>{title}</h1>}
           {tagline && <p class="text-fg-muted">{tagline}</p>}
         </div>
       </div>
