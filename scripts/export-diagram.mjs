@@ -24,7 +24,7 @@ if (files.length === 0) {
 const fonts = ["regular:400", "medium:500", "semi-bold:600"]
   .map((entry) => {
     const [file, weight] = entry.split(":");
-    const url = pathToFileURL(path.resolve(`public/assets/inter/${file}.ttf`));
+    const url = pathToFileURL(path.resolve(`src/assets/inter/${file}.woff2`));
     return `@font-face { font-family: Inter; font-weight: ${weight}; src: url("${url}"); }`;
   })
   .join("\n");
