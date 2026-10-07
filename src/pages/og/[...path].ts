@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 
+import regularFont from "@/assets/inter/regular.woff";
 import { getCategory } from "@/lib/content";
 
 import { cache, ImageResponse } from "@cf-wasm/og/workerd";
@@ -22,8 +23,9 @@ export const GET: APIRoute = async ({ params, url, locals }) => {
   if (context) cache.setExecutionContext(context);
 
   // Read the font through the static-assets binding; a Worker fetching its
-  // own public URL is not reliable in production.
-  const fontUrl = new URL("/assets/inter/regular.ttf", url);
+  // own public URL is not reliable in production. Satori accepts WOFF, not
+  // WOFF2, so this is the same Latin subset in WOFF. The page faces are woff2.
+  const fontUrl = new URL(regularFont, url);
   const assets = (env as { ASSETS?: Fetcher }).ASSETS;
   const fontResponse = await (assets ? assets.fetch(fontUrl) : fetch(fontUrl));
   const font = await fontResponse.arrayBuffer();
