@@ -23,11 +23,11 @@
   --text-md: 16px;
   --text-md--line-height: 24px;
   --text-md--letter-spacing: -0.09px;
-  --text-lg: 18px;
-  --text-lg--line-height: 26px;
+  --text-lg: 20px;
+  --text-lg--line-height: 28px;
   --text-lg--letter-spacing: -0.18px;
-  --text-xl: 22px;
-  --text-xl--line-height: 28px;
+  --text-xl: 28px;
+  --text-xl--line-height: 34px;
   --text-xl--letter-spacing: -0.18px;
   --text-2xl: 26px;
   --text-2xl--line-height: 32px;
@@ -42,11 +42,10 @@
   --spacing-stack: 24px;
   --spacing-section: 48px;
 
-  /* Reading column width, shared by the header, main, and footer. Exposed as
-     the max-w-column utility (the --container-* namespace drives max-w-*) so
-     the Post layout can widen at xl to hold the table-of-contents aside while
-     the reading column itself stays 36rem. */
+  /* Reading column. Header, main, and footer use max-w-shell so their 1.5rem
+     side padding sits outside this measure and the text lines up at 36rem. */
   --container-column: 36rem;
+  --container-shell: calc(var(--container-column) + 3rem);
 
   /* The Post layout widens at xl to hold the sticky table-of-contents aside
      beside the 36rem reading column. Exposed as the w-column-wide utility. */
@@ -91,7 +90,7 @@
   --border-strong: var(--gray-6);
   --accent: var(--teal-9);
   --accent-fg: var(--teal-11);
-  --focus: var(--gray-8);
+  --focus: var(--gray-11);
   --selection-bg: var(--teal-3);
   --selection-fg: var(--teal-11);
   --code-bg: var(--gray-2);

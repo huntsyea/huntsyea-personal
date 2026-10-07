@@ -1,6 +1,7 @@
 ---
 import "@/styles/global.css";
 
+import interRegular from "@/assets/inter/regular.woff2";
 import SiteFooter from "@/components/SiteFooter.astro";
 import SiteHeader from "@/components/SiteHeader.astro";
 
@@ -17,11 +18,7 @@ interface Props {
   modifiedTime?: string | null;
   /** The content entry this page renders, for its SEO panel values. */
   content?: { collection: string; id: string; slug?: string | null };
-  /**
-   * Whether to wrap the page in the shared header and footer. Home turns this
-   * off: its identity block and contact pills already carry what the shell
-   * repeats.
-   */
+  /** Whether to wrap the page in the shared header and footer. */
   chrome?: boolean;
 }
 
@@ -80,9 +77,27 @@ const page = createPublicPageContext({
     <title>{fullTitle}</title>
     {
       !settings.favicon && (
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <>
+          <link rel="icon" href="/favicon.ico" sizes="32x32" />
+          <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+          <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        </>
       )
     }
+    <link
+      rel="preload"
+      href={interRegular}
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={`${siteTitle} RSS`}
+      href={new URL("/rss.xml", siteUrl).href}
+    />
+    <meta name="theme-color" content="#fcfcfc" />
     <script is:inline>
       // Resolve the stored Theme (system, dark, light) before first paint.
       window.__applyTheme = function () {
@@ -95,6 +110,10 @@ const page = createPublicPageContext({
         root.classList.toggle("dark", dark);
         root.classList.toggle("light", !dark);
         root.style.colorScheme = dark ? "dark" : "light";
+        var themeColor = document.querySelector('meta[name="theme-color"]');
+        if (themeColor) {
+          themeColor.setAttribute("content", dark ? "#111111" : "#fcfcfc");
+        }
       };
       window.__applyTheme();
       window
@@ -104,6 +123,7 @@ const page = createPublicPageContext({
     <EmDashHead page={page} />
   </head>
   <body>
+    <a class="skip-link" href="#content">Skip to content</a>
     <EmDashBodyStart page={page} />
     {
       chrome && (
@@ -114,9 +134,10 @@ const page = createPublicPageContext({
       )
     }
     <main
+      id="content"
       class={chrome
-        ? "mx-auto w-full max-w-column px-6 pt-stack pb-section"
-        : "mx-auto w-full max-w-column px-6 py-section"}
+        ? "mx-auto w-full max-w-shell px-6 pt-stack pb-section"
+        : "mx-auto w-full max-w-shell px-6 py-section"}
     >
       <div data-entrance>
         <slot />

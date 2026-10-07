@@ -1,5 +1,4 @@
 ---
-import Breadcrumb from "@/components/Breadcrumb.astro";
 import Prose from "@/components/portable-text/Prose.astro";
 import PostList from "@/components/PostList.astro";
 import Base from "@/layouts/Base.astro";
@@ -24,7 +23,13 @@ if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
     ? { collection: "pages", id: intro.data.id, slug: intro.id }
     : undefined}
 >
-  <Breadcrumb items={[{ label: category.title, href: `/${category.slug}` }]} />
-  {intro && <Prose value={intro.data.content} />}
+  <h1>{category.title}</h1>
+  {
+    intro && (
+      <div class="mt-3">
+        <Prose value={intro.data.content} />
+      </div>
+    )
+  }
   <PostList category={category} asCategoryPage />
 </Base>
