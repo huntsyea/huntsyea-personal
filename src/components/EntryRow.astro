@@ -22,7 +22,7 @@ const { title, href, caption, transitionName, newTab = false } = Astro.props;
     href={href}
     target={newTab ? "_blank" : undefined}
     rel={newTab ? "noopener noreferrer" : undefined}
-    class="flex w-full justify-between py-2"
+    class="-mx-2 flex w-full justify-between rounded px-2 py-2 transition-colors hover:bg-bg-subtle"
   >
     <span
       class={caption ? "flex flex-col" : undefined}
@@ -30,7 +30,10 @@ const { title, href, caption, transitionName, newTab = false } = Astro.props;
         ? { viewTransitionName: transitionName }
         : undefined}
     >
-      <span>{title}</span>
+      <span>
+        {title}
+        {newTab && <span aria-hidden="true"> ↗</span>}
+      </span>
       {caption && <span class="text-fg-muted">{caption}</span>}
     </span>
     <slot name="meta" />

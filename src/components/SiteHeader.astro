@@ -1,7 +1,7 @@
 ---
 /**
- * The shared header on every route except home: the site name on the left
- * and the editable "primary" menu on the right.
+ * The shared header: the site name on the left and the editable "primary"
+ * menu on the right. The current item uses aria-current="page".
  */
 interface Props {
   siteTitle: string;
@@ -9,27 +9,49 @@ interface Props {
 }
 
 const { siteTitle, menu } = Astro.props;
+const path = Astro.url.pathname.replace(/\/$/, "") || "/";
+
+const current = (url: string) => {
+  if (!url.startsWith("/")) return false;
+  const target = url.replace(/\/$/, "") || "/";
+  return path === target || path.startsWith(`${target}/`);
+};
 ---
 
 <header
-  class="mx-auto flex w-full max-w-column flex-wrap items-center justify-between gap-x-4 gap-y-3 px-6 pt-[var(--space-page)] md:pt-[var(--space-page-desktop)]"
+  class="mx-auto flex w-full max-w-shell flex-wrap items-center justify-between gap-x-4 gap-y-1 px-6 pt-[var(--space-page)] md:pt-[var(--space-page-desktop)]"
 >
-  <a href="/" class="font-semibold text-fg">{siteTitle}</a>
+  <a
+    href="/"
+    class="inline-flex min-h-11 items-center font-semibold text-fg"
+    aria-current={path === "/" ? "page" : undefined}
+  >
+    {siteTitle}
+  </a>
   <nav aria-label="Primary">
     <ul class="m-0 flex list-none flex-wrap gap-x-4 p-0">
       {
-        menu.map((item) => (
-          <li class="m-0 list-none p-0">
-            <a
-              href={item.url}
-              target={item.target ?? undefined}
-              rel={item.target === "_blank" ? "noopener noreferrer" : undefined}
-              class="text-fg-muted transition-colors hover:text-fg"
-            >
-              {item.label}
-            </a>
-          </li>
-        ))
+        menu.map((item) => {
+          const active = current(item.url);
+          return (
+            <li class="m-0 list-none p-0">
+              <a
+                href={item.url}
+                target={item.target ?? undefined}
+                rel={
+                  item.target === "_blank" ? "noopener noreferrer" : undefined
+                }
+                aria-current={active ? "page" : undefined}
+                class:list={[
+                  "inline-flex min-h-11 items-center transition-colors hover:text-fg",
+                  active ? "font-medium text-fg" : "text-fg-muted",
+                ]}
+              >
+                {item.label}
+              </a>
+            </li>
+          );
+        })
       }
     </ul>
   </nav>

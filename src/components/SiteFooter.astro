@@ -2,8 +2,8 @@
 import ThemeSwitcher from "./ThemeSwitcher.astro";
 
 /**
- * The shared footer on every route except home: Contact links with the Theme
- * control opposite, and a copyright line beneath.
+ * The shared footer: Contact links with the Theme control opposite, and a
+ * copyright line beneath.
  */
 interface Props {
   siteTitle: string;
@@ -15,7 +15,7 @@ const year = new Date().getFullYear();
 ---
 
 <footer
-  class="mx-auto w-full max-w-column px-6 pb-[var(--space-page)] md:pb-[var(--space-page-desktop)]"
+  class="mx-auto w-full max-w-shell px-6 pb-[var(--space-page)] md:pb-[var(--space-page-desktop)]"
 >
   <div class="flex flex-col gap-y-3 border-t border-border pt-4">
     <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
@@ -30,13 +30,21 @@ const year = new Date().getFullYear();
                   rel={
                     item.target === "_blank" ? "noopener noreferrer" : undefined
                   }
-                  class="text-fg-muted transition-colors hover:text-fg"
+                  class="inline-flex min-h-11 items-center text-fg-muted transition-colors hover:text-fg"
                 >
                   {item.label}
                 </a>
               </li>
             ))
           }
+          <li class="m-0 list-none p-0">
+            <a
+              href="/rss.xml"
+              class="inline-flex min-h-11 items-center text-fg-muted transition-colors hover:text-fg"
+            >
+              RSS
+            </a>
+          </li>
         </ul>
       </nav>
       <ThemeSwitcher />

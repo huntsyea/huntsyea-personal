@@ -1,5 +1,4 @@
 ---
-import Breadcrumb from "@/components/Breadcrumb.astro";
 import EntryRow from "@/components/EntryRow.astro";
 import Prose from "@/components/portable-text/Prose.astro";
 import SectionHeading from "@/components/SectionHeading.astro";
@@ -57,7 +56,6 @@ const page = intro.entry;
     ? { collection: "pages", id: page.data.id, slug: page.id }
     : undefined}
 >
-  <Breadcrumb items={[{ label: "Favorites", href: "/favorites" }]} />
   {page && <Prose value={page.data.content} />}
   <section class="mt-6 flex flex-col">
     <SectionHeading title="Favorites" asPage />

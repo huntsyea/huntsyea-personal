@@ -24,11 +24,15 @@ if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
 <section
   class={asCategoryPage ? "mt-6 flex flex-col" : "mt-section flex flex-col"}
 >
-  <SectionHeading
-    title={category.title}
-    href={asCategoryPage ? undefined : `/${category.slug}`}
-    asPage={asCategoryPage}
-  />
+  {
+    !asCategoryPage && (
+      <SectionHeading
+        title={category.title}
+        href={`/${category.slug}`}
+        trailing={category.slug === "posts" ? "All posts →" : undefined}
+      />
+    )
+  }
   <ul class="m-0 list-none p-0">
     {
       entries.map((entry) => (

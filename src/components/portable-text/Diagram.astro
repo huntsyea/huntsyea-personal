@@ -18,21 +18,27 @@ type Node = { light?: string; dark?: string; alt?: string; caption?: string };
 const MEDIA_FILE_PATH = "/_emdash/api/media/file/";
 
 const { node } = Astro.props as { node: Node };
-const db = await getDb();
+
+const SIGNALS_ALT =
+  "How agreement, disagreement, and missing coverage guide the agent's next step.";
+const signals = node.alt === SIGNALS_ALT;
+
+const db = signals ? null : await getDb();
 
 async function resolve(url: string | undefined): Promise<MediaValue | null> {
   if (!url) return null;
   const storageKey = url.startsWith(MEDIA_FILE_PATH)
     ? decodeURIComponent(url.slice(MEDIA_FILE_PATH.length))
     : undefined;
-  const media = storageKey
-    ? await db
-        .selectFrom("media")
-        .select(["id", "width", "height", "blurhash", "dominant_color"])
-        .where("storage_key", "=", storageKey)
-        .where("status", "=", "ready")
-        .executeTakeFirst()
-    : undefined;
+  const media =
+    storageKey && db
+      ? await db
+          .selectFrom("media")
+          .select(["id", "width", "height", "blurhash", "dominant_color"])
+          .where("storage_key", "=", storageKey)
+          .where("status", "=", "ready")
+          .executeTakeFirst()
+      : undefined;
   return {
     id: media?.id ?? "",
     src: url,
@@ -43,15 +49,13 @@ async function resolve(url: string | undefined): Promise<MediaValue | null> {
   };
 }
 
-const [light, dark] = await Promise.all([
-  resolve(node.light),
-  resolve(node.dark),
-]);
+const [light, dark] = signals
+  ? [null, null]
+  : await Promise.all([resolve(node.light), resolve(node.dark)]);
 
-// Diagrams fill the 36rem reading column, minus page padding on phones.
-// Candidate widths stop at the image's own width so nothing is upscaled.
-// Diagrams are mostly text and thin rules, so they keep a high quality.
-const sizes = "(min-width: 624px) 576px, calc(100vw - 48px)";
+// Diagrams fill the 36rem reading column. Phones scroll a 576px image and
+// can tap to open it wider, so the srcset stays sharp at that size.
+const sizes = "(max-width: 639px) 760px, 576px";
 const widths = [400, 576, 800, 1152, 1520].filter(
   (width) => !light?.width || width <= light.width,
 );
@@ -61,16 +65,99 @@ const astroImageProps: Record<string, unknown> = { widths, quality: 95 };
 ---
 
 {
-  light && (
-    <figure class="emdash-image">
-      <Image
-        image={light}
-        darkVariant={dark}
-        alt={node.alt ?? ""}
-        sizes={sizes}
-        {...astroImageProps}
-      />
+  signals ? (
+    <figure class="signal-table">
+      <table>
+        <caption class="sr-only">{node.alt}</caption>
+        <thead>
+          <tr>
+            <th scope="col">Signal</th>
+            <th scope="col">What it means</th>
+            <th scope="col">What to do next</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Agreement</th>
+            <td>Models converge for different reasons.</td>
+            <td>Check why before trusting the claim.</td>
+          </tr>
+          <tr>
+            <th scope="row">Disagreement</th>
+            <td>The answers split on one assumption.</td>
+            <td>Find evidence that separates the positions.</td>
+          </tr>
+          <tr>
+            <th scope="row">Missing coverage</th>
+            <td>No model raised a relevant constraint.</td>
+            <td>Add the context before the active model acts.</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        The panel does not decide. It shows the active model where to look next.
+      </p>
       {node.caption && <figcaption>{node.caption}</figcaption>}
     </figure>
+  ) : (
+    light && (
+      <figure class="emdash-image" data-diagram>
+        <Image
+          image={light}
+          darkVariant={dark}
+          alt={node.alt ?? ""}
+          sizes={sizes}
+          {...astroImageProps}
+        />
+        {node.caption && <figcaption>{node.caption}</figcaption>}
+      </figure>
+    )
   )
 }
+
+<script>
+  const homes = new WeakMap<HTMLElement, Comment>();
+
+  const closeDiagram = (diagram: HTMLElement) => {
+    diagram.removeAttribute("data-zoomed");
+    const mark = homes.get(diagram);
+    mark?.parentNode?.insertBefore(diagram, mark);
+    mark?.remove();
+    homes.delete(diagram);
+  };
+
+  document.addEventListener("click", (event) => {
+    if (!window.matchMedia("(max-width: 639px)").matches) return;
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    const diagram = target.closest("[data-diagram]");
+    if (!(diagram instanceof HTMLElement)) return;
+    if (diagram.hasAttribute("data-zoomed")) {
+      closeDiagram(diagram);
+      return;
+    }
+    const mark = document.createComment("diagram");
+    diagram.parentNode?.insertBefore(mark, diagram);
+    homes.set(diagram, mark);
+    document.body.appendChild(diagram);
+    diagram.setAttribute("data-zoomed", "");
+  });
+
+  const closeZoomed = () => {
+    for (const diagram of document.querySelectorAll(
+      "[data-diagram][data-zoomed]",
+    )) {
+      if (diagram instanceof HTMLElement) closeDiagram(diagram);
+    }
+  };
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeZoomed();
+  });
+
+  window
+    .matchMedia("(max-width: 639px)")
+    .addEventListener("change", (event) => {
+      if (!event.matches) closeZoomed();
+    });
+</script>

@@ -180,12 +180,48 @@
   }
 
   .prose {
-    /* Vertical rhythm: the single owner, from the prose-stack spacing token. */
+    /* Phone: keep diagram type readable by scrolling a 576px-wide image,
+       and expand it on tap. The fixed layer is moved to body in script so
+       the route-entrance transform does not trap it. */
+
+    @media (width <= 639px) {
+      figure.emdash-image[data-diagram] {
+        overflow-x: auto;
+        cursor: zoom-in;
+      }
+
+      figure.emdash-image[data-diagram] img {
+        width: 576px;
+        min-width: 576px;
+        max-width: none;
+      }
+
+      figure.emdash-image[data-diagram][data-zoomed] {
+        position: fixed;
+        inset: 0;
+        z-index: 40;
+        margin: 0;
+        overflow: auto;
+        cursor: zoom-out;
+        background-color: var(--bg);
+      }
+
+      figure.emdash-image[data-diagram][data-zoomed] img {
+        width: max(100%, 760px);
+        min-width: 760px;
+      }
+    }
+
+    /* Long-reading measure: 16px / 26px. UI chrome stays on the 14px body role. */
+
+    font-size: 16px;
+    line-height: 26px;
+
+    /* Vertical rhythm: the single owner, from the prose-stack spacing token.
+       Headings keep a larger gap above so a section reads as a group. */
 
     > p:not(:first-child),
     > h1:not(:first-child),
-    > h2:not(:first-child),
-    > h3:not(:first-child),
     > h4:not(:first-child),
     > h5:not(:first-child),
     > h6:not(:first-child),
@@ -198,6 +234,22 @@
       margin-top: var(--space-stack);
     }
 
+    > h2:not(:first-child) {
+      margin-top: 40px;
+    }
+
+    > h3:not(:first-child) {
+      margin-top: 32px;
+    }
+
+    > h2 + *:not(h2, h3, :first-child) {
+      margin-top: 12px;
+    }
+
+    > h3 + *:not(h2, h3, :first-child) {
+      margin-top: 8px;
+    }
+
     > ol,
     > ul {
       /* 24px at a 16px root; expressed through the stack token for a single source. */
@@ -205,14 +257,14 @@
       padding-left: var(--space-stack);
     }
 
-    /* Links in authored prose (unclassed): the inline Link variant in the
-       muted role. Site navigation inside prose carries its own classes. */
+    /* Links in authored prose (unclassed). Body colour with a gray underline;
+       #007a69 clears AA on the light surface. Dark uses the teal text role. */
 
     a:not([class]) {
-      color: var(--fg-muted);
+      color: var(--fg);
       text-decoration-line: underline;
       text-decoration-thickness: 1px;
-      text-decoration-color: var(--fg-subtle);
+      text-decoration-color: #8d8d8d;
       text-underline-offset: 2px;
       transition:
         color 150ms,
@@ -220,8 +272,8 @@
     }
 
     a:not([class]):hover {
-      color: var(--accent-fg);
-      text-decoration-color: var(--accent);
+      color: #007a69;
+      text-decoration-color: #007a69;
     }
 
     /* Images: full content width in a bordered frame, caption beneath. */
@@ -238,6 +290,42 @@
       width: 100%;
       height: auto;
       object-fit: contain;
+    }
+
+    figure.signal-table {
+      padding: 4px 16px 12px;
+      overflow-x: auto;
+    }
+
+    figure.signal-table table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    figure.signal-table th,
+    figure.signal-table td {
+      padding: 10px 16px 10px 0;
+      vertical-align: top;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    figure.signal-table thead th {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--fg-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    figure.signal-table tbody th {
+      font-weight: 500;
+    }
+
+    figure.signal-table p {
+      margin-top: 12px;
+      margin-bottom: 0;
+      color: var(--fg-muted);
     }
 
     figure.emdash-image figcaption {
@@ -260,9 +348,11 @@
     /* Inline code from the code roles; Shiki inline tokens resolve to the roles too. */
 
     :not(pre) > code {
-      padding: 2px 6px;
+      padding: 0.1em 0.35em;
+      font-size: 0.875em;
       color: var(--code-fg);
-      background-color: var(--code-bg);
+      background-color: var(--bg-elevated);
+      border: 1px solid var(--border);
       border-radius: var(--radius-small);
     }
 
@@ -370,6 +460,27 @@
       border: 1px solid var(--border);
       border-radius: var(--radius-medium);
     }
+  }
+
+  :root.dark .prose a:not([class]):hover {
+    color: var(--teal-11);
+    text-decoration-color: var(--teal-11);
+  }
+
+  .skip-link {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 50;
+    padding: 8px 12px;
+    color: var(--fg);
+    background-color: var(--bg);
+    border-radius: var(--radius-medium);
+    transform: translateY(-150%);
+  }
+
+  .skip-link:focus {
+    transform: none;
   }
 
   /* The route entrance: a short fade and 8 px rise (ADR 0002). Fill mode is
