@@ -47,7 +47,8 @@ See [docs/agents/publishing.md](docs/agents/publishing.md) for the editing workf
 pnpm dev            # Astro dev server in the Workers runtime
 pnpm build          # production build into dist/
 pnpm preview        # build, then serve the built Worker with wrangler dev (port 8787)
-pnpm verify         # formatting, style lint, astro check, and build
+pnpm test           # unit tests (node --test)
+pnpm verify         # formatting, style lint, tests, astro check, and build
 pnpm deploy         # build and deploy to Cloudflare (requires wrangler login)
 ```
 
@@ -62,7 +63,13 @@ pnpm deploy                # build with EMDASH_SITE_URL=https://huntsyea.com and
 
 Content changes need no deploy; only code changes do. The production encryption key is a Worker secret (`EMDASH_ENCRYPTION_KEY`); keep its backup somewhere safe, because EmDash cannot read encrypted plugin settings without it.
 
-`pnpm deploy` sets `EMDASH_SITE_URL=https://huntsyea.com` at build time and as a Worker variable. EmDash requires this public origin for production setup and uses it for passkeys, CSRF checks, and image optimization (without it, images ship as the original PNG instead of resized WebP). Local development leaves it unset so `localhost` works. Passkeys are bound to that origin.
+`pnpm deploy` sets `EMDASH_SITE_URL=https://huntsyea.com` as a Worker variable, and `keep_vars` in `wrangler.jsonc` stops any other deploy from removing it. EmDash reads it at runtime for passkeys, CSRF checks, and media URLs; local development leaves it unset so `localhost` works. Passkeys are bound to that origin. Image optimization for the production media route is authorized in `astro.config.mjs`, so it does not depend on build-time environment.
+
+Anonymous HTML is cached at the edge (Workers Cache, 60 seconds fresh plus 5 minutes stale-while-revalidate) and purged by tag when content is published; admin, preview, edit, and signed-in responses are never stored. See [ADR 0004](docs/adr/0004-anonymous-html-edge-cache.md). The Worker runs next to the D1 primary through Targeted Placement (`aws:us-east-1`).
+
+## AI tools
+
+The site's content MCP server is `https://huntsyea.com/_emdash/api/mcp`, registered in `.mcp.json` as `huntsyea-cms`. Claude Code, Codex, ChatGPT, and other MCP clients sign in through EmDash's OAuth screen and choose scopes before any token is issued. `emdash-docs` in the same file is the read-only documentation server.
 
 To roll back to another host, remove the two routes (from `wrangler.jsonc` and redeploy, or in the Cloudflare dashboard under the Worker's Domains & Routes); the zone's DNS records are untouched by the routes.
 

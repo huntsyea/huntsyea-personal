@@ -21,10 +21,15 @@ Locally the admin is `http://localhost:4321/_emdash/admin`; in production it is 
 2. Fill **Title** and **Summary**. Listings, metadata, and social cards show them.
 3. Write the body in **Content**. The title is the only `h1`, so start sections at **Heading 2**; every heading builds the "On this page" outline.
 4. Link to site pages with root paths such as `/favorites` or `/posts/pi-fusion`.
-5. **Save** keeps a draft; drafts never appear on public routes. **Preview draft** shows the unpublished version. **Publish changes** makes it live immediately; no deploy is needed.
+5. **Save** keeps a draft; drafts never appear on public routes. **Preview draft** opens the unpublished version under a "Preview" banner; for a Page intro it opens the page the intro belongs to. **Publish changes** makes it live, and publishing purges the edge-cached page, so visitors see it within about a minute. No deploy is needed.
 6. After a substantive revision, set **Revised** to show an "Updated" date. The publication date comes from the first publish; change it in the Publish panel.
+7. Use the **SEO** panel only when search results should differ from the page: **SEO Title** replaces the title in the browser tab and social cards, **Meta Description** replaces the summary, and **Hide from search engines** drops the entry from the sitemap.
 
-From an agent, use the EmDash CLI (see the `emdash-cli` skill). Against the local dev server it signs in automatically; against production it needs `emdash login` or an `EMDASH_TOKEN`. Always read before writing so you pass the current `_rev`:
+Fix copy in EmDash, never in templates. Templates render what is stored; a typo or wording change is an edit to the entry.
+
+To edit on the live page, open the admin's **Edit** pill (or add `?_edit` to a page URL while signed in) and click a title, note, or body text.
+
+From an agent, prefer the site's MCP server (`huntsyea-cms` in `.mcp.json`, at `https://huntsyea.com/_emdash/api/mcp`); the first use signs in through EmDash's OAuth screen. Otherwise use the EmDash CLI (see the `emdash-cli` skill). Against the local dev server it signs in automatically; against production it needs `emdash login` or an `EMDASH_TOKEN`. Always read before writing so you pass the current `_rev`:
 
 ```bash
 pnpm exec emdash content get posts <slug>
@@ -38,6 +43,8 @@ Upload PNG or JPEG originals to the Media Library, not WebP. The site serves eve
 
 - **Photos and screenshots:** insert an **Image** block, pick or upload the file, and add alt text and an optional caption.
 - **Diagrams:** type `/diagram` to insert a **Diagram** block. Pick a **Light image** and a **Dark image**, then add alt text and an optional caption. The site shows whichever image matches the reader's theme, including the theme toggle, and downloads only that one. A missing dark image falls back to the light one.
+
+- **Tables:** insert a **Table** with the editor toolbar's table button and turn on its header row. The site styles it to match figures, and it scrolls sideways on phones. Prefer a table over an image of a table: it stays readable at any width and is searchable.
 
 SVG cannot be uploaded; EmDash blocks it because SVG files can carry active content.
 

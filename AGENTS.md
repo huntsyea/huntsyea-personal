@@ -15,4 +15,7 @@ This is an Astro site with EmDash CMS, deployed to Cloudflare Workers (D1 databa
 - Every content page is server-rendered (`output: "server"`); do not add `getStaticPaths()` for EmDash content.
 - `entry.id` is the slug (URLs); `entry.data.id` is the database ID (API calls, `content` references).
 - The schema lives in the database. `seed/seed.json` only seeds a new database; change a deployed schema in the admin (Content Types) or through the API, then update the seed to match.
+- Content lives in EmDash: fix copy, tables, and diagrams in entries, never with render-time corrections or content hard-coded in templates.
+- Use EmDash's built-ins before writing your own: sitemap and robots.txt, preview, visual-editing markers (`entry.edit`), SEO panel values (`getContentSeo`), redirects.
+- The site's content MCP server is `huntsyea-cms` in `.mcp.json` (OAuth sign-in on first use).
 - Never read secrets through `import.meta.env`. `EMDASH_ENCRYPTION_KEY` lives in `.env` locally and as a Worker secret in production.
