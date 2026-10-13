@@ -86,3 +86,14 @@ export function forbidSharedCache(response: Response, pathname = ""): Response {
     headers,
   });
 }
+
+/**
+ * Permanent redirect to `location` that shared caches must not store.
+ * Built directly because `Response.redirect()` returns immutable headers.
+ */
+export function uncachedRedirect(location: string): Response {
+  return new Response(null, {
+    status: 308,
+    headers: { Location: location, "Cache-Control": "private, no-store" },
+  });
+}
