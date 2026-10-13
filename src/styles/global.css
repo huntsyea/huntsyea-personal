@@ -1,44 +1,6 @@
 @import "tailwindcss";
 @import "./tokens.css";
 
-/* Inter 4, Latin subset, self-hosted woff2 (regular, medium, semibold). */
-
-@font-face {
-  font-family: Inter;
-  font-style: normal;
-  font-weight: 400;
-  src: url("../assets/inter/regular.woff2") format("woff2");
-  font-display: swap;
-  unicode-range:
-    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
-    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
-    U+2215, U+FEFF, U+FFFD;
-}
-
-@font-face {
-  font-family: Inter;
-  font-style: normal;
-  font-weight: 500;
-  src: url("../assets/inter/medium.woff2") format("woff2");
-  font-display: swap;
-  unicode-range:
-    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
-    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
-    U+2215, U+FEFF, U+FFFD;
-}
-
-@font-face {
-  font-family: Inter;
-  font-style: normal;
-  font-weight: 600;
-  src: url("../assets/inter/semi-bold.woff2") format("woff2");
-  font-display: swap;
-  unicode-range:
-    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
-    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
-    U+2215, U+FEFF, U+FFFD;
-}
-
 /* Cross-document view transitions between routes (ADR 0002). Post titles
    share a view-transition-name between list rows and the Post heading. */
 
@@ -107,7 +69,7 @@
   }
 
   html {
-    font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+    font-family: var(--font-inter);
   }
 
   html {
@@ -292,25 +254,31 @@
       object-fit: contain;
     }
 
-    figure.signal-table {
+    /* Tables from EmDash's Table block: a bordered frame like figures, rules
+       between rows only, and a small muted header row. Selectors are scoped
+       under .prose so they outrank the component's own styles. */
+
+    .emdash-table-wrapper {
       padding: 4px 16px 12px;
-      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-large);
     }
 
-    figure.signal-table table {
-      width: 100%;
-      border-collapse: collapse;
+    .emdash-table {
+      font-size: inherit;
     }
 
-    figure.signal-table th,
-    figure.signal-table td {
+    .emdash-table th,
+    .emdash-table td {
       padding: 10px 16px 10px 0;
       vertical-align: top;
       text-align: left;
+      background: transparent;
+      border: 0;
       border-bottom: 1px solid var(--border);
     }
 
-    figure.signal-table thead th {
+    .emdash-table thead th {
       font-size: 12px;
       font-weight: 600;
       color: var(--fg-muted);
@@ -318,14 +286,18 @@
       letter-spacing: 0.04em;
     }
 
-    figure.signal-table tbody th {
+    .emdash-table tbody th {
       font-weight: 500;
     }
 
-    figure.signal-table p {
-      margin-top: 12px;
-      margin-bottom: 0;
-      color: var(--fg-muted);
+    .emdash-table tbody tr:nth-child(n),
+    .emdash-table tbody tr:nth-child(n):hover {
+      background: transparent;
+    }
+
+    .emdash-table tbody tr:last-child th,
+    .emdash-table tbody tr:last-child td {
+      border-bottom: 0;
     }
 
     figure.emdash-image figcaption {

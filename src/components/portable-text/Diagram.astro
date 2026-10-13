@@ -19,26 +19,34 @@ const MEDIA_FILE_PATH = "/_emdash/api/media/file/";
 
 const { node } = Astro.props as { node: Node };
 
-const SIGNALS_ALT =
-  "How agreement, disagreement, and missing coverage guide the agent's next step.";
-const signals = node.alt === SIGNALS_ALT;
+const db = await getDb();
 
-const db = signals ? null : await getDb();
+/**
+ * Dimensions for a picked Media Library URL. EmDash has no public lookup from a
+ * storage-key URL, so this reads its `media` table; if that query ever fails
+ * (for example after an EmDash schema change), the diagram still renders as a
+ * plain full-size image instead of breaking the page.
+ */
+async function lookup(storageKey: string) {
+  try {
+    return await db
+      .selectFrom("media")
+      .select(["id", "width", "height", "blurhash", "dominant_color"])
+      .where("storage_key", "=", storageKey)
+      .where("status", "=", "ready")
+      .executeTakeFirst();
+  } catch (error) {
+    console.warn("[diagram] media lookup failed", storageKey, error);
+    return undefined;
+  }
+}
 
 async function resolve(url: string | undefined): Promise<MediaValue | null> {
   if (!url) return null;
   const storageKey = url.startsWith(MEDIA_FILE_PATH)
     ? decodeURIComponent(url.slice(MEDIA_FILE_PATH.length))
     : undefined;
-  const media =
-    storageKey && db
-      ? await db
-          .selectFrom("media")
-          .select(["id", "width", "height", "blurhash", "dominant_color"])
-          .where("storage_key", "=", storageKey)
-          .where("status", "=", "ready")
-          .executeTakeFirst()
-      : undefined;
+  const media = storageKey ? await lookup(storageKey) : undefined;
   return {
     id: media?.id ?? "",
     src: url,
@@ -49,9 +57,10 @@ async function resolve(url: string | undefined): Promise<MediaValue | null> {
   };
 }
 
-const [light, dark] = signals
-  ? [null, null]
-  : await Promise.all([resolve(node.light), resolve(node.dark)]);
+const [light, dark] = await Promise.all([
+  resolve(node.light),
+  resolve(node.dark),
+]);
 
 // Diagrams fill the 36rem reading column. Phones scroll a 576px image and
 // can tap to open it wider, so the srcset stays sharp at that size.
@@ -65,53 +74,17 @@ const astroImageProps: Record<string, unknown> = { widths, quality: 95 };
 ---
 
 {
-  signals ? (
-    <figure class="signal-table">
-      <table>
-        <caption class="sr-only">{node.alt}</caption>
-        <thead>
-          <tr>
-            <th scope="col">Signal</th>
-            <th scope="col">What it means</th>
-            <th scope="col">What to do next</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <th scope="row">Agreement</th>
-            <td>Models converge for different reasons.</td>
-            <td>Check why before trusting the claim.</td>
-          </tr>
-          <tr>
-            <th scope="row">Disagreement</th>
-            <td>The answers split on one assumption.</td>
-            <td>Find evidence that separates the positions.</td>
-          </tr>
-          <tr>
-            <th scope="row">Missing coverage</th>
-            <td>No model raised a relevant constraint.</td>
-            <td>Add the context before the active model acts.</td>
-          </tr>
-        </tbody>
-      </table>
-      <p>
-        The panel does not decide. It shows the active model where to look next.
-      </p>
+  light && (
+    <figure class="emdash-image" data-diagram>
+      <Image
+        image={light}
+        darkVariant={dark}
+        alt={node.alt ?? ""}
+        sizes={sizes}
+        {...astroImageProps}
+      />
       {node.caption && <figcaption>{node.caption}</figcaption>}
     </figure>
-  ) : (
-    light && (
-      <figure class="emdash-image" data-diagram>
-        <Image
-          image={light}
-          darkVariant={dark}
-          alt={node.alt ?? ""}
-          sizes={sizes}
-          {...astroImageProps}
-        />
-        {node.caption && <figcaption>{node.caption}</figcaption>}
-      </figure>
-    )
   )
 }
 

@@ -4,6 +4,13 @@
   "main": "./src/worker.ts",
   "compatibility_date": "2026-02-24",
   "compatibility_flags": ["nodejs_compat"],
+  // EMDASH_SITE_URL (https://huntsyea.com) is a Worker variable set by
+  // `pnpm deploy`. keep_vars stops any other deploy from removing it: EmDash
+  // needs it for passkeys, CSRF checks, and image optimization.
+  "keep_vars": true,
+  // Run next to the D1 primary (created in ENAM); public pages make several
+  // D1 round trips per render.
+  "placement": { "mode": "targeted", "region": "aws:us-east-1" },
   // Edge cache for anonymous HTML. Admin, preview, and signed-in responses
   // are stripped in src/worker.ts. See docs/adr/0004-anonymous-html-edge-cache.md.
   "cache": {

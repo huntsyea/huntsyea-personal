@@ -1,0 +1,22 @@
+---
+/**
+ * The admin's "Preview draft" link opens `/{collection}/{id}?_preview=…`.
+ * Page intros have no page of their own, so show the draft on the page the
+ * intro belongs to. The preview token travels with the query string and
+ * EmDash verifies it again on the rewritten request.
+ */
+import type { IntroSlug } from "@/lib/content";
+
+import { INTRO_PATHS } from "@/lib/content";
+
+import { getEmDashEntry } from "emdash";
+
+const id = Astro.params.id;
+const { entry } = id ? await getEmDashEntry("pages", id) : { entry: null };
+const path = entry
+  ? INTRO_PATHS[(entry.data.slug ?? entry.id) as IntroSlug]
+  : undefined;
+if (!path) return Astro.rewrite("/404");
+
+return Astro.rewrite(`${path}${Astro.url.search}`);
+---

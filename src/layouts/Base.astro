@@ -1,10 +1,10 @@
 ---
 import "@/styles/global.css";
 
-import interRegular from "@/assets/inter/regular.woff2";
 import SiteFooter from "@/components/SiteFooter.astro";
 import SiteHeader from "@/components/SiteHeader.astro";
 
+import { Font } from "astro:assets";
 import { getMenuWithCacheHint, getSiteSettingsWithCacheHint } from "emdash";
 import { createPublicPageContext } from "emdash/page";
 import { EmDashBodyEnd, EmDashBodyStart, EmDashHead } from "emdash/ui";
@@ -12,6 +12,8 @@ import { EmDashBodyEnd, EmDashBodyStart, EmDashHead } from "emdash/ui";
 interface Props {
   /** Page title without the site name; omit on home. */
   title?: string;
+  /** The entry's SEO panel title, which replaces `title` when set. */
+  seoTitle?: string | null;
   description?: string | null;
   type?: "website" | "article";
   publishedTime?: string | null;
@@ -20,16 +22,20 @@ interface Props {
   content?: { collection: string; id: string; slug?: string | null };
   /** Whether to wrap the page in the shared header and footer. */
   chrome?: boolean;
+  /** True when EmDash served draft content through a preview link. */
+  preview?: boolean;
 }
 
 const {
   title,
+  seoTitle,
   description,
   type = "website",
   publishedTime,
   modifiedTime,
   content,
   chrome = true,
+  preview = false,
 } = Astro.props;
 
 const [settingsResult, primaryResult, contactResult] = await Promise.all([
@@ -46,7 +52,13 @@ if (Astro.cache?.enabled) {
 const settings = settingsResult.data;
 const siteTitle = settings.title || "huntsyea";
 const siteUrl = settings.url || Astro.site?.origin || Astro.url.origin;
-const fullTitle = title ? `${title} | ${siteTitle}` : siteTitle;
+// The SEO panel title wins over the page title; Settings > SEO sets the
+// separator between it and the site name.
+const pageTitle = seoTitle || title;
+const separator = settings.seo?.titleSeparator || " | ";
+const fullTitle = pageTitle
+  ? `${pageTitle}${separator}${siteTitle}`
+  : siteTitle;
 const canonical = new URL(Astro.url.pathname, siteUrl).toString();
 const ogPath =
   Astro.url.pathname === "/" ? "/index" : Astro.url.pathname.replace(/\/$/, "");
@@ -57,7 +69,7 @@ const page = createPublicPageContext({
   kind: content ? "content" : "custom",
   pageType: type,
   title: fullTitle,
-  pageTitle: title ?? siteTitle,
+  pageTitle: pageTitle ?? siteTitle,
   description: description ?? settings.tagline,
   canonical,
   image: ogImage,
@@ -84,13 +96,7 @@ const page = createPublicPageContext({
         </>
       )
     }
-    <link
-      rel="preload"
-      href={interRegular}
-      as="font"
-      type="font/woff2"
-      crossorigin
-    />
+    <Font cssVariable="--font-inter" preload={[{ weight: 400 }]} />
     <link
       rel="alternate"
       type="application/rss+xml"
@@ -124,6 +130,16 @@ const page = createPublicPageContext({
   </head>
   <body>
     <a class="skip-link" href="#content">Skip to content</a>
+    {
+      preview && (
+        <p
+          role="status"
+          class="m-0 border-b border-border bg-bg-subtle px-6 py-2 text-center text-sm text-fg-muted"
+        >
+          Preview: you are viewing an unpublished draft.
+        </p>
+      )
+    }
     <EmDashBodyStart page={page} />
     {
       chrome && (

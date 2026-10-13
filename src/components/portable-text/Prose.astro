@@ -2,8 +2,6 @@
 import type { OutlineItem } from "@/lib/content";
 import type { PortableTextBlock } from "emdash";
 
-import { fixPortableTextTypos } from "@/lib/content";
-
 import { PortableText } from "emdash/ui";
 
 import Block from "./Block.astro";
@@ -23,13 +21,7 @@ interface Props {
   bare?: boolean;
 }
 
-const {
-  value: source,
-  outline = [],
-  class: className,
-  bare = false,
-} = Astro.props;
-const value = fixPortableTextTypos(source);
+const { value, outline = [], class: className, bare = false } = Astro.props;
 (Astro.locals as { headingIds?: Map<string, string> }).headingIds = new Map(
   outline.map((item) => [item.key, item.id]),
 );

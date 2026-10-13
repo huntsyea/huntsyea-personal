@@ -3,6 +3,10 @@
     "emdash-docs": {
       "type": "http",
       "url": "https://docs.emdashcms.com/mcp"
+    },
+    "huntsyea-cms": {
+      "type": "http",
+      "url": "https://huntsyea.com/_emdash/api/mcp"
     }
   }
 }
