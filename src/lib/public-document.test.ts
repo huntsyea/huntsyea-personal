@@ -7,6 +7,7 @@ import {
   isAnonymousPublicDocument,
   isEdgeCacheableDocument,
   isPublicDocumentPath,
+  uncachedRedirect,
 } from "./public-document.ts";
 
 test("public document paths are the anonymous HTML routes", () => {
@@ -144,4 +145,14 @@ test("forbidSharedCache strips CDN directives that outrank Cache-Control", () =>
   });
   const locked = forbidSharedCache(admin, "/_emdash/admin");
   assert.equal(locked.headers.get("cache-control"), "private, no-store");
+});
+
+test("www redirect is a 308 that shared caches do not store", () => {
+  const response = uncachedRedirect("https://huntsyea.com/posts?x=1");
+  assert.equal(response.status, 308);
+  assert.equal(
+    response.headers.get("Location"),
+    "https://huntsyea.com/posts?x=1",
+  );
+  assert.equal(response.headers.get("Cache-Control"), "private, no-store");
 });

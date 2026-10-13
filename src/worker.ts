@@ -1,6 +1,7 @@
 import {
   forbidSharedCache,
   isEdgeCacheableDocument,
+  uncachedRedirect,
 } from "@/lib/public-document";
 
 import handler, {
@@ -39,9 +40,7 @@ export default {
     const url = new URL(request.url);
     if (url.hostname === `www.${CANONICAL_HOST}`) {
       url.hostname = CANONICAL_HOST;
-      const redirect = Response.redirect(url.toString(), 308);
-      redirect.headers.set("Cache-Control", "private, no-store");
-      return redirect;
+      return uncachedRedirect(url.toString());
     }
     return Promise.resolve(handler.fetch!(request, env, ctx)).then(
       (response) => {
