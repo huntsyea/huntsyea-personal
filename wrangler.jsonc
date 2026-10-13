@@ -4,6 +4,11 @@
   "main": "./src/worker.ts",
   "compatibility_date": "2026-02-24",
   "compatibility_flags": ["nodejs_compat"],
+  // Edge cache for anonymous HTML. Admin, preview, and signed-in responses
+  // are stripped in src/worker.ts. See docs/adr/0004-anonymous-html-edge-cache.md.
+  "cache": {
+    "enabled": true,
+  },
   "d1_databases": [
     {
       "binding": "DB",
