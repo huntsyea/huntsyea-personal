@@ -20,6 +20,14 @@ export function getCategory(slug: string | undefined) {
 /** Page intro slugs editors can create in the "Page intros" collection. */
 export type IntroSlug = "home" | CategorySlug | "favorites";
 
+/** The page each Page intro introduces, by intro slug. */
+export const INTRO_PATHS: Readonly<Record<IntroSlug, string>> = {
+  home: "/",
+  posts: "/posts",
+  projects: "/projects",
+  favorites: "/favorites",
+};
+
 export function formatDate(input: Date): string {
   return new Intl.DateTimeFormat("en", {
     year: "numeric",

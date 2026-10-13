@@ -1,8 +1,4 @@
 ---
-/**
- * Renders a Portable Text field in the Site's prose styles. Pass the Post
- * outline so headings carry the ids the "On this page" navigation links to.
- */
 import type { OutlineItem } from "@/lib/content";
 import type { PortableTextBlock } from "emdash";
 
@@ -11,6 +7,11 @@ import { PortableText } from "emdash/ui";
 import Block from "./Block.astro";
 import Code from "./Code.astro";
 import Diagram from "./Diagram.astro";
+
+/**
+ * Renders a Portable Text field in the Site's prose styles. Pass the Post
+ * outline so headings carry the ids the "On this page" navigation links to.
+ */
 
 interface Props {
   value: PortableTextBlock[] | undefined;

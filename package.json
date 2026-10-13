@@ -16,13 +16,14 @@
     "dev": "astro dev --host 127.0.0.1",
     "build": "astro build",
     "preview": "astro build && wrangler dev",
-    "deploy": "EMDASH_SITE_URL=https://huntsyea.com astro build && wrangler deploy --var EMDASH_SITE_URL:https://huntsyea.com",
+    "deploy": "astro build && wrangler deploy --var EMDASH_SITE_URL:https://huntsyea.com",
     "typecheck": "astro check",
     "format:write": "prettier . --write --log-level warn",
     "format:check": "prettier . --check --log-level warn",
     "lint": "stylelint \"src/**/*.css\"",
-    "verify": "prettier . --check --log-level warn && stylelint \"src/**/*.css\" && astro check && astro build",
-    "import:vault": "node scripts/import-vault.mjs"
+    "verify": "prettier . --check --log-level warn && stylelint \"src/**/*.css\" && node --test 'src/**/*.test.ts' && astro check && astro build",
+    "import:vault": "node scripts/import-vault.mjs",
+    "test": "node --test 'src/**/*.test.ts'"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^14.3.3",

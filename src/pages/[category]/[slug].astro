@@ -1,5 +1,4 @@
 ---
-import Breadcrumb from "@/components/Breadcrumb.astro";
 import Outline from "@/components/Outline.astro";
 import Prose from "@/components/portable-text/Prose.astro";
 import PostMeta from "@/components/PostMeta.astro";
@@ -12,13 +11,18 @@ import {
   readingMinutes,
 } from "@/lib/content";
 
-import { decodeSlug, getEmDashCollection, getEmDashEntry } from "emdash";
+import {
+  decodeSlug,
+  getContentSeo,
+  getEmDashCollection,
+  getEmDashEntry,
+} from "emdash";
 
 const category = getCategory(Astro.params.category);
 const slug = decodeSlug(Astro.params.slug);
 if (!category || !slug) return Astro.rewrite("/404");
 
-const [{ entry: post, cacheHint }, siblings] = await Promise.all([
+const [{ entry: post, isPreview, cacheHint }, siblings] = await Promise.all([
   getEmDashEntry(category.slug, slug),
   getEmDashCollection(category.slug, { orderBy: { published_at: "desc" } }),
 ]);
@@ -28,7 +32,8 @@ if (Astro.cache?.enabled) {
   Astro.cache.set(siblings.cacheHint);
 }
 
-const { title, summary, content, publishedAt, revised_at } = post.data;
+const { title, content, publishedAt, revised_at } = post.data;
+const summary = post.data.summary ?? "";
 const outline = headingOutline(content);
 const revisedAt = revised_at ? new Date(revised_at) : null;
 
@@ -43,23 +48,19 @@ const next = index > 0 ? reference(ordered[index - 1]) : undefined;
 
 <Base
   title={title}
+  preview={isPreview}
+  seoTitle={getContentSeo(post)?.title}
   description={summary || `Read ${title} in ${category.slug}.`}
   type="article"
   publishedTime={publishedAt?.toISOString()}
   modifiedTime={revisedAt?.toISOString()}
   content={{ collection: category.slug, id: post.data.id, slug: post.id }}
 >
-  <Breadcrumb
-    items={[
-      { label: category.title, href: `/${category.slug}` },
-      { label: title, href: `/${category.slug}/${post.id}` },
-    ]}
-  />
   <div
     class="xl:grid xl:w-column-wide xl:grid-cols-[minmax(0,var(--container-column))_var(--width-aside)] xl:items-start xl:gap-8"
   >
     <Outline outline={outline} variant="aside" />
-    <article class="prose xl:col-start-1 xl:row-start-1">
+    <article class="prose xl:col-start-1 xl:row-start-1" {...post.edit}>
       <header class="flex flex-col">
         <h1
           {...post.edit.title}

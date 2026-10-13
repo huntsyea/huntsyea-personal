@@ -18,7 +18,7 @@ Semantic colour roles are declared on `:root` and resolve through the Radix prim
 | `border-strong` | gray-6          | gray-6         | Button borders, table cells.                                                    |
 | `accent`        | teal-9          | teal-9         | Links on hover, the current table-of-contents heading, the highlighted heading. |
 | `accent-fg`     | teal-11         | teal-11        | Accent text on the page surface.                                                |
-| `focus`         | gray-8          | gray-8         | The global focus-visible ring.                                                  |
+| `focus`         | gray-11         | gray-11        | The global focus-visible ring.                                                  |
 | `selection-bg`  | teal-3          | teal-3         | Text selection background.                                                      |
 | `selection-fg`  | teal-11         | teal-11        | Text selection foreground.                                                      |
 | `code-bg`       | gray-2          | gray-2         | Inline and block code; Shiki tokens map through this role.                      |
@@ -32,10 +32,10 @@ Each step pairs a size, line height, and tracking. Values are absolute pixels so
 | ------ | ----------- | -------- | ---------------------------------------------------- |
 | `xs`   | 11 / 16     | 0.01 px  | Footnotes.                                           |
 | `sm`   | 12 / 18     | 0.01 px  | Meta lines, captions, breadcrumb, table of contents. |
-| `base` | 14 / 21     | -0.09 px | Body text.                                           |
+| `base` | 14 / 21     | -0.09 px | UI chrome. Prose overrides this to 16 / 26.          |
 | `md`   | 16 / 24     | -0.09 px | `h3`.                                                |
-| `lg`   | 18 / 26     | -0.18 px | `h2`.                                                |
-| `xl`   | 22 / 28     | -0.18 px | `h1` on posts and category pages.                    |
+| `lg`   | 20 / 28     | -0.18 px | `h2`.                                                |
+| `xl`   | 28 / 34     | -0.18 px | `h1`.                                                |
 | `2xl`  | 26 / 32     | -0.26 px | The home name.                                       |
 
 ### Heading roles
@@ -49,7 +49,7 @@ Applied in the base layer so raw Markdown headings inherit the scale without uti
 | `h3`    | `md`   | medium   | `fg`       |
 | `h4`+   | `base` | medium   | `fg-muted` |
 
-The home name is an `h1` that overrides the size with the `2xl` text role; post and category `h1` headings use `xl`.
+The home name, post titles, and category titles all use the `h1` role.
 
 ## Spacing
 
@@ -64,7 +64,7 @@ Tailwind's 4 px grid is retained. The rhythm is named so layout values are chose
 
 ### Prose rhythm
 
-The `.prose` class is the single owner of vertical rhythm. It applies `--space-stack` as the top margin between sibling blocks (paragraphs, headings, blockquotes, lists, code, figures, tables) and as the left padding of ordered and unordered lists. It also styles blockquotes (muted text, 2 px left border), inline code from the code roles, the table-of-contents heading highlight from the accent role, and footnotes as a distinct smaller list with a top border.
+The `.prose` class is the single owner of vertical rhythm and the long-reading size (16 px / 26 px). It applies `--space-stack` as the top margin between sibling blocks, 40 px above an `h2` (12 px before the following block) and 32 px above an `h3` (8 px before the following block), and `--space-stack` as the left padding of lists. Prose links use the body colour with an `#8d8d8d` underline and `#007a69` on hover in light (`teal-11` in dark). Inline code uses the elevated surface, a 1 px border, `0.875em` type, and `0.1em 0.35em` padding.
 
 ## Radius
 
@@ -78,11 +78,11 @@ No arbitrary radii are used.
 
 ## Column and aside widths
 
-| Token                 | Value  | Use                                                                                           |
-| --------------------- | ------ | --------------------------------------------------------------------------------------------- |
-| `--container-column`  | 36 rem | Reading column, shared by the header, main, and footer.                                       |
-| `--width-column-wide` | 52 rem | The Post layout widened at `xl` to hold the table-of-contents aside beside the 36 rem column. |
-| `--width-aside`       | 14 rem | The table-of-contents aside column in the widened Post layout.                                |
+| Token                 | Value  | Use                                                                                                                      |
+| --------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------ |
+| `--container-column`  | 36 rem | Reading column. Header, main, and footer use `--container-shell` (`column + 3rem`) so padding sits outside this measure. |
+| `--width-column-wide` | 52 rem | The Post layout widened at `xl` to hold the table-of-contents aside beside the 36 rem column.                            |
+| `--width-aside`       | 14 rem | The table-of-contents aside column in the widened Post layout.                                                           |
 
 ## Motion
 
@@ -108,7 +108,7 @@ Shared components under `components/`. Each is one line on purpose and props.
 - **`Meta`** — the Post metadata block (published, updated, read time) in the `sm` text role. Each item stacks a muted label above its value, separated by spacing alone. Props: `post`.
 - **`Pill`** — the home Contact link pill, built on `Link` and sharing the surface and border roles with `SegmentedControl`. Props: `href`, `newTab`, `children`.
 - **`SegmentedControl`** — the Theme switcher, sized by its content; the track uses the subtle surface role and the active segment the elevated surface role, with a pre-hydration placeholder that reserves the footprint. Props: `label`, `options`, `value`, `onSelect`.
-- **`SiteShell`** — the page frame: the reading column with the route entrance, between `SiteHeader` and `SiteFooter` unless `chrome` is false. Every route renders it; home turns the chrome off so the front door is content only.
+- **`SiteShell`** — the page frame: the reading column with the route entrance, between `SiteHeader` and `SiteFooter`. Every route, including home, renders that chrome.
 - **`SiteHeader`** — the shared header rendered by `SiteShell` on every route except home: the site name on the left and one nav link per catalog Category plus Favorites on the right, on one row at every width. No props; reads the Content catalog and Site profile.
 - **`SiteFooter`** — the shared footer rendered by `SiteShell` on every route except home: Contact links as text links with the Theme control opposite, and a copyright line beneath. No props; reads the Site profile.
 - **`Breadcrumb`** — a server-rendered navigation trail with current-page state, prefixed by Home. Props: `items`, `className`.

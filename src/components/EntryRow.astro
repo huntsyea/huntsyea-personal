@@ -12,9 +12,20 @@ interface Props {
   /** Shared-element view-transition name with the destination heading. */
   transitionName?: string;
   newTab?: boolean;
+  /** EmDash visual-editing markers (`entry.edit.<field>`); empty outside edit mode. */
+  titleEdit?: Record<string, unknown>;
+  captionEdit?: Record<string, unknown>;
 }
 
-const { title, href, caption, transitionName, newTab = false } = Astro.props;
+const {
+  title,
+  href,
+  caption,
+  transitionName,
+  newTab = false,
+  titleEdit,
+  captionEdit,
+} = Astro.props;
 ---
 
 <li class="m-0 list-none border-t border-border">
@@ -22,7 +33,7 @@ const { title, href, caption, transitionName, newTab = false } = Astro.props;
     href={href}
     target={newTab ? "_blank" : undefined}
     rel={newTab ? "noopener noreferrer" : undefined}
-    class="flex w-full justify-between py-2"
+    class="-mx-2 flex w-full justify-between rounded px-2 py-2 transition-colors hover:bg-bg-subtle"
   >
     <span
       class={caption ? "flex flex-col" : undefined}
@@ -30,8 +41,17 @@ const { title, href, caption, transitionName, newTab = false } = Astro.props;
         ? { viewTransitionName: transitionName }
         : undefined}
     >
-      <span>{title}</span>
-      {caption && <span class="text-fg-muted">{caption}</span>}
+      <span {...titleEdit}>
+        {title}
+        {newTab && <span aria-hidden="true"> ↗</span>}
+      </span>
+      {
+        caption && (
+          <span class="text-fg-muted" {...captionEdit}>
+            {caption}
+          </span>
+        )
+      }
     </span>
     <slot name="meta" />
   </a>
