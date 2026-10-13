@@ -254,52 +254,6 @@
       object-fit: contain;
     }
 
-    /* Tables from EmDash's Table block: a bordered frame like figures, rules
-       between rows only, and a small muted header row. Selectors are scoped
-       under .prose so they outrank the component's own styles. */
-
-    .emdash-table-wrapper {
-      padding: 4px 16px 12px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-large);
-    }
-
-    .emdash-table {
-      font-size: inherit;
-    }
-
-    .emdash-table th,
-    .emdash-table td {
-      padding: 10px 16px 10px 0;
-      vertical-align: top;
-      text-align: left;
-      background: transparent;
-      border: 0;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .emdash-table thead th {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--fg-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-
-    .emdash-table tbody th {
-      font-weight: 500;
-    }
-
-    .emdash-table tbody tr:nth-child(n),
-    .emdash-table tbody tr:nth-child(n):hover {
-      background: transparent;
-    }
-
-    .emdash-table tbody tr:last-child th,
-    .emdash-table tbody tr:last-child td {
-      border-bottom: 0;
-    }
-
     figure.emdash-image figcaption {
       width: 100%;
       padding: 8px 16px;
@@ -462,4 +416,53 @@
   [data-entrance] {
     animation: fade-and-rise 400ms cubic-bezier(0.19, 1, 0.22, 1) forwards;
   }
+}
+
+/* Tables from EmDash's Table block: a bordered frame like figures, rules
+   between rows only, and a small muted header row. EmDash ships these
+   component styles unlayered with stacked [data-astro-cid] selectors, and
+   layered rules always lose to unlayered ones. So these overrides sit
+   outside @layer base and are scoped under #content (the page's <main>),
+   whose id outranks the component's selectors regardless of load order. */
+
+#content .prose .emdash-table-wrapper {
+  padding: 4px 16px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-large);
+}
+
+#content .prose .emdash-table-wrapper .emdash-table {
+  font-size: inherit;
+}
+
+#content .prose .emdash-table-wrapper .emdash-table th,
+#content .prose .emdash-table-wrapper .emdash-table td {
+  padding: 10px 16px 10px 0;
+  vertical-align: top;
+  color: inherit;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+}
+
+#content .prose .emdash-table-wrapper .emdash-table thead th {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--fg-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+#content .prose .emdash-table-wrapper .emdash-table tbody th {
+  font-weight: 500;
+}
+
+#content .prose .emdash-table-wrapper .emdash-table tbody tr {
+  background: transparent;
+}
+
+#content .prose .emdash-table-wrapper .emdash-table tbody tr:last-child th,
+#content .prose .emdash-table-wrapper .emdash-table tbody tr:last-child td {
+  border-bottom: 0;
 }
