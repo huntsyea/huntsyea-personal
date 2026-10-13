@@ -54,7 +54,7 @@ pnpm deploy         # build and deploy to Cloudflare (requires wrangler login)
 
 ## Deploying to Cloudflare
 
-The site runs as the `huntsyea-personal` Worker with the `huntsyea-personal` D1 database, the `huntsyea-media` R2 bucket, and a session KV namespace. Workers routes for `huntsyea.com/*` and `www.huntsyea.com/*` (in `wrangler.jsonc`) put the Worker in front of the zone's proxied DNS records; `src/worker.ts` redirects `www` to the apex.
+The site runs as the `huntsyea-personal` Worker with the `huntsyea-personal` D1 database, the `huntsyea-media` R2 bucket, and a session KV namespace. `huntsyea.com` and `www.huntsyea.com` are Workers Custom Domains (in `wrangler.jsonc`), so Cloudflare manages their DNS records and certificates; `src/worker.ts` redirects `www` to the apex.
 
 ```bash
 pnpm exec wrangler login   # once per machine
@@ -71,6 +71,6 @@ Anonymous HTML is cached at the edge (Workers Cache, 60 seconds fresh plus 5 min
 
 The site's content MCP server is `https://huntsyea.com/_emdash/api/mcp`, registered in `.mcp.json` as `huntsyea-cms`. Claude Code, Codex, ChatGPT, and other MCP clients sign in through EmDash's OAuth screen and choose scopes before any token is issued. `emdash-docs` in the same file is the read-only documentation server.
 
-To roll back to another host, remove the two routes (from `wrangler.jsonc` and redeploy, or in the Cloudflare dashboard under the Worker's Domains & Routes); the zone's DNS records are untouched by the routes.
+To move the site to another host, detach the two custom domains (Cloudflare dashboard → the Worker → Domains & Routes) and create DNS records for the new host.
 
 The `.well-known/matrix` routes are served by the Worker, so Matrix federation keeps working after the DNS move.

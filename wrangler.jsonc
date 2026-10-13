@@ -28,11 +28,12 @@
       "bucket_name": "huntsyea-media",
     },
   ],
-  // huntsyea.com is served by Workers routes in front of the zone's existing
-  // proxied DNS records; `www` redirects to the apex in src/worker.ts.
+  // Workers Custom Domains: Cloudflare manages the DNS records and
+  // certificates for both hostnames. `www` redirects to the apex in
+  // src/worker.ts.
   "routes": [
-    { "pattern": "huntsyea.com/*", "zone_name": "huntsyea.com" },
-    { "pattern": "www.huntsyea.com/*", "zone_name": "huntsyea.com" },
+    { "pattern": "huntsyea.com", "custom_domain": true },
+    { "pattern": "www.huntsyea.com", "custom_domain": true },
   ],
   // Scheduled publishing, backups, and EmDash maintenance.
   "triggers": {
