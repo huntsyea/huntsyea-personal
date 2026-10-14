@@ -5,8 +5,9 @@
  *
  * Usage: node scripts/warm-cache.mjs [origin]   (default https://huntsyea.com)
  *
- * Reads URLs from the sitemaps, plus the RSS feed. Never fails the caller: a
- * warm-up problem must not mark a successful deploy as failed.
+ * Reads URLs from the sitemaps, plus the RSS feed, then the resized images
+ * (`/_image`) each page links to. Never fails the caller: a warm-up problem
+ * must not mark a successful deploy as failed.
  */
 
 const origin = process.argv[2] ?? "https://huntsyea.com";
@@ -28,15 +29,27 @@ async function pageUrls() {
   return [...new Set([...pages, `${origin}/rss.xml`])];
 }
 
+/** Every `/_image` URL in a page's `src` and `srcset` attributes. */
+function imageUrls(html) {
+  const found = html.matchAll(/\/_image\?[^"\s,]+/g);
+  return [...found].map((match) => origin + match[0].replaceAll("&amp;", "&"));
+}
+
 async function warm(url) {
   const started = performance.now();
   const response = await fetch(url, {
     headers: { "user-agent": "huntsyea-cache-warmer" },
   });
-  await response.arrayBuffer();
+  const isHtml = response.headers.get("content-type")?.includes("text/html");
+  const body = isHtml
+    ? await response.text()
+    : (await response.arrayBuffer(), "");
   const ms = Math.round(performance.now() - started);
   const status = response.headers.get("cf-cache-status") ?? "-";
-  return `${response.status} ${status.padEnd(8)} ${String(ms).padStart(5)} ms  ${url}`;
+  console.log(
+    `${response.status} ${status.padEnd(8)} ${String(ms).padStart(5)} ms  ${url}`,
+  );
+  return imageUrls(body);
 }
 
 try {
@@ -44,9 +57,18 @@ try {
   const urls = await pageUrls();
   console.log(`Warming ${urls.length} URLs on ${origin}`);
   // Sequential and small: this is a personal site, not a load test.
+  const images = new Set();
   for (const url of urls) {
     try {
-      console.log(await warm(url));
+      for (const image of await warm(url)) images.add(image);
+    } catch (error) {
+      console.log(`failed ${url}: ${error.message}`);
+    }
+  }
+  console.log(`Warming ${images.size} resized images`);
+  for (const url of images) {
+    try {
+      await warm(url);
     } catch (error) {
       console.log(`failed ${url}: ${error.message}`);
     }

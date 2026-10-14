@@ -2,10 +2,12 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  cacheImmutably,
   forbidSharedCache,
   hasPrivateCookie,
   isAnonymousPublicDocument,
   isEdgeCacheableDocument,
+  isImageTransform,
   isPublicDocumentPath,
   uncachedRedirect,
 } from "./public-document.ts";
@@ -155,4 +157,43 @@ test("www redirect is a 308 that shared caches do not store", () => {
     "https://huntsyea.com/posts?x=1",
   );
   assert.equal(response.headers.get("Cache-Control"), "private, no-store");
+});
+
+test("resized images are cached for a year; failures and other paths are not", () => {
+  const image = new Request(
+    "https://huntsyea.com/_image?href=%2Fa.png&w=800&f=webp",
+  );
+  const ok = new Response("img", {
+    headers: { "Cache-Control": "public, max-age=0, must-revalidate" },
+  });
+  assert.equal(isImageTransform(image, ok), true);
+  assert.equal(
+    isImageTransform(image, new Response("", { status: 404 })),
+    false,
+  );
+  assert.equal(
+    isImageTransform(
+      image,
+      new Response("img", { headers: { "Set-Cookie": "a=b" } }),
+    ),
+    false,
+  );
+  assert.equal(
+    isImageTransform(
+      new Request("https://huntsyea.com/_image", { method: "POST" }),
+      ok,
+    ),
+    false,
+  );
+  assert.equal(
+    isImageTransform(new Request("https://huntsyea.com/posts"), ok),
+    false,
+  );
+
+  const cached = cacheImmutably(ok);
+  assert.equal(
+    cached.headers.get("cache-control"),
+    "public, max-age=31536000, immutable",
+  );
+  assert.equal(cached.status, 200);
 });
