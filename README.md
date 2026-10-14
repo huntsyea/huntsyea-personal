@@ -69,7 +69,7 @@ Content changes need no deploy; only code changes do. The production encryption 
 
 `pnpm deploy` sets `EMDASH_SITE_URL=https://huntsyea.com` as a Worker variable, and `keep_vars` in `wrangler.jsonc` stops any other deploy from removing it. EmDash reads it at runtime for passkeys, CSRF checks, and media URLs; local development leaves it unset so `localhost` works. Passkeys are bound to that origin. Image optimization for the production media route is authorized in `astro.config.mjs`, so it does not depend on build-time environment.
 
-Anonymous HTML is cached at the edge (Workers Cache, 60 seconds fresh plus 5 minutes stale-while-revalidate) and purged by tag when content is published; admin, preview, edit, and signed-in responses are never stored. See [ADR 0004](docs/adr/0004-anonymous-html-edge-cache.md). The Worker runs next to the D1 primary through Targeted Placement (`aws:us-east-1`).
+Anonymous HTML is cached at the edge (Workers Cache, one day fresh plus seven days stale-while-revalidate) and purged by tag when content, settings, menus, or taxonomies change; admin, preview, edit, and signed-in responses are never stored. See [ADR 0004](docs/adr/0004-anonymous-html-edge-cache.md). The Worker runs next to the D1 primary through Targeted Placement (`aws:us-east-1`).
 
 ## AI tools
 

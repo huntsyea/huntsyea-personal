@@ -8,11 +8,13 @@ import { defineConfig, fontProviders } from "astro/config";
 import emdash from "emdash/astro";
 
 /**
- * Anonymous HTML freshness at the edge. Publishing purges the EmDash cache
- * tags on the page before this window ends; `swr` covers a missed purge.
+ * Anonymous HTML freshness at the edge. Publishing content and saving
+ * settings, menus, or taxonomies purge the EmDash cache tags on the page, so
+ * the window can be long; `swr` serves the stored copy while it refreshes.
  * Paths match `isPublicDocumentPath` in `src/lib/public-document.ts`.
  */
-const publicDocument = { maxAge: 60, swr: 300 };
+const DAY = 24 * 60 * 60;
+const publicDocument = { maxAge: DAY, swr: 7 * DAY };
 
 const INTER_FILES = { 400: "regular", 500: "medium", 600: "semi-bold" };
 const LATIN =
