@@ -56,6 +56,10 @@ pnpm deploy         # build and deploy to Cloudflare (requires wrangler login)
 
 The site runs as the `huntsyea-personal` Worker with the `huntsyea-personal` D1 database, the `huntsyea-media` R2 bucket, and a session KV namespace. `huntsyea.com` and `www.huntsyea.com` are Workers Custom Domains (in `wrangler.jsonc`), so Cloudflare manages their DNS records and certificates; `src/worker.ts` redirects `www` to the apex.
 
+Every push to `main` deploys automatically through Cloudflare Workers Builds, which is connected to this repository (Cloudflare dashboard → the Worker → Settings → Build). The build runs `pnpm run build` on Node 24, then `pnpm exec wrangler deploy --var EMDASH_SITE_URL:https://huntsyea.com`. Pull requests are checked by the `verify` workflow before merge; other branches do not deploy.
+
+To deploy by hand instead:
+
 ```bash
 pnpm exec wrangler login   # once per machine
 pnpm deploy                # build with EMDASH_SITE_URL=https://huntsyea.com and deploy
