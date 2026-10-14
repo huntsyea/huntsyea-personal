@@ -168,5 +168,18 @@ const page = createPublicPageContext({
       )
     }
     <EmDashBodyEnd page={page} />
+    {
+      /* Cloudflare Web Analytics (cookieless). The zone's automatic install
+         does not reach Worker-rendered pages, so the beacon is added here.
+         The token is public. */
+      import.meta.env.PROD && !preview && (
+        <script
+          is:inline
+          defer
+          src="https://static.cloudflareinsights.com/beacon.min.js"
+          data-cf-beacon='{"token": "3bd976cb34ca42cd8490ed6f5fde8996"}'
+        />
+      )
+    }
   </body>
 </html>
