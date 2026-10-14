@@ -71,6 +71,14 @@ Content changes need no deploy; only code changes do. The production encryption 
 
 Anonymous HTML is cached at the edge (Workers Cache, one day fresh plus seven days stale-while-revalidate) and purged by tag when content, settings, menus, or taxonomies change; admin, preview, edit, and signed-in responses are never stored. See [ADR 0004](docs/adr/0004-anonymous-html-edge-cache.md). Each deploy starts with an empty cache, so the deploy step then runs `scripts/warm-cache.mjs`, which requests every sitemap URL and the RSS feed once; `pnpm warm` runs it by hand. The Worker runs next to the D1 primary through Targeted Placement (`gcp:us-east1`, Atlanta), chosen by measuring D1 round trips from several regions.
 
+## Backups and updates
+
+- **Database:** D1 Time Travel can restore the database to any minute in the last 7 days (Free plan). Before a risky change, record the current bookmark with `pnpm exec wrangler d1 time-travel info huntsyea-personal`; restore with `pnpm exec wrangler d1 time-travel restore huntsyea-personal --bookmark=<bookmark>`. A restore overwrites the database in place and prints the bookmark to undo it. Time Travel does not cover R2 media or the encryption key.
+- **JSON backups:** turn on daily backups in the admin (Settings → Backups). They are written to the private R2 bucket under `backups/` and are for inspection only; EmDash cannot restore from them.
+- **Encryption key:** `EMDASH_ENCRYPTION_KEY` is not in any backup. Its copy lives in the macOS Keychain; without it, encrypted plugin settings cannot be recovered.
+- **Updating EmDash:** run `npx upgrade-emdash@latest --dry-run`, then apply it and follow `.emdash/UPGRADE.md`. Update `emdash` and `@emdash-cms/cloudflare` together. If the release adds core migrations, record a Time Travel bookmark before merging, because migrations apply on the first request after the deploy and rolling back the code does not undo them.
+- **Checks:** `pnpm exec emdash doctor` confirms the scheduled-publishing wiring. Its `database` check always fails on D1 projects, because it looks for a local SQLite file.
+
 ## AI tools
 
 The site's content MCP server is `https://huntsyea.com/_emdash/api/mcp`, registered in `.mcp.json` as `huntsyea-cms`. Claude Code, Codex, ChatGPT, and other MCP clients sign in through EmDash's OAuth screen and choose scopes before any token is issued. `emdash-docs` in the same file is the read-only documentation server.
