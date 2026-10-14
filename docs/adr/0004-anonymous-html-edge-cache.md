@@ -21,5 +21,6 @@ Workers Cache keys by path and query string, not by host or cookie. `www` redire
 
 - A cache hit for anonymous HTML does not run the Worker and does not query D1. The first request after a purge, and any signed-in or preview request, still does.
 - A publish, or a settings, menu, or taxonomy save, deletes the tagged edge entries immediately. A missed tag can leave a page stale for up to a day; a deploy clears everything.
-- Each deploy starts from an empty cache, because the Worker version is part of the cache key. `cross_version_cache` stays off.
+- Each deploy starts from an empty cache, because the Worker version is part of the cache key. `cross_version_cache` stays off: a deploy that changes hashed `/_astro` files would keep serving cached HTML that links to files the new version no longer has. Instead, the deploy step runs `scripts/warm-cache.mjs` (added 2026-10-13), which requests every sitemap URL and the RSS feed so readers do not pay for the first render.
+- EmDash's KV object cache does not help here: EmDash bypasses it for any render that may fill the route cache, so a purged page is never rebuilt from an eventually consistent snapshot.
 - Robots, sitemap, social cards, and Matrix discovery already send `Cache-Control: public, max-age=3600`, so Workers Cache stores those too. Hashed assets keep the immutable headers they already had.

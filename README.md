@@ -56,20 +56,20 @@ pnpm deploy         # build and deploy to Cloudflare (requires wrangler login)
 
 The site runs as the `huntsyea-personal` Worker with the `huntsyea-personal` D1 database, the `huntsyea-media` R2 bucket, and a session KV namespace. `huntsyea.com` and `www.huntsyea.com` are Workers Custom Domains (in `wrangler.jsonc`), so Cloudflare manages their DNS records and certificates; `src/worker.ts` redirects `www` to the apex.
 
-Every push to `main` deploys automatically through Cloudflare Workers Builds, which is connected to this repository (Cloudflare dashboard → the Worker → Settings → Build). The build runs `pnpm run build` on Node 24, then `pnpm exec wrangler deploy --var EMDASH_SITE_URL:https://huntsyea.com`. Pull requests are checked by the `verify` workflow before merge; other branches do not deploy.
+Every push to `main` deploys automatically through Cloudflare Workers Builds, which is connected to this repository (Cloudflare dashboard → the Worker → Settings → Build). The build runs `pnpm run build` on Node 24, then `pnpm exec wrangler deploy && node scripts/warm-cache.mjs`. Pull requests are checked by the `verify` workflow before merge; other branches do not deploy.
 
 To deploy by hand instead:
 
 ```bash
 pnpm exec wrangler login   # once per machine
-pnpm deploy                # build with EMDASH_SITE_URL=https://huntsyea.com and deploy
+pnpm deploy                # build, deploy, and warm the edge cache
 ```
 
 Content changes need no deploy; only code changes do. The production encryption key is a Worker secret (`EMDASH_ENCRYPTION_KEY`); keep its backup somewhere safe, because EmDash cannot read encrypted plugin settings without it.
 
-`pnpm deploy` sets `EMDASH_SITE_URL=https://huntsyea.com` as a Worker variable, and `keep_vars` in `wrangler.jsonc` stops any other deploy from removing it. EmDash reads it at runtime for passkeys, CSRF checks, and media URLs; local development leaves it unset so `localhost` works. Passkeys are bound to that origin. Image optimization for the production media route is authorized in `astro.config.mjs`, so it does not depend on build-time environment.
+`EMDASH_SITE_URL=https://huntsyea.com` is a Worker variable in `wrangler.jsonc` (`vars`). EmDash reads it at runtime for passkeys, CSRF checks, and media URLs. Local development blanks it with `EMDASH_SITE_URL=` in `.env`, so EmDash uses the request origin and `localhost` works; without that line, local passkeys fail. Passkeys are bound to that origin. Image optimization for the production media route is authorized in `astro.config.mjs`, so it does not depend on build-time environment.
 
-Anonymous HTML is cached at the edge (Workers Cache, one day fresh plus seven days stale-while-revalidate) and purged by tag when content, settings, menus, or taxonomies change; admin, preview, edit, and signed-in responses are never stored. See [ADR 0004](docs/adr/0004-anonymous-html-edge-cache.md). The Worker runs next to the D1 primary through Targeted Placement (`aws:us-east-1`).
+Anonymous HTML is cached at the edge (Workers Cache, one day fresh plus seven days stale-while-revalidate) and purged by tag when content, settings, menus, or taxonomies change; admin, preview, edit, and signed-in responses are never stored. See [ADR 0004](docs/adr/0004-anonymous-html-edge-cache.md). Each deploy starts with an empty cache, so the deploy step then runs `scripts/warm-cache.mjs`, which requests every sitemap URL and the RSS feed once; `pnpm warm` runs it by hand. The Worker runs next to the D1 primary through Targeted Placement (`gcp:us-east1`, Atlanta), chosen by measuring D1 round trips from several regions.
 
 ## AI tools
 

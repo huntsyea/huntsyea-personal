@@ -4,19 +4,23 @@
   "main": "./src/worker.ts",
   "compatibility_date": "2026-09-26",
   "compatibility_flags": ["nodejs_compat"],
-  // EMDASH_SITE_URL (https://huntsyea.com) is a Worker variable set by
-  // `pnpm deploy`. keep_vars stops any other deploy from removing it: EmDash
-  // needs it for passkeys, CSRF checks, and image optimization.
-  "keep_vars": true,
+  // The canonical origin, read at runtime for passkeys, CSRF checks, and media
+  // URLs. Local development blanks it in `.env` so EmDash uses the request
+  // origin (localhost) instead.
+  "vars": {
+    "EMDASH_SITE_URL": "https://huntsyea.com",
+  },
   // Workers Logs and traces, with source-mapped stack traces.
   "observability": {
     "enabled": true,
     "traces": { "enabled": true },
   },
   "upload_source_maps": true,
-  // Run next to the D1 primary (created in ENAM); public pages make several
-  // D1 round trips per render.
-  "placement": { "mode": "targeted", "region": "aws:us-east-1" },
+  // Run next to the D1 primary; public pages make about 15 D1 round trips per
+  // render. Measured 2026-10-13 (average per query): gcp:us-east1 (ATL) 24–26
+  // ms, aws:us-east-1 (IAD) 37 ms, aws:us-east-2 39 ms, smart 39 ms,
+  // azure:southcentralus 49 ms, gcp:us-central1 68 ms.
+  "placement": { "mode": "targeted", "region": "gcp:us-east1" },
   // Edge cache for anonymous HTML. Admin, preview, and signed-in responses
   // are stripped in src/worker.ts. See docs/adr/0004-anonymous-html-edge-cache.md.
   "cache": {
