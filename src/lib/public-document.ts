@@ -97,3 +97,37 @@ export function uncachedRedirect(location: string): Response {
     headers: { Location: location, "Cache-Control": "private, no-store" },
   });
 }
+
+/** One year: the longest `max-age` caches are expected to honor. */
+const IMMUTABLE = "public, max-age=31536000, immutable";
+
+/**
+ * A successful response from Astro's image endpoint. Its URL names a media
+ * file by its unique storage key plus fixed resize options, so the bytes for a
+ * URL never change. Astro sends `max-age=0`, which made every view resize the
+ * original again.
+ */
+export function isImageTransform(
+  request: Request,
+  response: Response,
+): boolean {
+  if (request.method !== "GET" && request.method !== "HEAD") return false;
+  return (
+    new URL(request.url).pathname === "/_image" &&
+    response.status === 200 &&
+    !response.headers.has("set-cookie")
+  );
+}
+
+/** Let browsers and Workers Cache keep the response for a year. */
+export function cacheImmutably(response: Response): Response {
+  const headers = new Headers(response.headers);
+  headers.set("Cache-Control", IMMUTABLE);
+  headers.delete("Cloudflare-CDN-Cache-Control");
+  headers.delete("CDN-Cache-Control");
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}

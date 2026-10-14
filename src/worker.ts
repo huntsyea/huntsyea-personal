@@ -1,6 +1,8 @@
 import {
+  cacheImmutably,
   forbidSharedCache,
   isEdgeCacheableDocument,
+  isImageTransform,
   uncachedRedirect,
 } from "@/lib/public-document";
 
@@ -44,6 +46,8 @@ export default {
     }
     return Promise.resolve(handler.fetch!(request, env, ctx)).then(
       (response) => {
+        if (isImageTransform(request, response))
+          return cacheImmutably(response);
         const prepared = isEdgeCacheableDocument(request, response)
           ? response
           : forbidSharedCache(response, url.pathname);
