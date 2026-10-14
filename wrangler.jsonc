@@ -2,12 +2,18 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "huntsyea-personal",
   "main": "./src/worker.ts",
-  "compatibility_date": "2026-02-24",
+  "compatibility_date": "2026-09-26",
   "compatibility_flags": ["nodejs_compat"],
   // EMDASH_SITE_URL (https://huntsyea.com) is a Worker variable set by
   // `pnpm deploy`. keep_vars stops any other deploy from removing it: EmDash
   // needs it for passkeys, CSRF checks, and image optimization.
   "keep_vars": true,
+  // Workers Logs and traces, with source-mapped stack traces.
+  "observability": {
+    "enabled": true,
+    "traces": { "enabled": true },
+  },
+  "upload_source_maps": true,
   // Run next to the D1 primary (created in ENAM); public pages make several
   // D1 round trips per render.
   "placement": { "mode": "targeted", "region": "aws:us-east-1" },
