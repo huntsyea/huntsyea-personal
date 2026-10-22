@@ -138,6 +138,22 @@ test("forbidSharedCache strips CDN directives that outrank Cache-Control", () =>
   assert.equal(kept.headers.get("cache-control"), "public, max-age=3600");
   assert.equal(kept.headers.get("cloudflare-cdn-cache-control"), null);
 
+  const sitemap = new Response("<urlset></urlset>", {
+    status: 200,
+    headers: {
+      "Cache-Control": "public, max-age=3600",
+      "Cloudflare-CDN-Cache-Control": "public, max-age=86400",
+      "Cache-Tag": "sitemap",
+    },
+  });
+  const sitemapKept = forbidSharedCache(sitemap, "/sitemap-0.xml");
+  assert.equal(
+    sitemapKept.headers.get("cache-control"),
+    "public, max-age=3600",
+  );
+  assert.equal(sitemapKept.headers.get("cloudflare-cdn-cache-control"), null);
+  assert.equal(sitemapKept.headers.get("cache-tag"), null);
+
   const admin = new Response("", {
     status: 302,
     headers: {

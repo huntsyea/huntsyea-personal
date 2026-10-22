@@ -55,7 +55,7 @@ The components under `src/components/portable-text/` that render content in the 
 
 ### Metadata surface
 
-A search, social, or browser-discovery representation of the Site or a Post: the document title (the entry's SEO title when set, joined to the site name with the Settings > SEO separator), canonical metadata, Open Graph tags, and JSON-LD (via `EmDashHead`), the generated social cards under `/og/`, the favicon, the RSS feed at `/rss.xml`, and EmDash's built-in `robots.txt` and sitemaps. The site overrides only `/sitemap-pages.xml`, because Page intros are not pages of their own.
+A search, social, or browser-discovery representation of the Site or a Post: the document title (the entry's SEO title when set, joined to the site name with the Settings > SEO separator), canonical metadata, Open Graph tags, and JSON-LD (via `EmDashHead`), the generated social cards under `/og/`, the favicon, the RSS feed at `/rss.xml`, and EmDash's built-in `robots.txt` and sitemaps. The site overrides `/sitemap-pages.xml`, because Page intros are not pages of their own, and serves the legacy `/sitemap-index.xml` and `/sitemap-0.xml` URLs from that same public inventory.
 
 ### Design system
 

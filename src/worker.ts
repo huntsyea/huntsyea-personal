@@ -5,6 +5,10 @@ import {
   isImageTransform,
   uncachedRedirect,
 } from "@/lib/public-document";
+import {
+  isUnmappedNumericSitemap,
+  unmappedSitemapResponse,
+} from "@/lib/sitemap";
 
 import handler, {
   createScheduledHandler,
@@ -43,6 +47,13 @@ export default {
     if (url.hostname === `www.${CANONICAL_HOST}`) {
       url.hostname = CANONICAL_HOST;
       return uncachedRedirect(url.toString());
+    }
+    // Numbered chunks other than the legacy urlset have no collection. Answer
+    // before EmDash's dynamic route, which 500s when the slug is numeric.
+    if (isUnmappedNumericSitemap(url.pathname)) {
+      return varyOnHost(
+        forbidSharedCache(unmappedSitemapResponse(), url.pathname),
+      );
     }
     return Promise.resolve(handler.fetch!(request, env, ctx)).then(
       (response) => {
