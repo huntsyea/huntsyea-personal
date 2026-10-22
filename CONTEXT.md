@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This repository builds Hunter Yea's personal website: an Astro site that renders content from EmDash CMS on Cloudflare Workers. Everything a reader sees — posts, projects, favorites, page intros, the site title and tagline, navigation, and contact links — is edited in EmDash. The repository owns the design system, routes, and rendering.
+This repository builds huntsyea's personal website: an Astro site that renders content from EmDash CMS on Cloudflare Workers. Everything a reader sees — posts, projects, favorites, page intros, the site title and tagline, navigation, and contact links — is edited in EmDash. The repository owns the design system, routes, and rendering.
 
 ## Domain glossary
 
