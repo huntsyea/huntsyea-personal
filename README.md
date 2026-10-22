@@ -1,6 +1,6 @@
 # huntsyea.com
 
-Hunter Yea's personal website: an [Astro](https://astro.build) site with [EmDash](https://emdashcms.com) CMS, deployed to Cloudflare Workers with D1 (database) and R2 (media). All content — posts, projects, favorites, page intros, the site title and tagline, navigation, and contact links — is edited in the EmDash admin, and a published edit is live without a deploy.
+huntsyea's personal website: an [Astro](https://astro.build) site with [EmDash](https://emdashcms.com) CMS, deployed to Cloudflare Workers with D1 (database) and R2 (media). All content — posts, projects, favorites, page intros, the site title and tagline, navigation, and contact links — is edited in the EmDash admin, and a published edit is live without a deploy.
 
 ## Requirements
 

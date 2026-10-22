@@ -1,8 +1,7 @@
 import type { APIRoute } from "astro";
 
-import { INTRO_PATHS } from "@/lib/content";
-
-import { getEmDashCollection, getSiteSettings } from "emdash";
+import { loadPublicSitemap } from "@/lib/public-sitemap";
+import { renderUrlSet, xmlResponse } from "@/lib/sitemap";
 
 /**
  * EmDash serves /sitemap.xml and one /sitemap-{collection}.xml per collection.
@@ -10,27 +9,6 @@ import { getEmDashCollection, getSiteSettings } from "emdash";
  * introduce), so this replaces only their sitemap with the pages they power.
  */
 export const GET: APIRoute = async ({ site, url }) => {
-  const settings = await getSiteSettings();
-  const origin = settings.url || site?.origin || url.origin;
-  const { entries } = await getEmDashCollection("pages");
-  const updated = new Map(entries.map((e) => [e.id, e.data.updatedAt]));
-
-  const urls = Object.entries(INTRO_PATHS)
-    .map(([slug, path]) => {
-      const lastmod = updated.get(slug);
-      return `  <url><loc>${new URL(path, origin)}</loc>${
-        lastmod ? `<lastmod>${lastmod.toISOString()}</lastmod>` : ""
-      }</url>`;
-    })
-    .join("\n");
-
-  return new Response(
-    `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`,
-    {
-      headers: {
-        "Content-Type": "application/xml; charset=utf-8",
-        "Cache-Control": "public, max-age=3600",
-      },
-    },
-  );
+  const { indexUrls } = await loadPublicSitemap(site?.origin || url.origin);
+  return xmlResponse(renderUrlSet(indexUrls));
 };

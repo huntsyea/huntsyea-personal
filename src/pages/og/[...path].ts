@@ -119,7 +119,7 @@ async function describe(
     return {
       title: "Favorites",
       description:
-        "External articles and resources Hunter keeps coming back to.",
+        "External articles and resources huntsyea keeps coming back to.",
     };
   }
 
